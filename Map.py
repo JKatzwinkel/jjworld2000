@@ -3,13 +3,17 @@ import random, numpy
 
 class Node:
 
-	def __init__(self, location, lid):
+	def __init__(self, location, lid, mp):
+		self.map=mp
 		self.neighbours=[]
-		self.vegetation=random.random()*random.random()*random.random()*5
+		self.vegetation=random.random()*random.random()*random.random()*4
 		self.lid=lid
 		self.location=location
 		self.variant=random.randint(0,100)
-		
+	
+	def setDirty(self):
+		if not(self.lid in self.map.dirty):
+			self.map.dirty.append(self.lid)
 
 
 class Map:
@@ -19,13 +23,14 @@ class Map:
 	def __init__(self, width, height):
 		self.width=width
 		self.height=height
+		self.dirty=[]
 
 		
 		self.nodes = []
 		
 		for y in range(0,height):
 			for x in range(0,width):
-				self.nodes.append(Node((x,y), y*width+x))
+				self.nodes.append(Node((x,y), y*width+x, self))
 		
 		# connect nodes to their neighbours
 		for n in self.nodes:
@@ -44,6 +49,10 @@ class Map:
 			
 			for n in self.nodes:
 				n.vegetation=vegetation[n.lid]
+				
+		# set every node dirty
+		for n in self.nodes:
+			n.setDirty()
 			
 				
 			
@@ -80,5 +89,6 @@ class Map:
 			for nn in adj:
 				vsum+=nn.vegetation
 			n.vegetation+=0.1+random.random()*vsum/len(adj)/10
+			n.setDirty()
 		
 
