@@ -1,15 +1,16 @@
 import pygame
-import Sprites
 from decimal import *
 import copy
+
+import Images
 
 class GfxHandler:
 
 	def __init__(self, mp, screen):
 		self.screen = screen;
-		self.sprites = Sprites.Sprites(self.screen)				
+		self.images = Images.Images(self.screen)				
 		self.map = mp
-		self.map.gfxHandler=self
+		self.map.gfx=self
 		self.topleft=(0,0)
 		self.screensize=self.screen.get_size()
 
@@ -21,18 +22,20 @@ class GfxHandler:
 		
 		
 		self.drawMap(self.background)
-		self.screen.blit(self.background, (0,0)+self.screensize)
+	#	self.screen.blit(self.background, (0,0)+self.screensize)
 		
 		
+	# initializes background
 	def drawMap(self, surface):
 	
 		w,h=self.screensize		
 
 		for n in self.map.nodes:
-			x,y=n.location
-			sprite=self.sprites.getSprite(n)
-			if sprite:
-				surface.blit(sprite, (x*20,y*20))
+			self.map.draw(n)
+#			x,y=n.location
+#			sprite=self.images.getImage(n)
+#			if sprite:
+#				surface.blit(sprite, (x*20,y*20))
 						
 		
 								

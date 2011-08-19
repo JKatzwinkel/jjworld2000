@@ -7,6 +7,7 @@ class Node:
 		self.map=mp
 		self.neighbours=[]
 		self.vegetation=random.random()*random.random()*random.random()*6
+		self.water=0
 		self.lid=lid
 		self.location=location
 		self.variant=random.randint(0,100)
@@ -18,12 +19,16 @@ class Map:
 	
 
 	def __init__(self, width, height):
-		self.gfxHandler = None
+		self.gfx = None
 		self.width=width
 		self.height=height
 
 		
 		self.nodes = []
+		
+		self.waternodes = []
+		self.wavecounter=0
+		
 		
 		for y in range(0,height):
 			for x in range(0,width):
@@ -47,6 +52,26 @@ class Map:
 			for n in self.nodes:
 				n.vegetation=vegetation[n.lid]
 		
+		# create ponds
+		for i in range(0,10+random.randint(0,10)):
+			towater=[]
+			n=self.nodes[random.randint(0,len(self.nodes))]
+			towater.append(n)
+			counter=0
+			
+			while len(towater)>0 and counter<40:
+				counter+=1
+				n=towater.pop(0)
+				n.water=1
+				n.vegetation=0
+				self.waternodes.append(n)
+				for nn in n.neighbours:
+					if random.random()<.5:
+						if not(nn in towater or nn.water>0):
+							towater.append(nn)
+							
+							
+		
 				
 			
 	def getNode(self, location):
@@ -56,6 +81,7 @@ class Map:
 		if y<0: return None
 		if y>=self.height: return None
 		return self.nodes[y*self.width+x]
+		
 		
 	def getNodeByID(self, lid):
 		if lid<0: return None
@@ -76,17 +102,40 @@ class Map:
 		return result
 		
 		
+	# let some grass grow
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
-			vsum=0
-			adj=n.neighbours
-			for nn in adj:
-				vsum+=nn.vegetation
-			n.vegetation+=0.1+random.random()*vsum/len(adj)/10
-			#n.setDirty()
-			sprite=self.gfxHandler.sprites.getSprite(n)
-			x,y=n.location
-			self.gfxHandler.background.blit(sprite,(x*20,y*20))
-			self.gfxHandler.setDirty((x*20,y*20))	
+			if not(n.water>0):
+				vsum=0
+				adj=n.neighbours
+				for nn in adj:
+					vsum+=nn.vegetation
+				n.vegetation+=0.1+random.random()*vsum/len(adj)/10
+				self.draw(n)
+				
+	# let water change image (wave effect!!!)
+	def water_float(self, times):
+#		if self.wavecounter%5==0:
+#			for n in self.waternodes:
+#				if (n.location[0]+n.location[1])%dist==(self.wavecounter/5)%dist:
+#					n.variant=random.randint(0,100)
+#					self.draw(n)
+		for i in range(0,times):
+			n=self.waternodes[random.randrange(0,len(self.waternodes))]
+			x,y=self.gfx.locationOnScreen(n)
+			if not(y<0 or y>self.gfx.screensize[1]):
+				if not(x<0 or x>self.gfx.screensize[0]):
+					if (n.location[0]+n.location[1])%30==(self.wavecounter/5)%30:
+						n.variant=random.randint(0,100)
+						self.draw(n)
+		self.wavecounter+=1	
+	
+	
+	# draws square on gfx background and declares it to be updated on screen
+	def draw(self, node):
+		sprite=self.gfx.images.getImage(node)
+		x,y=node.location
+		self.gfx.background.blit(sprite,(x*20,y*20))
+		self.gfx.setDirty((x*20,y*20))	
 
