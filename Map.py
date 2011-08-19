@@ -6,7 +6,7 @@ class Node:
 	def __init__(self, location, lid, mp):
 		self.map=mp
 		self.neighbours=[]
-		self.vegetation=random.random()*random.random()*random.random()*4
+		self.vegetation=random.random()*random.random()*random.random()*6
 		self.lid=lid
 		self.location=location
 		self.variant=random.randint(0,100)
@@ -91,10 +91,7 @@ class Map:
 	def getAdjacentNodes(self, node):
 		result=[]
 		x,y=node.location
-		#for ny in range(y-1,y+2):
-		#	for nx in range(x-1,x+2):
-		#		if ny>=0 and  ny<self.height:
-		#			if nx>=0 and nx<self.width:
+
 		for nx in range(x-1,x+2,2):
 			n = self.getNode((nx,y))
 			if n: result.append(n)

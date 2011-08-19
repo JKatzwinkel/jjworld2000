@@ -51,15 +51,15 @@ class Jajaworld:
 				if event.type == QUIT:
 					return
 #				elif event.type == KEYPRESSED:
-				pressed=pygame.key.get_pressed()
-				if pressed[K_RIGHT]:
-					mx+=4
-				if pressed[K_DOWN]:
-					my+=4
-				if pressed[K_LEFT]:
-					mx-=4
-				if pressed[K_UP]:
-					my-=4
+			pressed=pygame.key.get_pressed()
+			if pressed[K_RIGHT]:
+				mx+=5
+			if pressed[K_DOWN]:
+				my+=5
+			if pressed[K_LEFT]:
+				mx-=5
+			if pressed[K_UP]:
+				my-=5
 						
 				
 						
@@ -70,11 +70,18 @@ class Jajaworld:
 			#	if mx!=0:mx-=mx/abs(mx)
 			#	if my!=0:my-=my/abs(my)
 				
+			x,y=self.topleft
+			if not(x+mx<0 or x+mx>self.map.width*20-self.screen.get_size()[0]): x+=mx
+			if not(y+my<0 or y+my>self.map.height*20-self.screen.get_size()[1]): y+=my
+			self.topleft=(x,y)
+			mx=0
+			my=0
+			
 			gfx.update(self.topleft)
 			
-			self.screen.blit(jaja.image, (jx,jy))
-			jy+=1
-			jx=int(math.cos(jy/10.0)*30)
+#			self.screen.blit(jaja.image, (jx,jy))
+#			jy+=1
+#			jx=int(math.cos(jy/10.0)*30)
 			
 			pygame.display.flip()
 			

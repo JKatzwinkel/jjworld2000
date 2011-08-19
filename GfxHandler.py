@@ -111,6 +111,25 @@ class GfxHandler:
 #		self.map.draw(self.screen, True)
 		#self.screen.scroll(-1,0)
 		
+		sx,sy=self.topleft
+		w,h=self.screensize
+		
+		mx=pointOfView[0]-sx
+		my=pointOfView[1]-sy
+		
+		self.screen.scroll(-mx,-my)
+		
+		if mx>0:
+			self.dirty.append(pygame.Rect((sx+w,sy),(mx,h)))
+		if mx<0:
+			self.dirty.append(pygame.Rect((sx+mx,sy),(mx,h)))
+		if my>0:
+			self.dirty.append(pygame.Rect((sx,sy+h),(w,my)))
+		if my<0:
+			self.dirty.append(pygame.Rect((sx,sy+my),(w,my)))
+		
+		self.topleft = pointOfView
+		
 		screenrect = pygame.Rect(self.topleft,self.screensize)
 		
 		for r in self.dirty:
