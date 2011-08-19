@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
-from time import time
+from pygame.time import Clock
+import math
 
 import Map
 import Sprites
@@ -15,9 +16,15 @@ class Jajaworld:
 
 		self.map=Map.Map(w,h)
 		
+		self.topleft=(0,0)
+		
 
 	def mainLoop(self):
 	
+		jaja=pygame.sprite.Sprite()
+		jaja.image = pygame.image.load("data/jaja.png").convert()
+		jy=-30
+		jx=0
 
 #		background=pygame.Surface(self.screen.get_size())
 #		background.fill((255,255,255))
@@ -25,41 +32,53 @@ class Jajaworld:
 		
 		gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
+		clock = pygame.time.Clock()
+		
 #		for n in self.map.nodes:
 #			x,y=n.location
 
 		
-		background = gfx.drawMap()
+#		gfx.drawMap(background)
 		
-		self.screen.blit(background, (0,0))
-		pygame.display.flip()
+#		self.screen.blit(background, (0,0))
+#		pygame.display.flip()
+
+		mx=0
+		my=0
 		
 		while 1:
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
-				elif event.type == KEYDOWN:
-					pressed=pygame.key.get_pressed()
-					if pressed[K_RIGHT]:
-						gfx.moveRange((1,0))
-						gfx.update()
-						pygame.display.flip()
-					if pressed[K_DOWN]:
-						gfx.moveRange((0,1))
-						gfx.update()
-						pygame.display.flip()
-					if pressed[K_LEFT]:
-						gfx.moveRange((-1,0))
-						gfx.update()
-						pygame.display.flip()
-					if pressed[K_UP]:
-						gfx.moveRange((0,-1))
-						gfx.update()
-						pygame.display.flip()
+#				elif event.type == KEYPRESSED:
+				pressed=pygame.key.get_pressed()
+				if pressed[K_RIGHT]:
+					mx+=4
+				if pressed[K_DOWN]:
+					my+=4
+				if pressed[K_LEFT]:
+					mx-=4
+				if pressed[K_UP]:
+					my-=4
 						
-			self.map.grow(20)
-			gfx.update()
-			#pygame.display.flip()
+				
+						
+			self.map.grow(10)
+			
+			#if (mx != 0 or my != 0):
+			#	gfx.moveRange((mx,my))
+			#	if mx!=0:mx-=mx/abs(mx)
+			#	if my!=0:my-=my/abs(my)
+				
+			gfx.update(self.topleft)
+			
+			self.screen.blit(jaja.image, (jx,jy))
+			jy+=1
+			jx=int(math.cos(jy/10.0)*30)
+			
+			pygame.display.flip()
+			
+			clock.tick(20)
 
 
 def main():

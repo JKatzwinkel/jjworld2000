@@ -30,7 +30,10 @@ class Sprites:
 			
 			
 	def getSprite(self, node):
-		if node.vegetation < 1: return None
+		if node.vegetation < 1: 
+			image=pygame.Surface((20,20))
+			image.fill((255,255,255))
+			return image
 		
 		level = min(int(node.vegetation-1),3)
 		variant = node.variant % len(self.grass[level])
