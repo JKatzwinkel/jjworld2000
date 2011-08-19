@@ -26,22 +26,13 @@ class Jajaworld:
 		jy=-30
 		jx=0
 
-#		background=pygame.Surface(self.screen.get_size())
-#		background.fill((255,255,255))
 		
 		
 		gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
 		clock = pygame.time.Clock()
 		
-#		for n in self.map.nodes:
-#			x,y=n.location
 
-		
-#		gfx.drawMap(background)
-		
-#		self.screen.blit(background, (0,0))
-#		pygame.display.flip()
 
 		mx=0
 		my=0
@@ -64,11 +55,7 @@ class Jajaworld:
 				
 						
 			self.map.grow(10)
-			
-			#if (mx != 0 or my != 0):
-			#	gfx.moveRange((mx,my))
-			#	if mx!=0:mx-=mx/abs(mx)
-			#	if my!=0:my-=my/abs(my)
+
 				
 			x,y=self.topleft
 			if not(x+mx<0 or x+mx>self.map.width*20-self.screen.get_size()[0]): x+=mx
