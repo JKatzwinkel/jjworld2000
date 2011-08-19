@@ -48,8 +48,8 @@ class GfxHandler:
 		return (x,y)
 		
 		
-	def setDirty(self, location):
-		self.dirty.append(pygame.Rect(location,(20,20)))				
+	def setDirty(self, location, dim=(20,20)):
+		self.dirty.append(pygame.Rect(location[0],location[1], dim[0],dim[1]))				
 		
 		
 	def update(self, pointOfView):

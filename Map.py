@@ -1,4 +1,6 @@
-import random, numpy
+import random
+import numpy
+import math
 
 
 class Node:
@@ -53,7 +55,7 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
-		for i in range(0,10+random.randint(0,10)):
+		for i in range(0,random.randint(8,18)):
 			towater=[]
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			towater.append(n)
@@ -64,11 +66,44 @@ class Map:
 				n=towater.pop(0)
 				n.water=1
 				n.vegetation=0
-				self.waternodes.append(n)
+				if not(n in self.waternodes):
+					self.waternodes.append(n)
 				for nn in n.neighbours:
 					if random.random()<.5:
 						if not(nn in towater or nn.water>0):
 							towater.append(nn)
+			
+		# creeks
+		for i in range(0,random.randint(1,4)):
+			creeknodes=[]
+		
+			if random.random()<.5:
+				x=random.randint(0,(self.width-1))
+				y=random.randint(0,1)*(self.height-1)
+			else:
+				x=random.randint(0,1)*(self.width-1)
+				y=random.randint(0,(self.height-1))
+			print x,y
+			deg=math.atan2((self.height/2-y),(self.width/2-x))
+			deg0=deg
+		
+			while not(x<0 or x>self.width or y<0 or y>self.height):
+				node=self.getNode((int(round(x)),int(round(y))))
+				if node in self.waternodes: 
+					break
+				if node:
+					node.water=1
+					if not(node in creeknodes):
+						creeknodes.append(node)
+				x+=math.cos(deg)*.1
+				y+=math.sin(deg)*.1
+				deg+=random.random()*.2-.1
+				if deg>deg0+math.pi/2: deg=deg0+math.pi/2
+				if deg<deg0-math.pi/2: deg=deg0-math.pi/2
+			
+			for n in creeknodes:
+				self.waternodes.append(n)
+		
 							
 							
 		

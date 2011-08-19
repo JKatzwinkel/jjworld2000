@@ -5,6 +5,7 @@ import math
 
 import Map
 import GfxHandler
+import Jaja
 
 class Jajaworld:
 
@@ -26,6 +27,9 @@ class Jajaworld:
 		
 		clock = pygame.time.Clock()
 		
+		jaja=Jaja.Jaja((10,10),self.map)
+		for x in range(90,11,-1):
+			jaja.path.append(self.map.getNode((x,10)))
 
 
 		mx=0
@@ -59,7 +63,13 @@ class Jajaworld:
 			mx=abs(mx)/2*(int(mx>=0)*2-1)
 			my=abs(my)/2*(int(my>=0)*2-1)
 			
+
+			jaja.move()
+
 			gfx.update(self.topleft)
+			
+#			self.screen.blit(jaja.image, jaja.locationOnScreen())
+			jaja.draw(self.screen)
 			
 			
 			pygame.display.flip()
