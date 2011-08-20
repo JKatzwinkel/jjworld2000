@@ -19,7 +19,7 @@ class Jaja(pygame.sprite.Sprite):
 		self.map=mp
 		
 		self.location=location
-		self.currentmapnode=self.map.getNode((int(round(self.location[0]+.5)),int(round(self.location[1]+.5))))
+		self.currentmapnode=self.map.getNode((int(round(self.location[0])),int(round(self.location[1]))))
 		
 		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
@@ -28,18 +28,22 @@ class Jaja(pygame.sprite.Sprite):
 		
 		
 	def locationOnScreen(self):
+	
 		x,y=self.location
 		sx,sy=self.map.gfx.topleft
 		x=x*20-sx
 		y=y*20-sy+int(self.currentmapnode.water>0)*2
 		return (int(x),int(y))
 		
+	
+		
 	def draw(self, surface):
+	
 		if not(self.currentmapnode.water>0):
 			surface.blit(self.image, self.locationOnScreen())
 		else:
 			x,y=self.locationOnScreen()
-			surface.blit(self.image, (x,y), (0,0,20,13))
+			surface.blit(self.image, (x,y), (0,0,20,12))
 		
 		
 		
@@ -50,11 +54,14 @@ class Jaja(pygame.sprite.Sprite):
 				self.path=self.pathfinder.getpath()
 			else:
 				if random.random()<.01 and self.firstsearch:
-					self.pathfinder.find(self.getlocation(), (random.randrange(0,self.map.width), random.randrange(0,self.map.height)))
+					x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+					while self.map.getNode((x,y)) in self.map.waternodes:
+						x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+					self.pathfinder.find(self.getlocation(), (x, y))
 #					self.firstsearch=False
 				
 		self.move()
-		for i in range(0,10):
+		for i in range(0,5):
 			self.pathfinder.search()
 		
 		
@@ -82,7 +89,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			
 			
-			if rad>.05:
+			if rad>.1:
 				speed=.1/self.currentmapnode.cost()
 				mx/=rad
 				my/=rad

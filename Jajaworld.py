@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from pygame.time import Clock
 import math
+import random
 
 import Map
 import GfxHandler
@@ -26,7 +27,11 @@ class Jajaworld:
 		
 		clock = pygame.time.Clock()
 		
-		jaja=Jaja.Jaja((10,10),self.map)
+		jajas=[]
+		for j in range(0,20):
+			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
+		
+#		Jaja.Jaja((10,10),self.map)
 #		for x in range(90,11,-1):
 #			jaja.path.append(self.map.getNode((x,10)))
 
@@ -63,12 +68,14 @@ class Jajaworld:
 			my=abs(my)/2*(int(my>=0)*2-1)
 			
 
-			jaja.update()
+			for jaja in jajas:
+				jaja.update()
 
 			gfx.update(self.topleft)
 			
 #			self.screen.blit(jaja.image, jaja.locationOnScreen())
-			jaja.draw(self.screen)
+			for jaja in jajas:
+				jaja.draw(self.screen)
 			
 			
 			pygame.display.flip()
@@ -78,7 +85,7 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(100,100)
+	w.init(50,50)
 	w.mainLoop()
 	
 if __name__ == '__main__': main()

@@ -58,7 +58,8 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
-		for i in range(0,random.randint(88,98)):
+		pondsnr=width*height/400
+		for i in range(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			towater.append(n)
@@ -77,7 +78,7 @@ class Map:
 							towater.append(nn)
 			
 		# creeks
-		for i in range(0,random.randint(1,4)):
+		for i in range(0,random.randint(1,pondsnr/2)):
 			creeknodes=[]
 		
 			if random.random()<.5:
@@ -149,7 +150,7 @@ class Map:
 				adj=n.neighbours
 				for nn in adj:
 					vsum+=nn.vegetation
-				n.vegetation+=0.1+random.random()*vsum/len(adj)/10
+				n.vegetation+=0.05+random.random()*vsum/len(adj)/20
 				self.draw(n)
 				
 	# shrink, for instance when stepped on
