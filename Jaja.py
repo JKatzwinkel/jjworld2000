@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 
+import Pathfinder
 
 class Jaja(pygame.sprite.Sprite):
 	image=None
@@ -19,7 +20,11 @@ class Jaja(pygame.sprite.Sprite):
 		
 		self.location=location
 		self.currentmapnode=self.map.getNode((int(round(self.location[0]+.5)),int(round(self.location[1]+.5))))
+		
+		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
+		
+		self.firstsearch=True
 		
 		
 	def locationOnScreen(self):
@@ -37,13 +42,31 @@ class Jaja(pygame.sprite.Sprite):
 			surface.blit(self.image, (x,y), (0,0,20,13))
 		
 		
+		
+	def update(self):
+		
+		if len(self.path)==0:
+			if self.pathfinder.getpath():
+				self.path=self.pathfinder.getpath()
+			else:
+				if random.random()<.01 and self.firstsearch:
+					self.pathfinder.find(self.getlocation(), (random.randrange(0,self.map.width), random.randrange(0,self.map.height)))
+#					self.firstsearch=False
+				
+		self.move()
+		for i in range(0,10):
+			self.pathfinder.search()
+		
+		
+		
 	def move(self):
 		x,y=self.location
 		nx,ny=self.currentmapnode.location
 		
 		# to be opt
 		if x>nx+.5 or x<nx-.5 or y>ny+.5 or y<ny-.5:
-			self.currentmapnode=self.map.getNode((int(round(self.location[0])), int(round(self.location[1]))))
+			self.currentmapnode=self.map.getNode(self.getlocation())
+			self.map.shrink(self.currentmapnode)
 		
 		self.map.gfx.setDirty((int(x*20),int(y*20)),(20,25))
 		
@@ -57,18 +80,21 @@ class Jaja(pygame.sprite.Sprite):
 			my=dy-y
 			rad=math.hypot(mx,my)
 			
-			mx/=rad
-			my/=rad
 			
-			speed=.1/(1+self.currentmapnode.vegetation+self.currentmapnode.water*10)
 			
 			if rad>.05:
+				speed=.1/self.currentmapnode.cost()
+				mx/=rad
+				my/=rad
 				x+=mx*speed
 				y+=my*speed
 				self.location=(x,y)
 			else:
 				self.path.pop()
 			
+			
+	def getlocation(self):
+		return (int(round(self.location[0])), int(round(self.location[1])))
 #		else:
 #			x,y=self.location
 #			self.path.append(self.map.getNode((x-1+random.randint(0,1)*2, y-1+random.randint(0,1)*2)))

@@ -13,6 +13,9 @@ class Node:
 		self.lid=lid
 		self.location=location
 		self.variant=random.randint(0,100)
+		
+	def cost(self):
+		return 1+self.vegetation+self.water*20
 	
 	
 
@@ -55,7 +58,7 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
-		for i in range(0,random.randint(8,18)):
+		for i in range(0,random.randint(88,98)):
 			towater=[]
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			towater.append(n)
@@ -148,6 +151,12 @@ class Map:
 					vsum+=nn.vegetation
 				n.vegetation+=0.1+random.random()*vsum/len(adj)/10
 				self.draw(n)
+				
+	# shrink, for instance when stepped on
+	def shrink(self, node):
+		node.vegetation*=.9
+		node.variant+=1
+		self.draw(node)
 				
 	# let water change image (wave effect!!!)
 	def water_float(self, times):

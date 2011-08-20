@@ -22,14 +22,13 @@ class Jajaworld:
 	def mainLoop(self):
 
 		
-		
 		gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
 		clock = pygame.time.Clock()
 		
 		jaja=Jaja.Jaja((10,10),self.map)
-		for x in range(90,11,-1):
-			jaja.path.append(self.map.getNode((x,10)))
+#		for x in range(90,11,-1):
+#			jaja.path.append(self.map.getNode((x,10)))
 
 
 		mx=0
@@ -52,7 +51,7 @@ class Jajaworld:
 						
 				
 						
-			self.map.grow(2)
+			self.map.grow(1)
 			self.map.water_float(30)
 
 			#scrolling
@@ -64,7 +63,7 @@ class Jajaworld:
 			my=abs(my)/2*(int(my>=0)*2-1)
 			
 
-			jaja.move()
+			jaja.update()
 
 			gfx.update(self.topleft)
 			
@@ -74,7 +73,7 @@ class Jajaworld:
 			
 			pygame.display.flip()
 			
-			clock.tick(20)
+			clock.tick(40)
 
 
 def main():
