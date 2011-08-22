@@ -2,13 +2,20 @@ import pygame
 import os.path
 
 
+setup=False
+
 grass=[]
 water=[]
-setup=False
+
+icons=[]
+
+ICON_MAP=0
+ICON_BUBBLE=1
+
 
 def init():
 	print "setting up imagery"
-	global grass, water, setup
+	global grass, water, setup, icons
 
 	setup=True
 
@@ -20,7 +27,6 @@ def init():
 	while os.path.isfile(filename):
 		variants=[]
 		
-		levelsprites=pygame.sprite.Sprite()
 		levelsprites=pygame.image.load(filename).convert()
 		
 		x=0
@@ -36,16 +42,13 @@ def init():
 		
 		
 	#load water images
-	water = []
 	level=0
 	variant=0
-
 		
 	filename="data/water%02d.png" % (level)
 	while os.path.isfile(filename):
 		variants=[]
 		
-		levelsprites=pygame.sprite.Sprite()
 		levelsprites=pygame.image.load(filename).convert()
 		
 		x=0
@@ -59,12 +62,15 @@ def init():
 		level+=1
 		filename="data/water%02d.png" % (level)			
 		
+	# load little icon imagery
+	icons.append(pygame.image.load("data/map.png").convert_alpha())
+	icons.append(pygame.image.load("data/bubble.png").convert_alpha())
 		
 		
 		
 		
-def getImage(node):
-	global grass, water, setup
+		
+def getMapNodeImage(node):
 
 	if not(setup):
 		init()
@@ -96,3 +102,11 @@ def getImage(node):
 
 	return grass[level][variant]
 
+
+
+def getIconImage(iconID):
+	if not(setup):
+		init()
+	return icons[iconID]
+	
+	

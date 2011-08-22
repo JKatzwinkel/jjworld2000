@@ -1,8 +1,10 @@
 import pygame
 import random
 import math
+import operator
 
 import Pathfinder
+import Images
 
 class Jaja(pygame.sprite.Sprite):
 	image=None
@@ -21,6 +23,8 @@ class Jaja(pygame.sprite.Sprite):
 		self.location=location
 		self.currentmapnode=self.map.getNode((int(round(self.location[0])),int(round(self.location[1]))))
 		
+		self.areaOnScreen=None
+		
 		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
 		
@@ -38,20 +42,12 @@ class Jaja(pygame.sprite.Sprite):
 		
 	
 		
-	# draw the punk to the given surface
-	def draw(self, surface):
-	
-		if not(self.currentmapnode.water>0):
-			surface.blit(self.image, self.locationOnScreen())
-		else:
-			x,y=self.locationOnScreen()
-			surface.blit(self.image, (x,y), (0,0,20,12))
-		
 		
 	
 	# method to be called in every loop
 	# calls the move-method which updates the position of the character
 	def update(self):
+
 		
 		if len(self.path)==0:
 			if self.pathfinder.getpath():
@@ -84,7 +80,9 @@ class Jaja(pygame.sprite.Sprite):
 			self.currentmapnode=self.map.getNode(self.getlocation())
 			self.map.shrink(self.currentmapnode)
 		
-		self.map.gfx.setDirty((int(x*20),int(y*20)),(20,25))
+		# set the background range which has been occupied by the character as to be redrawn
+		if self.areaOnScreen:
+			self.map.gfx.setDirty(self.areaOnScreen)
 		
 		if len(self.path)>0:
 			#print len(self.path)
@@ -106,7 +104,27 @@ class Jaja(pygame.sprite.Sprite):
 				self.location=(x,y)
 			else:
 				self.path.pop()
+				
+				
 			
+	# draw the punk to the given surface
+	def draw(self, surface):
+
+		location=map(operator.mul, self.location, (20,20))
+		self.areaOnScreen=pygame.Rect(location, (20,22))
+
+		if not(self.currentmapnode.water>0):
+			surface.blit(self.image, self.locationOnScreen())
+		else:
+			x,y=self.locationOnScreen()
+			surface.blit(self.image, (x,y), (0,0,20,12))
+		
+		if self.pathfinder.searching:
+			pos=map(operator.add,self.locationOnScreen(),(-9,-7))
+			surface.blit(Images.getIconImage(Images.ICON_BUBBLE), pos)
+
+			self.areaOnScreen=pygame.Rect(map(operator.add, location, (-9,-7)), (29,27))
+
 
 	# determine the map square on which the character is currently standing on 			
 	def getlocation(self):

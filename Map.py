@@ -1,6 +1,7 @@
 import random
 import numpy
 import math
+import pygame
 
 import Images
 
@@ -183,8 +184,8 @@ class Map:
 	
 	# draws square on gfx background and declares it to be updated on screen
 	def draw(self, node):
-		sprite=Images.getImage(node)
+		sprite=Images.getMapNodeImage(node)
 		x,y=node.location
 		self.gfx.background.blit(sprite,(x*20,y*20))
-		self.gfx.setDirty((x*20,y*20))	
+		self.gfx.setDirty(pygame.Rect(x*20,y*20,20,20))	
 
