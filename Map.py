@@ -112,7 +112,7 @@ class Map:
 							
 		
 				
-			
+	# returns the node at the given location
 	def getNode(self, location):
 		x,y=location
 		if x<0: return None
@@ -122,12 +122,14 @@ class Map:
 		return self.nodes[y*self.width+x]
 		
 		
+	# returns the node the id of which fits the given one
 	def getNodeByID(self, lid):
 		if lid<0: return None
 		if lid>=len(self.nodes): return None
 		return self.nodes[lid]
 		
-	
+	# returns the (up to four) nodes which are directly adjacent to the given one
+	# the result should be stored in the Node's field neighbours instead of calling this method all the time
 	def getAdjacentNodes(self, node):
 		result=[]
 		x,y=node.location
@@ -147,25 +149,26 @@ class Map:
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			if not(n.water>0):
 				vsum=0
+				old=int(n.vegetation)
 				adj=n.neighbours
 				for nn in adj:
 					vsum+=nn.vegetation
 				n.vegetation+=0.05+random.random()*vsum/len(adj)/20
-				self.draw(n)
+				#only redraw square if its appearance has actually changed
+				if int(n.vegetation)!=old:
+					self.draw(n)
 				
 	# shrink, for instance when stepped on
 	def shrink(self, node):
+		old=int(node.vegetation)
 		node.vegetation*=.9
 		node.variant+=1
-		self.draw(node)
+		if old>0: self.draw(node)
+		
 				
 	# let water change image (wave effect!!!)
 	def water_float(self, times):
-#		if self.wavecounter%5==0:
-#			for n in self.waternodes:
-#				if (n.location[0]+n.location[1])%dist==(self.wavecounter/5)%dist:
-#					n.variant=random.randint(0,100)
-#					self.draw(n)
+
 		for i in range(0,times):
 			n=self.waternodes[random.randrange(0,len(self.waternodes))]
 			x,y=self.gfx.locationOnScreen(n)

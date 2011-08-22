@@ -24,6 +24,7 @@ class Pathfinder:
 		self.open=[]
 		self.openlid=[]
 		self.closed=[]
+		self.searching=False
 		
 		self.dest=None
 		self.path=[]
@@ -57,6 +58,8 @@ class Pathfinder:
 		self.openlid=[]
 		self.closed=[]
 		
+		self.searching=True
+		
 		self.dest=self.map.getNode(dest)
 		self.path=[]
 
@@ -67,15 +70,11 @@ class Pathfinder:
 	
 	def search(self):
 	
-		#print "doing path search; openlist: ", len(self.open)
-		
-		if len(self.open)==0: return
+		if len(self.open)==0: 
+			self.searching=False
+			return
 		
 		pn=min(self.open, key=lambda node: node.cost)
-		
-		#print "supposed. smallest f:", pn.cost, "open list: ", len(self.open)
-		
-		
 
 		if pn.node.location==self.dest.location:
 			print "FOUND ", pn.node.location
@@ -85,7 +84,6 @@ class Pathfinder:
 				pn=pn.parent
 			self.open=[]
 			return
-
 		
 		for nn in pn.node.neighbours:
 		

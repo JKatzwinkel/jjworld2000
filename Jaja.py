@@ -24,9 +24,10 @@ class Jaja(pygame.sprite.Sprite):
 		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
 		
-		self.firstsearch=True
+
 		
-		
+	
+	# compute the position relative to the screen's position
 	def locationOnScreen(self):
 	
 		x,y=self.location
@@ -37,6 +38,7 @@ class Jaja(pygame.sprite.Sprite):
 		
 	
 		
+	# draw the punk to the given surface
 	def draw(self, surface):
 	
 		if not(self.currentmapnode.water>0):
@@ -46,26 +48,33 @@ class Jaja(pygame.sprite.Sprite):
 			surface.blit(self.image, (x,y), (0,0,20,12))
 		
 		
-		
+	
+	# method to be called in every loop
+	# calls the move-method which updates the position of the character
 	def update(self):
 		
 		if len(self.path)==0:
 			if self.pathfinder.getpath():
 				self.path=self.pathfinder.getpath()
 			else:
-				if random.random()<.01 and self.firstsearch:
+				if random.random()<.01:
 					x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
 					while self.map.getNode((x,y)) in self.map.waternodes:
 						x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
 					self.pathfinder.find(self.getlocation(), (x, y))
-#					self.firstsearch=False
+
 				
 		self.move()
-		for i in range(0,5):
-			self.pathfinder.search()
+		
+		# conduct limited steps of a*-algorithm path search
+		if self.pathfinder.searching:
+			for i in range(0,3):
+				self.pathfinder.search()
 		
 		
 		
+	
+	# take care of movement
 	def move(self):
 		x,y=self.location
 		nx,ny=self.currentmapnode.location
@@ -85,11 +94,10 @@ class Jaja(pygame.sprite.Sprite):
 			
 			mx=dx-x
 			my=dy-y
-			rad=math.hypot(mx,my)
+			rad=math.hypot(mx,my)			
 			
 			
-			
-			if rad>.1:
+			if rad>.2:
 				speed=.1/self.currentmapnode.cost()
 				mx/=rad
 				my/=rad
@@ -99,9 +107,9 @@ class Jaja(pygame.sprite.Sprite):
 			else:
 				self.path.pop()
 			
-			
+
+	# determine the map square on which the character is currently standing on 			
 	def getlocation(self):
 		return (int(round(self.location[0])), int(round(self.location[1])))
-#		else:
-#			x,y=self.location
-#			self.path.append(self.map.getNode((x-1+random.randint(0,1)*2, y-1+random.randint(0,1)*2)))
+		
+
