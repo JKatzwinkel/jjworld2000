@@ -8,7 +8,6 @@ class GfxHandler:
 
 	def __init__(self, mp, screen):
 		self.screen = screen;
-		self.images = Images.Images(self.screen)				
 		self.map = mp
 		self.map.gfx=self
 		self.topleft=(0,0)

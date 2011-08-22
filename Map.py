@@ -2,6 +2,7 @@ import random
 import numpy
 import math
 
+import Images
 
 class Node:
 
@@ -182,7 +183,7 @@ class Map:
 	
 	# draws square on gfx background and declares it to be updated on screen
 	def draw(self, node):
-		sprite=self.gfx.images.getImage(node)
+		sprite=Images.getImage(node)
 		x,y=node.location
 		self.gfx.background.blit(sprite,(x*20,y*20))
 		self.gfx.setDirty((x*20,y*20))	
