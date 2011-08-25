@@ -69,11 +69,13 @@ class Jajaworld:
 			
 
 			for jaja in jajas:
-				jaja.update()
-
+				jaja.update()			
+			
 			gfx.update(self.topleft)
 			
 #			self.screen.blit(jaja.image, jaja.locationOnScreen())
+
+			
 			for jaja in jajas:
 				jaja.draw(self.screen)
 			

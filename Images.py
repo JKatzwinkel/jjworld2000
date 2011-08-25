@@ -1,6 +1,8 @@
 import pygame
 import os.path
 
+import Jaja
+
 
 setup=False
 
@@ -8,6 +10,8 @@ grass=[]
 water=[]
 
 icons=[]
+
+jajas=[]
 
 ICON_MAP=0
 ICON_BUBBLE=1
@@ -65,6 +69,14 @@ def init():
 	# load little icon imagery
 	icons.append(pygame.image.load("data/map.png").convert_alpha())
 	icons.append(pygame.image.load("data/bubble.png").convert_alpha())
+	
+	
+	#load jaja sprites 
+	sprite=pygame.image.load("data/jaja01.png").convert_alpha()
+	jajas.append(sprite)
+	sprite=pygame.image.load("data/jaja00.png").convert_alpha()
+	jajas.append(sprite)
+	
 		
 		
 		
@@ -108,5 +120,13 @@ def getIconImage(iconID):
 	if not(setup):
 		init()
 	return icons[iconID]
+	
+
+def getJajaImage(jaja):
+	if jaja.action is Jaja.Jaja.ACT_SLEEP:
+		return jajas[0]
+	if jaja.action in (Jaja.Jaja.ACT_WALK, Jaja.Jaja.ACT_STAND):
+		return jajas[1]
+	return None
 	
 	
