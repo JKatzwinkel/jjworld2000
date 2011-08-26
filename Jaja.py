@@ -5,6 +5,7 @@ import operator
 
 import Pathfinder
 import Images
+import BFSHandler
 
 
 
@@ -36,8 +37,10 @@ class Jaja(pygame.sprite.Sprite):
 		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
 		
+		self.bfs=BFSHandler.BFSHandler()
 		
-		self.energy=0
+		
+		self.energy=.4
 		self.fed=0
 		self.action=Jaja.ACT_SLEEP
 		
@@ -67,7 +70,7 @@ class Jaja(pygame.sprite.Sprite):
 
 		# sleep		
 		if self.action is Jaja.ACT_SLEEP:
-			self.energy+=.001+random.random()*.001
+			self.energy+=.001+self.currentmapnode.vegetation*.001
 			if self.energy>1:
 				if random.random()<.05:
 					self.action=Jaja.ACT_STAND
@@ -76,34 +79,60 @@ class Jaja(pygame.sprite.Sprite):
 		# stand
 		if self.action is Jaja.ACT_STAND:
 		
-			if len(self.path)==0:
-				if self.pathfinder.getpath():
-					self.path=self.pathfinder.getpath()
-					self.action=Jaja.ACT_WALK
-				else:
-					# tired ?
-					if self.energy<.4:
-						if self.currentmapnode.vegetation>1:
-							self.action=Jaja.ACT_SLEEP
-						else:
-							# look for place to sleep
-							# TODO!!!!
-							x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
-							kn=self.map.getNode((x,y))
-							if not( kn in self.map.waternodes or kn.vegetation<2):
-								self.pathfinder.find(self.getlocation(), (x, y))
+			if self.pathfinder.getpath():
+			
+				self.path=self.pathfinder.path
+				self.action=Jaja.ACT_WALK
+				
+			else:
+			
+				if not(self.pathfinder.searching):
+				
+					found=self.bfs.getFound()
+					if found:
+						
+						self.pathfinder.find(self.currentmapnode.location, found.location)
+						
+					else:
+					
+						if not(self.bfs.searching):
 							
-					else:	
-						if random.random()<.01:
-							x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
-							while self.map.getNode((x,y)) in self.map.waternodes:
-								x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
-							self.pathfinder.find(self.getlocation(), (x, y))
+							if self.energy<.4:
+								
+								if self.currentmapnode.fertility()>6:
+									
+									self.action=Jaja.ACT_SLEEP
+									
+								else:
+								
+									self.bfs.find(self.currentmapnode, 0)
+							
+							else:
+								# find path to random point on the map
+								# TODO find destinations which are actually making sense
+								if random.random()<.01:
+									x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+									node=self.map.getNode((x,y))
+									while node in self.map.waternodes or node.vegetation>1:
+										x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+										node=self.map.getNode((x,y))
+
+									self.pathfinder.find(self.getlocation(), (x, y))
+									
+						else:
+							# abort the bfs somehow when reaching a certain depth and lookup in the known-resources list which is TODO
+							if self.bfs.depth>20:
+								
+								print "sleep where I stand"
+								self.action=Jaja.ACT_SLEEP
+								self.bfs.stop()
 
 			# conduct limited steps of a*-algorithm path search
 			if self.pathfinder.searching:
-				for i in range(0,3):
-					self.pathfinder.search()
+				self.pathfinder.search()
+			elif self.bfs.searching:
+			# conduct steps in bfs algorithm if no a* running
+				self.bfs.search()
 
 
 
@@ -151,7 +180,7 @@ class Jaja(pygame.sprite.Sprite):
 				y+=my*speed
 				self.location=(x,y)
 				if self.energy>.2:
-					self.energy-=.001/cost
+					self.energy-=.001*(1+cost/20)
 			else:
 				self.path.pop()
 		else:

@@ -28,7 +28,7 @@ class Jajaworld:
 		clock = pygame.time.Clock()
 		
 		jajas=[]
-		for j in range(0,20):
+		for j in range(0,15):
 			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
 		
 #		Jaja.Jaja((10,10),self.map)
@@ -82,7 +82,7 @@ class Jajaworld:
 			
 			pygame.display.flip()
 			
-			clock.tick(40)
+			clock.tick(30)
 
 
 def main():

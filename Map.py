@@ -8,16 +8,32 @@ import Images
 class Node:
 
 	def __init__(self, location, lid, mp):
+	
 		self.map=mp
 		self.neighbours=[]
-		self.vegetation=random.random()*random.random()*random.random()*6
+		self.vegetation=random.random()*random.random()*random.random()*8
 		self.water=0
 		self.lid=lid
 		self.location=location
 		self.variant=random.randint(0,100)
 		
+	
+	# returns the difficulty level of moving on this map node. 
+	# used to determine the speed of moving characters
+	# and in shortest path algorithm
 	def cost(self):
-		return 1+self.vegetation+self.water*20
+		return 1+self.vegetation+self.water*16
+		
+		
+	# returns the sum of this node's vegetation level plus its neighbours'. 
+	# used to determine vegetation growing speed
+	# also an indicator for how comfortable a place is to sleep on
+	def fertility(self):
+		vsum=self.vegetation
+		for nn in self.neighbours:
+			vsum+=nn.vegetation
+		return vsum
+		
 	
 	
 
@@ -47,7 +63,7 @@ class Map:
 				n.neighbours.append(nn)
 							
 		# manage grass
-		for i in range(0,2):
+		for i in range(0,3):
 			vegetation=numpy.zeros(len(self.nodes))
 			for n in self.nodes:
 				vsum=0
@@ -150,12 +166,8 @@ class Map:
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			if not(n.water>0):
-				vsum=0
 				old=int(n.vegetation)
-				adj=n.neighbours
-				for nn in adj:
-					vsum+=nn.vegetation
-				n.vegetation+=0.05+random.random()*vsum/len(adj)/20
+				n.vegetation += 0.01 + random.random() * n.fertility() / 50
 				#only redraw square if its appearance has actually changed
 				if int(n.vegetation)!=old:
 					self.draw(n)

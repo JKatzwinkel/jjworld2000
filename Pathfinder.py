@@ -1,9 +1,3 @@
-
-
-def f(a):
-	return a.cost
-
-
 class PathNode:
 
 
@@ -30,7 +24,7 @@ class Pathfinder:
 		self.path=[]
 		
 		
-		
+	# returns node object for search graph
 	def pathNode(self, node, parent):
 
 		if parent:
@@ -49,6 +43,7 @@ class Pathfinder:
 		
 		
 		
+	# initialize a* algorithm
 	def find(self, start, dest):
 
 		if len(self.open)>0: return
@@ -67,7 +62,8 @@ class Pathfinder:
 		self.open.append(self.pathNode(startnode, None))
 		self.openlid.append(startnode.lid)
 		
-	
+		
+	# conduct one step in a* algorithm
 	def search(self):
 	
 		if len(self.open)==0: 
@@ -77,7 +73,7 @@ class Pathfinder:
 		pn=min(self.open, key=lambda node: node.cost)
 
 		if pn.node.location==self.dest.location:
-			print "FOUND ", pn.node.location
+			#print "FOUND ", pn.node.location
 			self.path.append(pn.node)
 			while pn:
 				self.path.append(pn.node)
@@ -88,11 +84,9 @@ class Pathfinder:
 		for nn in pn.node.neighbours:
 		
 			if not(nn.lid in self.closed):
-#				if not(len(filter(lambda node: node.node==nn, self.open))>0):
 				newnode=self.pathNode(nn,pn)
 				
 				if not(nn.lid in self.openlid):
-					#print nn.location, ">> open list"
 					self.open.append(newnode)
 					self.openlid.append(nn.lid)
 				else:
@@ -109,9 +103,8 @@ class Pathfinder:
 		self.closed.append(pn.node.lid)
 
 	
-	
+	# return complete path
 	def getpath(self):
-#		print "length of path:", len(self.path)
 	
 		if len(self.path)>0:
 			return self.path
