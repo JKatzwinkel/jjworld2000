@@ -2,8 +2,10 @@ import random
 import numpy
 import math
 import pygame
+import operator
 
 import Images
+import Resource
 
 class Node:
 
@@ -15,7 +17,8 @@ class Node:
 		self.water=0
 		self.lid=lid
 		self.location=location
-		self.variant=random.randint(0,100)
+		self.variant=random.randint(0,100)		
+		self.resource=None
 		
 	
 	# returns the difficulty level of moving on this map node. 
@@ -29,13 +32,28 @@ class Node:
 	# used to determine vegetation growing speed
 	# also an indicator for how comfortable a place is to sleep on
 	def fertility(self):
-		vsum=self.vegetation
+		vsum=0
 		for nn in self.neighbours:
 			vsum+=nn.vegetation
-		return vsum
-		
+		return vsum*self.vegetation
+
+
+	# draws node in current appearance on surface
+	# also returns absolute coordinates of the node, if something wants it	
+	def draw(self, surface):
+		sprite=Images.getMapNodeImage(self)
+		x,y=map(operator.mul, self.location, (20,20))
+		surface.blit(sprite, (x,y))
+		return x,y
 	
 	
+	# spawns a certain resource on this very map node
+	def spawnResource(self, restype, amount):
+		if self.resource is None:
+			self.resource = Resource.Resource(restype, amount, self)
+			self.resource.draw(self.map.gfx.layer)
+
+			
 
 class Map:
 
@@ -76,7 +94,7 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
-		pondsnr=width*height/400
+		pondsnr=width*height/500
 		for i in range(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
 			n=self.nodes[random.randint(0,len(self.nodes))]
@@ -146,6 +164,7 @@ class Map:
 		if lid>=len(self.nodes): return None
 		return self.nodes[lid]
 		
+		
 	# returns the (up to four) nodes which are directly adjacent to the given one
 	# the result should be stored in the Node's field neighbours instead of calling this method all the time
 	def getAdjacentNodes(self, node):
@@ -170,15 +189,18 @@ class Map:
 				n.vegetation += 0.01 + random.random() * n.fertility() / 50
 				#only redraw square if its appearance has actually changed
 				if int(n.vegetation)!=old:
-					self.draw(n)
+					n.draw(self.gfx.background)
+					
 				
 	# shrink, for instance when stepped on
 	def shrink(self, node):
 		old=int(node.vegetation)
 		node.vegetation*=.9
 		node.variant+=1
-		if old>0: self.draw(node)
-		
+		if old>0: 
+			node.draw(self.gfx.background)
+			self.gfx.setDirty(node)
+				
 				
 	# let water change image (wave effect!!!)
 	def water_float(self, times):
@@ -190,14 +212,8 @@ class Map:
 				if not(x<0 or x>self.gfx.screensize[0]):
 					if (n.location[0]+n.location[1])%30==(self.wavecounter/5)%30:
 						n.variant=random.randint(0,100)
-						self.draw(n)
+						n.draw(self.gfx.background)
+						self.gfx.setDirty(n)
 		self.wavecounter+=1	
 	
-	
-	# draws square on gfx background and declares it to be updated on screen
-	def draw(self, node):
-		sprite=Images.getMapNodeImage(node)
-		x,y=node.location
-		self.gfx.background.blit(sprite,(x*20,y*20))
-		self.gfx.setDirty(pygame.Rect(x*20,y*20,20,20))	
 

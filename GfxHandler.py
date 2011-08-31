@@ -1,8 +1,10 @@
 import pygame
 from decimal import *
 import copy
+import operator
 
 import Images
+import Map
 
 class GfxHandler:
 
@@ -15,30 +17,25 @@ class GfxHandler:
 
 		w,h=self.screensize
 		self.background = pygame.Surface((self.map.width*20, self.map.height*20))
+		self.layer	=	pygame.Surface((self.map.width*20, self.map.height*20), pygame.SRCALPHA, 32)
 
-		
 		self.dirty=[]
 		
-		
 		self.drawMap(self.background)
-	#	self.screen.blit(self.background, (0,0)+self.screensize)
 		
 		
 	# initializes background
 	def drawMap(self, surface):
-	
-		w,h=self.screensize		
 
 		for n in self.map.nodes:
-			self.map.draw(n)
-#			x,y=n.location
-#			sprite=self.images.getImage(n)
-#			if sprite:
-#				surface.blit(sprite, (x*20,y*20))
+			n.draw(self.background)
+			self.setDirty(pygame.Rect(tuple(map(operator.mul, n.location, (20,20)))+(20,20)))
+			if n.resource:
+				n.resource.draw(self.layer)
 						
 		
 								
-		
+	# returns the location of the given node relative to the current point of view
 	def locationOnScreen(self, node):
 		x,y=node.location
 		sx,sy=self.topleft
@@ -47,12 +44,20 @@ class GfxHandler:
 		return (x,y)
 		
 		
-		
+	# marks a certain rectangle as to be redrawn
+	# coordinates must be absolute and as in: (x, y, w, h)
+	# can also mark a specified map node!!!
 	def setDirty(self, area):
-		self.dirty.append(area)				
+		if area.__class__.__name__ is 'Node':
+			self.dirty.append(pygame.Rect(tuple(map(operator.mul, area.location, (20,20)))+(20,20)))
+		else:
+			self.dirty.append(area)				
 		
 		
-		
+	
+	# updates the part of the world which can be displayed on the screen.
+	# scrolling is handled here
+	# cleaning of dirty rects, too
 	def update(self, pointOfView):
 	
 		sx,sy=self.topleft
@@ -66,11 +71,11 @@ class GfxHandler:
 		if mx>0:
 			self.dirty.append(pygame.Rect((sx+w,sy),(mx,h)))
 		if mx<0:
-			self.dirty.append(pygame.Rect((sx+mx,sy),(mx,h)))
+			self.dirty.append(pygame.Rect((sx+mx,sy),(-mx,h)))
 		if my>0:
 			self.dirty.append(pygame.Rect((sx,sy+h),(w,my)))
 		if my<0:
-			self.dirty.append(pygame.Rect((sx,sy+my),(w,my)))
+			self.dirty.append(pygame.Rect((sx,sy+my),(w,-my)))
 		
 		self.topleft = pointOfView
 		
@@ -79,6 +84,7 @@ class GfxHandler:
 		for r in self.dirty:
 			if screenrect.colliderect(r):
 				self.screen.blit(self.background, r.move(-self.topleft[0], -self.topleft[1]), r)
+				self.screen.blit(self.layer, r.move(-self.topleft[0], -self.topleft[1]), r)
 				
 		self.dirty=[]
 				

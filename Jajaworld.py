@@ -7,6 +7,7 @@ import random
 import Map
 import GfxHandler
 import Jaja
+import Resource
 
 class Jajaworld:
 
@@ -30,6 +31,10 @@ class Jajaworld:
 		jajas=[]
 		for j in range(0,15):
 			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
+			
+		for s in range(0,3):
+			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
+			n.spawnResource(1,20)
 		
 #		Jaja.Jaja((10,10),self.map)
 #		for x in range(90,11,-1):

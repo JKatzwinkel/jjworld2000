@@ -111,17 +111,18 @@ class Jaja(pygame.sprite.Sprite):
 								# find path to random point on the map
 								# TODO find destinations which are actually making sense
 								if random.random()<.01:
-									x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+									jx,jy=self.currentmapnode.location
+									x,y=(random.randrange(jx-6,jx+7),random.randrange(jy-6,jy+7))
 									node=self.map.getNode((x,y))
-									while node in self.map.waternodes or node.vegetation>1:
-										x,y=(random.randrange(0,self.map.width),random.randrange(0,self.map.height))
+									while not(node) or node in self.map.waternodes or node.vegetation>3:
+										x,y=(random.randrange(jx-5,jx+6),random.randrange(jy-5,jy+6	))
 										node=self.map.getNode((x,y))
 
 									self.pathfinder.find(self.getlocation(), (x, y))
 									
 						else:
 							# abort the bfs somehow when reaching a certain depth and lookup in the known-resources list which is TODO
-							if self.bfs.depth>20:
+							if self.bfs.depth>10:
 								
 								print "sleep where I stand"
 								self.action=Jaja.ACT_SLEEP
@@ -179,8 +180,8 @@ class Jaja(pygame.sprite.Sprite):
 				x+=mx*speed
 				y+=my*speed
 				self.location=(x,y)
-				if self.energy>.2:
-					self.energy-=.001*(1+cost/20)
+				if self.energy>.25:
+					self.energy-=.0005*(1+cost/30)
 			else:
 				self.path.pop()
 		else:
@@ -201,6 +202,7 @@ class Jaja(pygame.sprite.Sprite):
 		else:
 			x,y=los
 			surface.blit(Images.getJajaImage(self), (x,y), (0,0,20,12))
+			
 		
 		if self.pathfinder.searching:
 			pos=map(operator.add,los,(-9,-7))
@@ -208,7 +210,9 @@ class Jaja(pygame.sprite.Sprite):
 
 			self.areaOnScreen=pygame.Rect(map(operator.add, location, (-9,-7)), (29,27))
 			
+			
 		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(self.energy*5),0) ))
+
 
 
 	# determine the map square on which the character is currently standing on 			
