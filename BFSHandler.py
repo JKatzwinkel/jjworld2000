@@ -47,8 +47,13 @@ class BFSHandler:
 					if nn.fertility() > 10:
 						self.found=nn
 						self.searching=False
-						print "bfs found sth.", self.depth, "@", self.found.location
+						print "bfs found acommodation in depth", self.depth, "@", self.found.location
 						return
+				else:
+					if nn.resource and nn.resource.type is self.lookingFor:
+						self.found=nn
+						self.searching=False
+						print "bfs found resource %d in depth %d @ %d,%d" % ((self.lookingFor, self.depth) + self.found.location)
 				
 				# nothing found yet; continue			
 				self.knownNodes.append(nn)

@@ -154,7 +154,7 @@ def getJajaImage(jaja):
 	
 # returns the image for a given resource
 def getResourceImage(resource):
-	print "return image nr. ", resource.restype
-	return resrs[resource.restype-1][0]
+	print "return image nr. ", resource.type
+	return resrs[resource.type-1][0]
 	
 	

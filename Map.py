@@ -27,6 +27,12 @@ class Node:
 	def cost(self):
 		return 1+self.vegetation+self.water*16
 		
+	
+	# returns the (manhattan) distance to the given node
+	def distanceTo(self, node):
+		x,y=tuple(map(operator.sub, self.location, node.location))
+		return abs(x)+abs(y)
+		
 		
 	# returns the sum of this node's vegetation level plus its neighbours'. 
 	# used to determine vegetation growing speed
@@ -52,6 +58,7 @@ class Node:
 		if self.resource is None:
 			self.resource = Resource.Resource(restype, amount, self)
 			self.resource.draw(self.map.gfx.layer)
+			
 
 			
 

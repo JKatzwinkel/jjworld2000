@@ -47,7 +47,7 @@ class Pathfinder:
 	def find(self, start, dest):
 
 		if len(self.open)>0: return
-		print "starting path search from", start, "to", dest
+#		print "starting path search from", start, "to", dest
 		
 		self.open=[]
 		self.openlid=[]

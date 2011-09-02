@@ -39,6 +39,8 @@ class Jaja(pygame.sprite.Sprite):
 		
 		self.bfs=BFSHandler.BFSHandler()
 		
+		self.knownsources=[]
+		
 		
 		self.energy=.4
 		self.fed=0
@@ -65,7 +67,7 @@ class Jaja(pygame.sprite.Sprite):
 	def update(self):
 
 		if self.fed>0:
-			self.fed-=.1
+			self.fed-=.001
 
 
 		# sleep		
@@ -86,17 +88,27 @@ class Jaja(pygame.sprite.Sprite):
 				
 			else:
 			
+				# if not currently conducting an a* search
 				if not(self.pathfinder.searching):
 				
 					found=self.bfs.getFound()
+					# is there already a certain node found by the breadth first search?
 					if found:
 						
 						self.pathfinder.find(self.currentmapnode.location, found.location)
 						
+						# is that result already known?
+						if not found in self.knownsources:
+							self.knownsources.append(found)
+							print "length of known resources list:", len(self.knownsources)
+						
+					# if there is not yet a result of any breadth first search:					
 					else:
-					
+
+						# if not conducting a breadth first search right now:
 						if not(self.bfs.searching):
 							
+							# if tired:
 							if self.energy<.4:
 								
 								if self.currentmapnode.fertility()>6:
@@ -106,27 +118,60 @@ class Jaja(pygame.sprite.Sprite):
 								else:
 								
 									self.bfs.find(self.currentmapnode, 0)
-							
-							else:
-								# find path to random point on the map
-								# TODO find destinations which are actually making sense
-								if random.random()<.01:
-									jx,jy=self.currentmapnode.location
-									x,y=(random.randrange(jx-6,jx+7),random.randrange(jy-6,jy+7))
-									node=self.map.getNode((x,y))
-									while not(node) or node in self.map.waternodes or node.vegetation>3:
-										x,y=(random.randrange(jx-5,jx+6),random.randrange(jy-5,jy+6	))
-										node=self.map.getNode((x,y))
-
-									self.pathfinder.find(self.getlocation(), (x, y))
 									
+							# if not tired:
+							else:
+								
+								# if hungry:
+								if self.fed<.5:
+								
+									#TODO
+									if self.currentmapnode.resource and self.currentmapnode.resource.type in (1,):
+										self.fed+=1
+										
+									else:	
+										# find beer
+										dest = self.getKnownSourceFor((1,))
+										
+										if not dest:
+											self.bfs.find(self.currentmapnode, 1)
+
+									
+								# find path to random point on the map
+								#
+								if random.random()<.01:
+									self.goAnyWhere()
+						
+						
+						# if a breadth first search is currently running:
 						else:
 							# abort the bfs somehow when reaching a certain depth and lookup in the known-resources list which is TODO
 							if self.bfs.depth>10:
 								
-								print "sleep where I stand"
-								self.action=Jaja.ACT_SLEEP
-								self.bfs.stop()
+								# if tired
+								if self.energy<.5:
+								
+									print "sleep where I stand"
+									self.action=Jaja.ACT_SLEEP
+									self.bfs.stop()
+									
+								# if not tired, but hungry:
+								elif self.fed<.5:
+								
+									dest = self.getKnownSourceFor((1,))
+									
+									if not dest: 
+										# if there a no known beer sources, abort search
+										self.bfs.stop()
+										self.goAnyWhere()
+								
+								
+								# if nothing has been found as of the depth of 20, stop searching
+								if self.bfs.depth>15:
+									self.bfs.stop()
+									self.goAnyWhere()
+								
+								
 
 			# conduct limited steps of a*-algorithm path search
 			if self.pathfinder.searching:
@@ -210,8 +255,9 @@ class Jaja(pygame.sprite.Sprite):
 
 			self.areaOnScreen=pygame.Rect(map(operator.add, location, (-9,-7)), (29,27))
 			
-			
+		
 		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(self.energy*5),0) ))
+		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,1)), map(operator.add, los, (int(self.fed*5),0) ))
 
 
 
@@ -219,4 +265,47 @@ class Jaja(pygame.sprite.Sprite):
 	def getlocation(self):
 		return (int(round(self.location[0])), int(round(self.location[1])))
 		
+		
+
+	# just find a random destination of close distance that is easy to walk and dry
+	# start finding a path to there using a*		
+	def goAnyWhere(self):
+	
+		jx,jy=self.currentmapnode.location
+		x,y=(random.randrange(jx-6,jx+7),random.randrange(jy-6,jy+7))
+		node=self.map.getNode((x,y))
+		while not(node) or node in self.map.waternodes or node.vegetation>3:
+			x,y=(random.randrange(jx-5,jx+6),random.randrange(jy-5,jy+6	))
+			node=self.map.getNode((x,y))
+
+		self.pathfinder.find(self.getlocation(), (x, y))
+		
+		
+		
+	# checks all known resouce-containing nodes on viability, 
+	# sorts them in order of their distance and 
+	# choose the closest one
+	# go there
+	def getKnownSourceFor(self, types):
+		# just handling..
+		if type(types)==int:
+			types=(types,)
+			
+		# get all known sources for types
+		appr=filter(lambda node: (node.resource and node.resource.type in (1,)), self.knownsources)
+		if len(appr)>0:
+			
+			# choose nearest appropriate node
+			dest=sorted(appr, key=lambda node: self.currentmapnode.distanceTo(node))[0]
+			# go there
+			print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
+			self.pathfinder.find(self.getlocation(), dest.location)
+			
+			return dest
+			
+		else:
+			return None
+			
+			
+
 

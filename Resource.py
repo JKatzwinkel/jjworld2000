@@ -10,7 +10,7 @@ class Resource:
 
 	def __init__(self, restype, amount, mapnode):
 		
-		self.restype=restype
+		self.type=restype
 		self.amount=amount
 		self.mapnode=mapnode
 		
