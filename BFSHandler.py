@@ -54,6 +54,7 @@ class BFSHandler:
 						self.found=nn
 						self.searching=False
 						print "bfs found resource %d in depth %d @ %d,%d" % ((self.lookingFor, self.depth) + self.found.location)
+						return
 				
 				# nothing found yet; continue			
 				self.knownNodes.append(nn)

@@ -131,10 +131,7 @@ class Jaja(pygame.sprite.Sprite):
 										
 									else:	
 										# find beer
-										dest = self.getKnownSourceFor((1,))
-										
-										if not dest:
-											self.bfs.find(self.currentmapnode, 1)
+										self.bfs.find(self.currentmapnode, 1)
 
 									
 								# find path to random point on the map
@@ -167,7 +164,7 @@ class Jaja(pygame.sprite.Sprite):
 								
 								
 								# if nothing has been found as of the depth of 20, stop searching
-								if self.bfs.depth>15:
+								if self.bfs.depth>10:
 									self.bfs.stop()
 									self.goAnyWhere()
 								

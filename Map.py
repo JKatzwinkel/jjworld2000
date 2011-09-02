@@ -25,7 +25,7 @@ class Node:
 	# used to determine the speed of moving characters
 	# and in shortest path algorithm
 	def cost(self):
-		return 1+self.vegetation+self.water*16
+		return 1+self.vegetation+self.water*16+float(not self.resource is None)*3
 		
 	
 	# returns the (manhattan) distance to the given node
@@ -41,7 +41,7 @@ class Node:
 		vsum=0
 		for nn in self.neighbours:
 			vsum+=nn.vegetation
-		return vsum*self.vegetation
+		return vsum*self.vegetation/2
 
 
 	# draws node in current appearance on surface
@@ -191,7 +191,7 @@ class Map:
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
-			if not(n.water>0):
+			if not(n.water>0 or n.vegetation>10):
 				old=int(n.vegetation)
 				n.vegetation += 0.01 + random.random() * n.fertility() / 50
 				#only redraw square if its appearance has actually changed

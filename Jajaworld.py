@@ -32,7 +32,7 @@ class Jajaworld:
 		for j in range(0,15):
 			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
 			
-		for s in range(0,5):
+		for s in range(0,15):
 			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
 			n.spawnResource(1,20)
 		
@@ -92,7 +92,9 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(50,50)
+	w.init(60,60)
 	w.mainLoop()
 	
 if __name__ == '__main__': main()
+
+
