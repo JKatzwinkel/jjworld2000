@@ -110,10 +110,16 @@ class Jaja(pygame.sprite.Sprite):
 							
 							# if tired:
 							if self.energy<.4:
+								print "tired at ", self.currentmapnode.location
 								
-								if self.currentmapnode.fertility()>6:
+								if self.currentmapnode.fertility()>5:
 									
 									self.action=Jaja.ACT_SLEEP
+									
+									if not self.currentmapnode in self.knownsources:
+										print "found good place to sleep. spawn pillow!!!"
+										self.currentmapnode.spawnResource(0, 1)
+										self.knownsources.append(self.currentmapnode)
 									
 								else:
 								
@@ -148,16 +154,30 @@ class Jaja(pygame.sprite.Sprite):
 								# if tired
 								if self.energy<.5:
 								
-									print "sleep where I stand"
-									self.action=Jaja.ACT_SLEEP
-									self.bfs.stop()
+									dest = self.getKnownSourceFor(0)
+									
+									if dest:
+
+										print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
+										self.pathfinder.find(self.getlocation(), dest.location)
+										
+									else:
+									
+										print "sleep where I stand"
+										self.action=Jaja.ACT_SLEEP
+										self.bfs.stop()
 									
 								# if not tired, but hungry:
 								elif self.fed<.5:
 								
 									dest = self.getKnownSourceFor((1,))
 									
-									if not dest: 
+									if dest: 
+									
+										print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
+										self.pathfinder.find(self.getlocation(), dest.location)
+									
+									else:
 										# if there a no known beer sources, abort search
 										self.bfs.stop()
 										self.goAnyWhere()
@@ -198,7 +218,7 @@ class Jaja(pygame.sprite.Sprite):
 		nx,ny=self.currentmapnode.location
 		
 		# to be opt
-		if x>nx+.5 or x<nx-.5 or y>ny+.5 or y<ny-.5:
+		if x>=nx+.5 or x<=nx-.5 or y>=ny+.5 or y<=ny-.5:
 			self.currentmapnode=self.map.getNode(self.getlocation())
 			self.map.shrink(self.currentmapnode)
 		
@@ -258,7 +278,8 @@ class Jaja(pygame.sprite.Sprite):
 
 
 
-	# determine the map square on which the character is currently standing on 			
+	# determine the map square on which the character is currently standing on 	
+	# possibly TODO	
 	def getlocation(self):
 		return (int(round(self.location[0])), int(round(self.location[1])))
 		
@@ -282,21 +303,20 @@ class Jaja(pygame.sprite.Sprite):
 	# checks all known resouce-containing nodes on viability, 
 	# sorts them in order of their distance and 
 	# choose the closest one
-	# go there
+	# go there !!!!
 	def getKnownSourceFor(self, types):
 		# just handling..
 		if type(types)==int:
 			types=(types,)
 			
 		# get all known sources for types
-		appr=filter(lambda node: (node.resource and node.resource.type in (1,)), self.knownsources)
+		appr=filter(lambda node: (node.resource and node.resource.type in types), self.knownsources)
+		
 		if len(appr)>0:
 			
 			# choose nearest appropriate node
 			dest=sorted(appr, key=lambda node: self.currentmapnode.distanceTo(node))[0]
 			# go there
-			print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
-			self.pathfinder.find(self.getlocation(), dest.location)
 			
 			return dest
 			

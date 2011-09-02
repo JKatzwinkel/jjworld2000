@@ -76,7 +76,7 @@ def init():
 	jajas.append(sprite)
 	
 	# load resource sprites
-	res=1
+	res=0
 	resrs=[]
 	
 	filename="data/resource%02d.png" % res
@@ -155,6 +155,6 @@ def getJajaImage(jaja):
 # returns the image for a given resource
 def getResourceImage(resource):
 	print "return image nr. ", resource.type
-	return resrs[resource.type-1][0]
+	return resrs[resource.type][0]
 	
 	

@@ -41,7 +41,7 @@ class Node:
 		vsum=0
 		for nn in self.neighbours:
 			vsum+=nn.vegetation
-		return vsum*self.vegetation/2
+		return vsum*self.vegetation
 
 
 	# draws node in current appearance on surface
