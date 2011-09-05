@@ -59,6 +59,15 @@ class Node:
 			self.resource = Resource.Resource(restype, amount, self)
 			self.resource.draw(self.map.gfx.layer)
 			
+		
+	# tells if there is a resoucre of a certain kind on this node	
+	def containsResources(self, restypes):
+		if type(restypes) is int:
+			restypes=(restypes,)
+		if self.resource:
+			if self.resource in restypes:
+				return True
+		return False
 
 			
 

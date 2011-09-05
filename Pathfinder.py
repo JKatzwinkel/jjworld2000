@@ -79,6 +79,7 @@ class Pathfinder:
 				self.path.append(pn.node)
 				pn=pn.parent
 			self.open=[]
+			self.searching=False
 			return
 		
 		for nn in pn.node.neighbours:
@@ -104,7 +105,7 @@ class Pathfinder:
 
 	
 	# return complete path
-	def getpath(self):
+	def getPath(self):
 	
 		if len(self.path)>0:
 			return self.path

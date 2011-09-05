@@ -40,6 +40,9 @@ class Jaja(pygame.sprite.Sprite):
 		self.bfs=BFSHandler.BFSHandler()
 		
 		self.knownsources=[]
+		self.nearestknownsource=None
+		
+		self.needs=[]
 		
 		
 		self.energy=.4
@@ -81,112 +84,62 @@ class Jaja(pygame.sprite.Sprite):
 		# stand
 		if self.action is Jaja.ACT_STAND:
 		
-			if self.pathfinder.getpath():
-			
-				self.path=self.pathfinder.path
-				self.action=Jaja.ACT_WALK
+			if not self.pathfinder.searching:
 				
-			else:
-			
-				# if not currently conducting an a* search
-				if not(self.pathfinder.searching):
+				if not len(self.path) > 0:
 				
-					found=self.bfs.getFound()
-					# is there already a certain node found by the breadth first search?
-					if found:
+					path=self.pathfinder.getPath()
+					if path:
+				
+						self.path=path
+						self.action=Jaja.ACT_WALK
 						
-						self.pathfinder.find(self.currentmapnode.location, found.location)
-						
-						# is that result already known?
-						if not found in self.knownsources:
-							self.knownsources.append(found)
-							print "length of known resources list:", len(self.knownsources)
-						
-					# if there is not yet a result of any breadth first search:					
 					else:
+					
+						if not self.bfs.searching:
 
-						# if not conducting a breadth first search right now:
-						if not(self.bfs.searching):
-							
-							# if tired:
-							if self.energy<.4:
-								print "tired at ", self.currentmapnode.location
+							found=self.bfs.getFound()
+							if found: 
 								
-								if self.currentmapnode.fertility()>5:
-									
-									self.action=Jaja.ACT_SLEEP
-									
-									if not self.currentmapnode in self.knownsources:
-										print "found good place to sleep. spawn pillow!!!"
-										self.currentmapnode.spawnResource(0, 1)
-										self.knownsources.append(self.currentmapnode)
+								self.bfs.stop()
+								self.pathfinder.find(self.currentmapnode.location, found.location)
+						
+							if len(self.needs)>0:
+							
+								need = self.needs.pop(0)
+								self.bfs.find(self.currentmapnode, need)		
+						
+
+						else:
+						
+							if not self.nearestknownsource:
+								self.nearestknownsource = self.getKnownSourceFor(self.bfs.lookingFor)
+								
+							if self.nearestknownsource and self.bfs.depth > self.nearestknownsource.distanceTo(self.currentmapnode) or self.bfs.depth>10:
+								
+								self.bfs.stop()
+								
+								if self.nearestknownsource:
+									self.pathfinder.find(self.currentmapnode.location, self.nearestknownsource.location)
+									self.nearestknownsource=None
 									
 								else:
-								
-									self.bfs.find(self.currentmapnode, 0)
-									
-							# if not tired:
-							else:
-								
-								# if hungry:
-								if self.fed<.5:
-								
-									#TODO
-									if self.currentmapnode.resource and self.currentmapnode.resource.type in (1,):
-										self.fed+=1
-										
-									else:	
-										# find beer
-										self.bfs.find(self.currentmapnode, 1)
-
-									
-								# find path to random point on the map
-								#
-								if random.random()<.01:
 									self.goAnyWhere()
-						
-						
-						# if a breadth first search is currently running:
-						else:
-							# abort the bfs somehow when reaching a certain depth and lookup in the known-resources list which is TODO
-							if self.bfs.depth>10:
 								
-								# if tired
-								if self.energy<.5:
-								
-									dest = self.getKnownSourceFor(0)
-									
-									if dest:
 
-										print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
-										self.pathfinder.find(self.getlocation(), dest.location)
-										
-									else:
-									
-										print "sleep where I stand"
-										self.action=Jaja.ACT_SLEEP
-										self.bfs.stop()
-									
-								# if not tired, but hungry:
-								elif self.fed<.5:
+
+				
+												
 								
-									dest = self.getKnownSourceFor((1,))
+			if self.fed <.4:
+				if not 1 in self.needs:
+					self.needs.append(1)
+				
+			if self.energy <.4:
+				if not 0 in self.needs:
+					self.needs.append(0)						
 									
-									if dest: 
-									
-										print "go to known resource %d at [%d,%d]" % ((dest.resource.type,)+dest.location)
-										self.pathfinder.find(self.getlocation(), dest.location)
-									
-									else:
-										# if there a no known beer sources, abort search
-										self.bfs.stop()
-										self.goAnyWhere()
 								
-								
-								# if nothing has been found as of the depth of 20, stop searching
-								if self.bfs.depth>10:
-									self.bfs.stop()
-									self.goAnyWhere()
 								
 								
 
@@ -234,7 +187,7 @@ class Jaja(pygame.sprite.Sprite):
 			rad=math.hypot(mx,my)			
 			
 			
-			if rad>.2:
+			if rad>.1:
 				cost=self.currentmapnode.cost()
 				speed=.1/cost * self.energy
 				mx/=rad
@@ -322,6 +275,13 @@ class Jaja(pygame.sprite.Sprite):
 			
 		else:
 			return None
+			
+	
+	# stores node known as source in the known-sources list
+	def memorizeSource(self, node):
+	
+		if not node in self.knownsources:
+			self.knownsources.append(node)
 			
 			
 

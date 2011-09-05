@@ -19,12 +19,14 @@ class BFSHandler:
 	def find(self, startNode, lookingFor):
 		
 		self.searching=True
+		if type(lookingFor)==int:
+			lookingFor=(lookingFor,)
 		self.lookingFor=lookingFor
 		
 		self.knownNodes=[]
 		self.knownNodes.append(startNode)
 		self.listPos=0
-		self.depth=0
+		self.depth=1
 		self.depthOfNodes=[0]
 		
 		self.found=None
@@ -50,10 +52,10 @@ class BFSHandler:
 						print "bfs found acommodation in depth", self.depth, "@", self.found.location
 						return
 				else:
-					if nn.resource and nn.resource.type is self.lookingFor:
+					if nn.resource and nn.resource.type in self.lookingFor:
 						self.found=nn
 						self.searching=False
-						print "bfs found resource %d in depth %d @ %d,%d" % ((self.lookingFor, self.depth) + self.found.location)
+						print "bfs one of searched resources in depth %d @ %d,%d" % ((self.depth,) + self.found.location)
 						return
 				
 				# nothing found yet; continue			
