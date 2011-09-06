@@ -65,7 +65,7 @@ class Node:
 		if type(restypes) is int:
 			restypes=(restypes,)
 		if self.resource:
-			if self.resource in restypes:
+			if self.resource.type in restypes:
 				return True
 		return False
 
