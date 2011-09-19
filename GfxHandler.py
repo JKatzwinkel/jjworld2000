@@ -69,13 +69,13 @@ class GfxHandler:
 		self.screen.scroll(-mx,-my)
 		
 		if mx>0:
-			self.dirty.append(pygame.Rect((sx+w,sy),(mx,h)))
+			self.dirty.append(pygame.Rect((sx+w,sy+my),(mx,h)))
 		if mx<0:
-			self.dirty.append(pygame.Rect((sx+mx,sy),(-mx,h)))
+			self.dirty.append(pygame.Rect((sx+mx,sy+my),(-mx,h)))
 		if my>0:
-			self.dirty.append(pygame.Rect((sx,sy+h),(w,my)))
+			self.dirty.append(pygame.Rect((sx+mx,sy+h),(w,my)))
 		if my<0:
-			self.dirty.append(pygame.Rect((sx,sy+my),(w,-my)))
+			self.dirty.append(pygame.Rect((sx+mx,sy+my),(w,-my)))
 		
 		self.topleft = pointOfView
 		
