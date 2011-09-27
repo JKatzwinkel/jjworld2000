@@ -7,7 +7,7 @@ import random
 import Map
 import GfxHandler
 import Jaja
-import Resource
+import resources.Resource
 
 class Jajaworld:
 
@@ -34,7 +34,8 @@ class Jajaworld:
 			
 		for s in range(0,15):
 			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
-			n.spawnResource(1,20)
+			if not(n.water>0):
+				n.spawnResource(1,20)
 		
 #		Jaja.Jaja((10,10),self.map)
 #		for x in range(90,11,-1):

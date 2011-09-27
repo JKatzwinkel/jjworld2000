@@ -161,7 +161,7 @@ class Map:
 				self.waternodes.append(n)
 				
 		
-		#
+		# let more grass grow on nodes adjacent to those holding water
 		for n in self.nodes:
 			if n.water==0:
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
