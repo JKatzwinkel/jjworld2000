@@ -28,6 +28,8 @@ class Jajaworld:
 		
 		gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
+		self.map.initDetails()
+		
 		clock = pygame.time.Clock()
 		
 		jajas=[]
@@ -49,10 +51,11 @@ class Jajaworld:
 #				n.spawnResource(0,1)
 		
 		# set some bushes
-		for b in range(0,50):
+		for b in range(0,100):
 			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
-			if not(n.water>0) and n.fertility()>5:
+			if not(n.water>0) and n.fertility()>6 and n.fertility()<10:
 				n.spawnResource(2,random.randrange(0,10))
+				
 			
 		
 #		Jaja.Jaja((10,10),self.map)
@@ -64,16 +67,9 @@ class Jajaworld:
 		my=0
 		
 		while 1:
-			for event in pygame.event.get():
-				if event.type == QUIT:
-					return
-				if event.type == MOUSEBUTTONDOWN:
-					x,y=map(operator.add, pygame.mouse.get_pos(), self.topleft)
-					print "mouse pressed @ position ",x/20,y/20
-					print "coziness at this point: ", self.map.getNode((x/20,y/20)).coziness()
-					print "fertility at this point: ", self.map.getNode((x/20,y/20)).fertility()
-#				elif event.type == KEYPRESSED:
+
 			pressed=pygame.key.get_pressed()
+
 			if pressed[K_RIGHT]:
 				mx+=8
 			if pressed[K_DOWN]:
@@ -82,10 +78,26 @@ class Jajaworld:
 				mx-=8
 			if pressed[K_UP]:
 				my-=8
+
+			for event in pygame.event.get():
+				if event.type == QUIT:
+					return
+				if event.type == MOUSEBUTTONDOWN:
+					x,y=map(operator.add, pygame.mouse.get_pos(), self.topleft)
+					print "mouse pressed @ position ",x/20,y/20
+					n= self.map.getNode((x/20,y/20))
+					print "coziness at this point: ", n.coziness()
+					print "fertility at this point: ", n.fertility()
+					
+					if pressed[K_LSHIFT]:
+						if not n.resource or n.containsResources(1):
+							n.resource=None
+							n.spawnResource(1,20)
+#				elif event.type == KEYPRESSED:
 						
 				
 						
-			self.map.grow(1)
+			self.map.grow(2)
 			self.map.water_float(30)
 
 			#scrolling

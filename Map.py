@@ -37,7 +37,7 @@ class Node:
 	# returns the sum of this node's vegetation level plus its neighbours'. 
 	# used to determine vegetation growing speed
 	def fertility(self):
-		vsum=sum(map(lambda nn : nn.vegetation+nn.water*5, self.neighbours))
+		vsum=sum(map(lambda nn : nn.vegetation+nn.water*5+int(nn.containsResources(2)), self.neighbours))
 		return vsum+self.vegetation
 
 	# an indicator for how comfortable a place is to sleep on
@@ -118,7 +118,7 @@ class Map:
 		pondsnr=width*height/500
 		for i in range(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
-			n=self.nodes[random.randint(0,len(self.nodes))]
+			n=self.nodes[random.randrange(0,len(self.nodes))]
 			towater.append(n)
 			counter=0
 			
@@ -170,8 +170,28 @@ class Map:
 		for n in self.nodes:
 			if n.water==0:
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
+				
 		
-							
+		
+		
+
+
+	# do some gardening
+	def initDetails(self):
+		
+		# grow some groups of bushes
+		for i in range(0,random.randrange(2,self.height*self.width/800)):
+			n=self.nodes[random.randint(0,len(self.nodes))]
+			while n.fertility() < 6 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<2:
+				n=self.nodes[random.randrange(0,len(self.nodes))]
+			
+			for j in range(0,random.randrange(10,30)):
+				if n.water==0 and n.fertility()>4 and n.fertility()<10:
+					n.spawnResource(2,random.randrange(0,5))
+					n.vegetation+=1
+				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
+
+
 							
 		
 				
@@ -224,9 +244,9 @@ class Map:
 					n.resource.grow()
 					n.resource.draw(self.gfx.layer)
 				
-				else:
+				elif n.vegetation>2:
 					fertility=n.fertility()
-					if fertility>5 and fertility<10 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+					if fertility>6 and fertility<10 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
 					
 				

@@ -162,7 +162,7 @@ class Jaja(pygame.sprite.Sprite):
 					print "found pillow"
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
-				elif self.currentmapnode.coziness()>10:
+				elif self.currentmapnode.resource is None and self.currentmapnode.coziness()>10:
 					print "found place to sleep: ", self.currentmapnode.coziness()
 					self.action=Jaja.ACT_SLEEP
 					if self.currentmapnode.coziness()>50:
@@ -279,7 +279,7 @@ class Jaja(pygame.sprite.Sprite):
 		jx,jy=self.currentmapnode.location
 		x,y=(random.randrange(jx-6,jx+7),random.randrange(jy-6,jy+7))
 		node=self.map.getNode((x,y))
-		while not(node) or node in self.map.waternodes or node.vegetation>3 or node.resource:
+		while not(node) or node.water>0 or node.vegetation>3 or node.resource:
 			x,y=(random.randrange(jx-5,jx+6),random.randrange(jy-5,jy+6	))
 			node=self.map.getNode((x,y))
 
