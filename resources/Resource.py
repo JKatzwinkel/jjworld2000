@@ -19,6 +19,7 @@ class Resource:
 		
 	
 	
+	# looks for a file fitting this resource type in the data directory
 	def initImages(self):
 		
 		filename="data/resource%02d.png" % self.type
@@ -36,12 +37,28 @@ class Resource:
 				self.images.append(image)
 				x+=20
 
+
+	# returns true as long as there is sth to consume
+	# and, of course, decreases the amount of this resource
+	def consume(self):
+	
+		if self.amount > 0:
+			self.amount-=1
+			return True
+		else:
+			return False
+			
 	
 	# draws the resource's image on the surface (absolute coordinates)
 	def draw(self, surface):
 		
-		image=self.images[len(self.images) * self.amount / self.maxAmount - 1 ]
+		index=len(self.images) * self.amount / self.maxAmount - 1 
+		image=self.images[index]
+		
+		print "drawing image nr. ", index
 		
 		surface.blit(image, map(operator.mul, self.mapnode.location, (20,20)))
+		
+		self.mapnode.map.gfx.setDirty(self.mapnode)
 		
 
