@@ -5,7 +5,7 @@ import pygame
 import operator
 
 import Images
-import Resource
+import resources.Resource as Rsc
 
 class Node:
 
@@ -13,7 +13,7 @@ class Node:
 	
 		self.map=mp
 		self.neighbours=[]
-		self.vegetation=random.random()*random.random()*random.random()*8
+		self.vegetation=random.random()*random.random()*random.random()*5
 		self.water=0
 		self.lid=lid
 		self.location=location
@@ -40,7 +40,7 @@ class Node:
 	def fertility(self):
 		vsum=0
 		for nn in self.neighbours:
-			vsum+=nn.vegetation
+			vsum+=nn.vegetation+nn.water*10
 		return vsum*self.vegetation
 
 
@@ -56,7 +56,7 @@ class Node:
 	# spawns a certain resource on this very map node
 	def spawnResource(self, restype, amount):
 		if self.resource is None:
-			self.resource = Resource.Resource(restype, amount, self)
+			self.resource = Rsc.Resource(restype, amount, self)
 			self.resource.draw(self.map.gfx.layer)
 			
 		
@@ -86,7 +86,7 @@ class Map:
 		self.waternodes = []
 		self.wavecounter=0
 		
-		
+		# initialize map node list
 		for y in range(0,height):
 			for x in range(0,width):
 				self.nodes.append(Node((x,y), y*width+x, self))
@@ -159,6 +159,12 @@ class Map:
 			
 			for n in creeknodes:
 				self.waternodes.append(n)
+				
+		
+		#
+		for n in self.nodes:
+			if n.water==0:
+				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
 		
 							
 							
