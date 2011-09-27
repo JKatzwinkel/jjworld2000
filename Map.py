@@ -37,12 +37,12 @@ class Node:
 	# returns the sum of this node's vegetation level plus its neighbours'. 
 	# used to determine vegetation growing speed
 	def fertility(self):
-		vsum=sum(map(lambda nn : nn.vegetation+nn.water*10, n.neighbours))
+		vsum=sum(map(lambda nn : nn.vegetation+nn.water*10, self.neighbours))
 		return vsum+self.vegetation
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		vsum=sum(map(lambda nn : nn.vegetation, n.neighbours))
+		vsum=sum(map(lambda nn : nn.vegetation, self.neighbours))
 		return vsum*self.vegetation
 
 
