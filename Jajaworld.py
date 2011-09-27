@@ -31,11 +31,18 @@ class Jajaworld:
 		jajas=[]
 		for j in range(0,15):
 			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
-			
-		for s in range(0,15):
+
+		# get some beer			
+		for s in range(0,5):
 			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
 			if not(n.water>0):
 				n.spawnResource(1,20)
+
+		# make some beds
+		for s in range(0,4):
+			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
+			if not(n.water>0):
+				n.spawnResource(0,1)
 		
 #		Jaja.Jaja((10,10),self.map)
 #		for x in range(90,11,-1):
@@ -81,6 +88,7 @@ class Jajaworld:
 			
 #			self.screen.blit(jaja.image, jaja.locationOnScreen())
 
+			jajas=sorted(jajas, key=lambda jaja:jaja.location[1])
 			
 			for jaja in jajas:
 				jaja.draw(self.screen)

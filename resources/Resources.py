@@ -22,21 +22,18 @@ class Sterni(Resource.Resource):
 		
 		image=pygame.image.load("data/resource01.png").convert_alpha()
 		
-		# filling sterni images
-		for i in range(0,19):
-			self.images.append(None)
 		self.images.append(image.copy())
 			
 		# randomly remove bottles from crate
-		for i in range(18,0,-1):
+		for i in range(0,20):
 			x=5+2*random.randrange(0,5)
 			y=7+random.randrange(0,4)
 			while image.get_at((x,y)).r < 100:
 				x=5+2*random.randrange(0,5)
 				y=7+random.randrange(0,4)
-			image.set_at((x,y), pygame.Color(0,0,0,255))
+			image.set_at((x,y), image.get_at((x+1,y)))
 			
-			self.images[i]=image.copy()
+			self.images.insert(0,image.copy())
 		
 		
 		self.maxAmount=20

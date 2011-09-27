@@ -44,6 +44,7 @@ class Resource:
 	
 		if self.amount > 0:
 			self.amount-=1
+			self.draw(self.mapnode.map.gfx.layer)
 			return True
 		else:
 			return False
@@ -52,10 +53,14 @@ class Resource:
 	# draws the resource's image on the surface (absolute coordinates)
 	def draw(self, surface):
 		
-		index=len(self.images) * self.amount / self.maxAmount - 1 
+		if self.amount>0:
+			index= 1 + (len(self.images)-1) * self.amount / self.maxAmount - 1 
+		else:
+			index=0
+			
 		image=self.images[index]
 		
-		print "drawing image nr. ", index
+		#print "drawing image nr. ", index
 		
 		surface.blit(image, map(operator.mul, self.mapnode.location, (20,20)))
 		

@@ -5,7 +5,7 @@ import pygame
 import operator
 
 import Images
-import resources.Resource as Rsc
+import resources.ResourceFactory as Rsc
 
 class Node:
 
@@ -58,12 +58,13 @@ class Node:
 	# spawns a certain resource on this very map node
 	def spawnResource(self, restype, amount):
 		if self.resource is None:
-			self.resource = Rsc.Resource(restype, amount, self)
+			self.resource = Rsc.createResource(restype, amount, self)
 			self.resource.draw(self.map.gfx.layer)
-			self.map.gfx.setDirty(self)
+#			self.map.gfx.setDirty(self)
 			
 		
-	# tells if there is a resoucre of a certain kind on this node	
+	# tells if there is a resoucre of a certain kind on this node
+	# this resource may even be empty !!!	
 	def containsResources(self, restypes):
 		if type(restypes) is int:
 			restypes=(restypes,)
@@ -220,7 +221,7 @@ class Map:
 	# shrink, for instance when stepped on
 	def shrink(self, node):
 		old=int(node.vegetation)
-		node.vegetation*=.9
+		node.vegetation*=.85
 		node.variant+=1
 		if old>0: 
 			node.draw(self.gfx.background)

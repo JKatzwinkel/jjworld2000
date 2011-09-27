@@ -143,11 +143,12 @@ class Jaja(pygame.sprite.Sprite):
 								
 			if self.fed <.4:
 				if self.currentmapnode.containsResources(1):
-					print "found beer"
-					self.memorizeSource(self.currentmapnode)
-					self.fed+=1
-					#TODO
-					self.currentmapnode.resource.amount-=1
+					if self.currentmapnode.resource.consume():
+						print "found beer"
+						self.memorizeSource(self.currentmapnode)
+						self.fed+=1
+					else:
+						self.forgetSource(self.currentmapnode)
 				elif not 1 in self.needs:
 					self.needs.append(1)
 				
@@ -306,6 +307,11 @@ class Jaja(pygame.sprite.Sprite):
 	
 		if not node in self.knownsources:
 			self.knownsources.append(node)
+			
+	# deletes node from known-sources list
+	def forgetSource(self, node):
+		if node in self.knownsources:
+			self.knownsources.remove(node)
 			
 			
 
