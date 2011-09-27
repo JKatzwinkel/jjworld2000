@@ -5,14 +5,12 @@ import Images
 
 class Resource:
 
-	maximumAmounts=[0,		# nothing
-					20]		# sterni
-
 	def __init__(self, restype, amount, mapnode):
 		
 		self.type=restype
 		self.amount=amount
 		self.mapnode=mapnode
+		self.images=[]
 		
 		print "create resource ",restype,"at ", mapnode.location
 		
