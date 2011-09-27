@@ -42,7 +42,7 @@ class Node:
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		vsum=reduce(lambda x,y: x*y, (map(lambda nn : (1+nn.vegetation), self.neighbours)))
+		vsum=reduce(lambda x,y: x*y, (map(lambda nn : min(.5,(nn.vegetation-.8)*2), self.neighbours)))
 		return vsum*self.vegetation
 
 
@@ -121,7 +121,7 @@ class Map:
 			towater.append(n)
 			counter=0
 			
-			while len(towater)>0 and counter<40:
+			while len(towater)>0 and counter<random.randint(40,70):
 				counter+=1
 				n=towater.pop(0)
 				n.water=1
