@@ -129,7 +129,7 @@ class Jaja(pygame.sprite.Sprite):
 								self.nearestknownsource = self.getKnownSourceFor(self.bfs.lookingFor)
 							
 							# if the bfs takes too long, either go to the closest known source or, if there aint one, just wander around	
-							if self.nearestknownsource and self.bfs.depth > self.nearestknownsource.distanceTo(self.currentmapnode) or self.bfs.depth>10:
+							if self.nearestknownsource and self.bfs.depth*2 > self.nearestknownsource.distanceTo(self.currentmapnode) or self.bfs.depth>10:
 								
 								self.bfs.stop()
 								
