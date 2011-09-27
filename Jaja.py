@@ -147,15 +147,15 @@ class Jaja(pygame.sprite.Sprite):
 												
 								
 			if self.fed <.4:
-				if self.currentmapnode.containsResources(1):
+				if self.currentmapnode.containsResources((1,2)):
 					if self.currentmapnode.resource.consume():
-						print "found beer"
+						print "found something to eat: ", self.currentmapnode.resource.type
 						self.memorizeSource(self.currentmapnode)
-						self.fed+=1
+						self.fed += self.currentmapnode.resource.effectivity
 					else:
 						self.forgetSource(self.currentmapnode)
-				elif not 1 in self.needs:
-					self.needs.append(1)
+				elif not self.isNeeded((1,2)):
+					self.needs.append((1,2))
 				
 			if self.energy < .4:
 				if self.currentmapnode.containsResources(0):
@@ -169,8 +169,8 @@ class Jaja(pygame.sprite.Sprite):
 						self.currentmapnode.spawnResource(0,1)
 						self.memorizeSource(self.currentmapnode)
 
-				elif not 0 in self.needs:
-					self.needs.append(0)
+				elif not self.isNeeded(0):
+					self.needs.append((0,))
 					print "memorize to sleep"						
 									
 								
@@ -317,11 +317,24 @@ class Jaja(pygame.sprite.Sprite):
 		if not node in self.knownsources:
 			self.knownsources.append(node)
 			
+			
 	# deletes node from known-sources list
 	def forgetSource(self, node):
 		if node in self.knownsources:
 			self.knownsources.remove(node)
 			
+			
+	# checks if certain resource is needed:
+	def isNeeded(self, res):
+	
+		if type(res)==int:
+			res=(res,)
+			
+		for n in self.needs:
+			if any(map(lambda x: x in res, n)):
+				return True
+				
+		return False
 			
 
 

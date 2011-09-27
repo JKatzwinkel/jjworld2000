@@ -48,6 +48,13 @@ class Jajaworld:
 #			if not(n.water>0):
 #				n.spawnResource(0,1)
 		
+		# set some bushes
+		for b in range(0,50):
+			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
+			if not(n.water>0) and n.fertility()>5:
+				n.spawnResource(2,random.randrange(0,10))
+			
+		
 #		Jaja.Jaja((10,10),self.map)
 #		for x in range(90,11,-1):
 #			jaja.path.append(self.map.getNode((x,10)))
@@ -64,6 +71,7 @@ class Jajaworld:
 					x,y=map(operator.add, pygame.mouse.get_pos(), self.topleft)
 					print "mouse pressed @ position ",x/20,y/20
 					print "coziness at this point: ", self.map.getNode((x/20,y/20)).coziness()
+					print "fertility at this point: ", self.map.getNode((x/20,y/20)).fertility()
 #				elif event.type == KEYPRESSED:
 			pressed=pygame.key.get_pressed()
 			if pressed[K_RIGHT]:

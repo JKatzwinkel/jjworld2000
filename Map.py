@@ -208,15 +208,26 @@ class Map:
 		
 		
 	# let some grass grow
+	# or resources
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
-			if not(n.water>0 or n.vegetation>10):
-				old=int(n.vegetation)
-				n.vegetation += 0.01 + random.random() * n.fertility() / 40
-				#only redraw square if its appearance has actually changed
-				if int(n.vegetation)!=old:
-					n.draw(self.gfx.background)
+			if not n.water>0:
+				if not(n.vegetation>10):
+					old=int(n.vegetation)
+					n.vegetation += 0.01 + random.random() * n.fertility() / 40
+					#only redraw square if its appearance has actually changed
+					if int(n.vegetation)!=old:
+						n.draw(self.gfx.background)
+					
+				if n.resource:
+					n.resource.grow()
+					n.resource.draw(self.gfx.layer)
+				
+				else:
+					fertility=n.fertility()
+					if fertility>5 and fertility<10 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+						n.spawnResource(2,0)
 					
 				
 	# shrink, for instance when stepped on
