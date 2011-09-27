@@ -115,7 +115,9 @@ class Jaja(pygame.sprite.Sprite):
 								
 							# if I dont need anything, just go somewhere
 							else: 
-								self.goAnyWhere()
+								if random.random() < .01:
+									self.goAnyWhere()
+								
 						
 						# if there is currently a bfs running
 						else:
@@ -130,6 +132,7 @@ class Jaja(pygame.sprite.Sprite):
 								self.bfs.stop()
 								
 								if self.nearestknownsource:
+									print "bfs takes too long, go to known resource @ ", self.nearestknownsource.location
 									self.pathfinder.find(self.currentmapnode.location, self.nearestknownsource.location)
 									self.nearestknownsource=None
 									
@@ -157,7 +160,7 @@ class Jaja(pygame.sprite.Sprite):
 					print "found pillow"
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
-				elif self.currentmapnode.coziness()>6:
+				elif self.currentmapnode.coziness()>10:
 					self.currentmapnode.spawnResource(0,1)
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
@@ -270,7 +273,7 @@ class Jaja(pygame.sprite.Sprite):
 		jx,jy=self.currentmapnode.location
 		x,y=(random.randrange(jx-6,jx+7),random.randrange(jy-6,jy+7))
 		node=self.map.getNode((x,y))
-		while not(node) or node in self.map.waternodes or node.vegetation>3:
+		while not(node) or node in self.map.waternodes or node.vegetation>3 or node.resource:
 			x,y=(random.randrange(jx-5,jx+6),random.randrange(jy-5,jy+6	))
 			node=self.map.getNode((x,y))
 

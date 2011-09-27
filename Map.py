@@ -42,7 +42,7 @@ class Node:
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		vsum=reduce(lambda x,y: x*y, (map(lambda nn : nn.vegetation, self.neighbours)))
+		vsum=reduce(lambda x,y: x*y, (map(lambda nn : (1+nn.vegetation), self.neighbours)))
 		return vsum*self.vegetation
 
 
@@ -212,7 +212,7 @@ class Map:
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			if not(n.water>0 or n.vegetation>10):
 				old=int(n.vegetation)
-				n.vegetation += 0.01 + random.random() * n.fertility() / 50
+				n.vegetation += 0.01 + random.random() * n.fertility() / 40
 				#only redraw square if its appearance has actually changed
 				if int(n.vegetation)!=old:
 					n.draw(self.gfx.background)

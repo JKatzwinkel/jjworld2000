@@ -30,10 +30,12 @@ class Jajaworld:
 		
 		jajas=[]
 		for j in range(0,15):
-			jajas.append(Jaja.Jaja((random.randrange(0,self.map.width), random.randrange(0,self.map.height)), self.map))
+			x=random.randrange(self.map.width/2-self.map.width/8,self.map.width/2+self.map.width/8)
+			y=random.randrange(self.map.width/2-self.map.height/8,self.map.height/2+self.map.height/8)
+			jajas.append(Jaja.Jaja((x,y), self.map))
 
 		# get some beer			
-		for s in range(0,5):
+		for s in range(0,20):
 			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
 			if not(n.water>0):
 				n.spawnResource(1,20)
@@ -59,13 +61,13 @@ class Jajaworld:
 #				elif event.type == KEYPRESSED:
 			pressed=pygame.key.get_pressed()
 			if pressed[K_RIGHT]:
-				mx+=6
+				mx+=8
 			if pressed[K_DOWN]:
-				my+=6
+				my+=8
 			if pressed[K_LEFT]:
-				mx-=6
+				mx-=8
 			if pressed[K_UP]:
-				my-=6
+				my-=8
 						
 				
 						
@@ -96,12 +98,12 @@ class Jajaworld:
 			
 			pygame.display.flip()
 			
-			clock.tick(30)
+			clock.tick(25)
 
 
 def main():
 	w=Jajaworld()
-	w.init(60,60)
+	w.init(70,70)
 	w.mainLoop()
 	
 if __name__ == '__main__': main()
