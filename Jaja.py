@@ -84,37 +84,47 @@ class Jaja(pygame.sprite.Sprite):
 		# stand
 		if self.action is Jaja.ACT_STAND:
 		
+			# if there is not a* search running
 			if not self.pathfinder.searching:
-				
+				# if there is not already a path that I could walk
 				if not len(self.path) > 0:
-				
+					# get path from a* handler
 					path=self.pathfinder.getPath()
+					# if path available:
 					if path:
 				
 						self.path=path
 						self.action=Jaja.ACT_WALK
-						
+					# if no path available yet	
 					else:
-					
+						# if there is no breadth first search running
 						if not self.bfs.searching:
-
+					
 							found=self.bfs.getFound()
+							# if bfs did already return a destiny, stop search (???TODO) and start a* to that certain node
 							if found: 
 								
 								self.bfs.stop()
 								self.pathfinder.find(self.currentmapnode.location, found.location)
-						
+								
+							# if I need sth, start looking for the most urgent thing
 							if len(self.needs)>0:
 							
 								need = self.needs.pop(0)
 								self.bfs.find(self.currentmapnode, need)		
+								
+							# if I dont need anything, just go somewhere
+							else: 
+								self.goAnyWhere()
 						
-
+						# if there is currently a bfs running
 						else:
-						
+							
+							# get the position of the closest known source for a certain need
 							if not self.nearestknownsource:
 								self.nearestknownsource = self.getKnownSourceFor(self.bfs.lookingFor)
-								
+							
+							# if the bfs takes too long, either go to the closest known source or, if there aint one, just wander around	
 							if self.nearestknownsource and self.bfs.depth > self.nearestknownsource.distanceTo(self.currentmapnode) or self.bfs.depth>10:
 								
 								self.bfs.stop()
@@ -132,11 +142,25 @@ class Jaja(pygame.sprite.Sprite):
 												
 								
 			if self.fed <.4:
-				if not 1 in self.needs:
+				if self.currentmapnode.containsResources(1):
+					print "found beer"
+					self.memorizeSource(self.currentmapnode)
+					self.fed+=1
+					#TODO
+					self.currentmapnode.resource.amount-=1
+				elif not 1 in self.needs:
 					self.needs.append(1)
 				
 			if self.energy <.4:
-				if not 0 in self.needs:
+				if self.currentmapnode.containsResources(0):
+					print "found pillow"
+					self.memorizeSource(self.currentmapnode)
+					self.action=Jaja.ACT_SLEEP
+				elif self.currentmapnode.coziness()>6:
+					self.currentmapnode.spawnResource(0,1)
+					self.memorizeSource(self.currentmapnode)
+					self.action=Jaja.ACT_SLEEP
+				elif not 0 in self.needs:
 					self.needs.append(0)						
 									
 								
