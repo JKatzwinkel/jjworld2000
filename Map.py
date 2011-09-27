@@ -42,9 +42,10 @@ class Node:
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		vsum=reduce(lambda x,y: x*y, (map(lambda nn : max(.6,(nn.vegetation-.8)*2), self.neighbours)))
+		if self.vegetation<1:
+			return 0
+		vsum=reduce(lambda x,y: x*y, (map(lambda nn : max(nn.water*1.5, min(nn.vegetation**2, nn.vegetation+.5)), self.neighbours)))
 		return vsum*self.vegetation
-
 
 	# draws node in current appearance on surface
 	# also returns absolute coordinates of the node, if something wants it	

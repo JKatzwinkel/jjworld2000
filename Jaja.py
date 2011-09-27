@@ -45,9 +45,9 @@ class Jaja(pygame.sprite.Sprite):
 		self.needs=[]
 		
 		
-		self.energy=.4
+		self.energy=.5
 		self.fed=0
-		self.action=Jaja.ACT_SLEEP
+		self.action=Jaja.ACT_STAND
 		
 
 		
@@ -107,10 +107,12 @@ class Jaja(pygame.sprite.Sprite):
 								self.bfs.stop()
 								self.pathfinder.find(self.currentmapnode.location, found.location)
 								
+								
 							# if I need sth, start looking for the most urgent thing
-							if len(self.needs)>0:
+							elif len(self.needs)>0:
 							
 								need = self.needs.pop(0)
+								print "go find resource ", need
 								self.bfs.find(self.currentmapnode, need)		
 								
 							# if I dont need anything, just go somewhere
@@ -155,18 +157,21 @@ class Jaja(pygame.sprite.Sprite):
 				elif not 1 in self.needs:
 					self.needs.append(1)
 				
-			if self.energy <.4:
+			if self.energy < .4:
 				if self.currentmapnode.containsResources(0):
 					print "found pillow"
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
 				elif self.currentmapnode.coziness()>10:
 					print "found place to sleep: ", self.currentmapnode.coziness()
-					self.currentmapnode.spawnResource(0,1)
-					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
+					if self.currentmapnode.coziness()>50:
+						self.currentmapnode.spawnResource(0,1)
+						self.memorizeSource(self.currentmapnode)
+
 				elif not 0 in self.needs:
-					self.needs.append(0)						
+					self.needs.append(0)
+					print "memorize to sleep"						
 									
 								
 								

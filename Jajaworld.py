@@ -3,6 +3,7 @@ from pygame.locals import *
 from pygame.time import Clock
 import math
 import random
+import operator
 
 import Map
 import GfxHandler
@@ -20,7 +21,8 @@ class Jajaworld:
 		
 		self.topleft=(0,0)
 		
-
+	
+	# THE MAIN LOOP #
 	def mainLoop(self):
 
 		
@@ -58,6 +60,10 @@ class Jajaworld:
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
+				if event.type == MOUSEBUTTONDOWN:
+					x,y=map(operator.add, pygame.mouse.get_pos(), self.topleft)
+					print "mouse pressed @ position ",x/20,y/20
+					print "coziness at this point: ", self.map.getNode((x/20,y/20)).coziness()
 #				elif event.type == KEYPRESSED:
 			pressed=pygame.key.get_pressed()
 			if pressed[K_RIGHT]:
