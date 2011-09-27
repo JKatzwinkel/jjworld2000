@@ -25,7 +25,7 @@ class Node:
 	# used to determine the speed of moving characters
 	# and in shortest path algorithm
 	def cost(self):
-		return 1+self.vegetation+self.water*16+float(not self.resource is None)*3
+		return 1+self.vegetation+self.water*14+float(not self.resource is None)*2.5
 		
 	
 	# returns the (manhattan) distance to the given node
@@ -41,7 +41,7 @@ class Node:
 		vsum=0
 		for nn in self.neighbours:
 			vsum+=nn.vegetation+nn.water*10
-		return vsum*self.vegetation
+		return vsum*(1+self.vegetation/3)
 
 
 	# draws node in current appearance on surface
