@@ -36,12 +36,14 @@ class Node:
 		
 	# returns the sum of this node's vegetation level plus its neighbours'. 
 	# used to determine vegetation growing speed
-	# also an indicator for how comfortable a place is to sleep on
 	def fertility(self):
-		vsum=0
-		for nn in self.neighbours:
-			vsum+=nn.vegetation+nn.water*10
-		return vsum*(1+self.vegetation/3)
+		vsum=sum(map(lambda nn : nn.vegetation+nn.water*10, n.neighbours))
+		return vsum+self.vegetation
+
+	# an indicator for how comfortable a place is to sleep on
+	def coziness(self):
+		vsum=sum(map(lambda nn : nn.vegetation, n.neighbours))
+		return vsum*self.vegetation
 
 
 	# draws node in current appearance on surface
@@ -58,6 +60,7 @@ class Node:
 		if self.resource is None:
 			self.resource = Rsc.Resource(restype, amount, self)
 			self.resource.draw(self.map.gfx.layer)
+			self.map.gfx.setDirty(self)
 			
 		
 	# tells if there is a resoucre of a certain kind on this node	
