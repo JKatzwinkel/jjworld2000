@@ -95,18 +95,18 @@ def getMapNodeImage(node):
 		neighbour=node.map.getNode((node.location[0]-1,node.location[1]))
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
-				pygame.draw.line(image,(100,100,100),(0,0),(0,19))
+				pygame.draw.line(image,(100,200,100),(0,0),(0,19))
 		neighbour=node.map.getNode((node.location[0],node.location[1]-1))
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
-				pygame.draw.line(image,(100,100,100),(0,0),(19,0))
+				pygame.draw.line(image,(100,200,100),(0,0),(19,0))
 		return image
 	
 	# grass
 	if node.vegetation < 1: 
 		image=pygame.Surface((20,20))
 		# TODO: maybe, grass images should be transparent, too, which would make ground image rendering more adjustable
-		image.fill((216,242-node.fertility(),203))
+		image.fill((216-node.fertility()*2,242,203))
 		return image
 	
 	level = min(int(node.vegetation-1),len(grass)-1)

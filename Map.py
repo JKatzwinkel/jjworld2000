@@ -13,7 +13,7 @@ class Node:
 	
 		self.map=mp
 		self.neighbours=[]
-		self.vegetation=random.random()*random.random()*random.random()*5
+		self.vegetation=random.random()*random.random()*random.random()*random.random()*12
 		self.water=0
 		self.lid=lid
 		self.location=location
@@ -42,7 +42,7 @@ class Node:
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		vsum=reduce(lambda x,y: x*y, (map(lambda nn : min(.5,(nn.vegetation-.8)*2), self.neighbours)))
+		vsum=reduce(lambda x,y: x*y, (map(lambda nn : max(.6,(nn.vegetation-.8)*2), self.neighbours)))
 		return vsum*self.vegetation
 
 
@@ -101,7 +101,7 @@ class Map:
 				n.neighbours.append(nn)
 							
 		# manage grass
-		for i in range(0,3):
+		for i in range(0,5):
 			vegetation=numpy.zeros(len(self.nodes))
 			for n in self.nodes:
 				vsum=0
