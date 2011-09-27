@@ -160,7 +160,8 @@ class Jaja(pygame.sprite.Sprite):
 					print "found pillow"
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP
-				elif self.currentmapnode.coziness()>10:
+				elif self.currentmapnode.coziness()>16:
+					print "found place to sleep: ", self.currentmapnode.coziness()
 					self.currentmapnode.spawnResource(0,1)
 					self.memorizeSource(self.currentmapnode)
 					self.action=Jaja.ACT_SLEEP

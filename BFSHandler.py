@@ -46,7 +46,7 @@ class BFSHandler:
 			if not(nn in self.knownNodes):
 				#check if whatever we are looking for is here
 				if self.lookingFor is 0:
-					if nn.coziness() > 10 or nn.resource and nn.resource.type is 0:
+					if nn.coziness() > 20 or nn.resource and nn.resource.type is 0:
 						self.found=nn
 						self.searching=False
 						print "bfs found acommodation in depth", self.depth, "@", self.found.location
