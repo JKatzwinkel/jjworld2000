@@ -10,7 +10,6 @@ grass=[]
 water=[]
 icons=[]
 jajas=[]
-resrs=[]
 
 
 ICON_MAP=0
@@ -75,27 +74,6 @@ def init():
 	sprite=pygame.image.load("data/jaja00.png").convert_alpha()
 	jajas.append(sprite)
 	
-	# load resource sprites
-	res=0
-	resrs=[]
-	
-	filename="data/resource%02d.png" % res
-	while os.path.isfile(filename):
-		
-		variants=[]
-		
-		ressprites=pygame.image.load(filename).convert_alpha()
-		
-		x=0
-		while x<levelsprites.get_rect().width:
-			image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
-			image.blit(ressprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
-			variants.append(image)
-			x+=20
-			
-		resrs.append(variants)
-		res+=1
-		filename="data/resource%02d.png" % res
 
 
 		
@@ -152,9 +130,5 @@ def getJajaImage(jaja):
 	return None
 
 	
-# returns the image for a given resource
-def getResourceImage(resource):
-	print "return image nr. ", resource.type
-	return resrs[resource.type][0]
 	
 	
