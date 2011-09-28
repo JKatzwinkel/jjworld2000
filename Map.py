@@ -244,9 +244,9 @@ class Map:
 					n.resource.grow()
 					n.resource.draw(self.gfx.layer)
 				
-				elif n.vegetation>2:
+				elif n.vegetation>1:
 					fertility=n.fertility()
-					if fertility>6 and fertility<10 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+					if fertility>6.5 and fertility<9.5 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
 					
 				

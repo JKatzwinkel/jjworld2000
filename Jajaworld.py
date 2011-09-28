@@ -33,7 +33,7 @@ class Jajaworld:
 		clock = pygame.time.Clock()
 		
 		jajas=[]
-		for j in range(0,15):
+		for j in range(0,30):
 			x=random.randrange(self.map.width/2-self.map.width/8,self.map.width/2+self.map.width/8)
 			y=random.randrange(self.map.width/2-self.map.height/8,self.map.height/2+self.map.height/8)
 			jajas.append(Jaja.Jaja((x,y), self.map))
@@ -97,7 +97,7 @@ class Jajaworld:
 						
 				
 						
-			self.map.grow(2)
+			self.map.grow(1)
 			self.map.water_float(30)
 
 			#scrolling
