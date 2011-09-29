@@ -180,13 +180,14 @@ class Map:
 	def initDetails(self):
 		
 		# grow some groups of bushes
-		for i in range(0,random.randrange(2,self.height*self.width/800)):
+		
+		for i in range(0,random.randrange(2,self.height*self.width/600)):
 			n=self.nodes[random.randint(0,len(self.nodes))]
-			while n.fertility() < 6 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<2:
+			while n.fertility() < 4 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<1:
 				n=self.nodes[random.randrange(0,len(self.nodes))]
 			
-			for j in range(0,random.randrange(10,30)):
-				if n.water==0 and n.fertility()>4 and n.fertility()<10:
+			for j in range(0,random.randrange(20,50)):
+				if n.water==0 and n.fertility()>3 and n.fertility()<10:
 					n.spawnResource(2,random.randrange(0,5))
 					n.vegetation+=1
 				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
@@ -244,9 +245,9 @@ class Map:
 					n.resource.grow()
 					n.resource.draw(self.gfx.layer)
 				
-				elif n.vegetation>1:
+				elif n.vegetation>1.4:
 					fertility=n.fertility()
-					if fertility>6.5 and fertility<9.5 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+					if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
 					
 				

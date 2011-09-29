@@ -10,4 +10,8 @@ def createResource(restype, amount, mapnode):
 		
 		return Resources.Sterni(amount, mapnode)
 		
+	elif restype==2:
+	
+		return Resources.Busch(amount, mapnode)
+		
 	

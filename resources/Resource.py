@@ -14,6 +14,7 @@ class Resource:
 		self.maxAmount=amount
 		self.mapnode=mapnode
 		self.images=[]
+		self.effectivity=1
 		
 		print "create resource ",restype,"at ", mapnode.location
 		
@@ -22,20 +23,16 @@ class Resource:
 	# looks for a file fitting this resource type in the data directory
 	def initImages(self):
 		
-		filename="data/resource%02d.png" % self.type
+		ressprites=Images.getResourceBaseImage(self.type)
 		
-		if os.path.isfile(filename):
-		
-			self.images=[]
-		
-			ressprites=pygame.image.load(filename).convert_alpha()
-		
-			x=0
-			while x<ressprites.get_rect().width:
-				image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
-				image.blit(ressprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
-				self.images.append(image)
-				x+=20
+		self.images=[]
+	
+		x=0
+		while x<ressprites.get_rect().width:
+			image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
+			image.blit(ressprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
+			self.images.append(image)
+			x+=20
 
 
 	# returns true as long as there is sth to consume
@@ -65,5 +62,10 @@ class Resource:
 		surface.blit(image, map(operator.mul, self.mapnode.location, (20,20)))
 		
 		self.mapnode.map.gfx.setDirty(self.mapnode)
+		
+		
+	# has to be implemented by inheriting class
+	def grow(self):
+		pass
 		
 
