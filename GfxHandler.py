@@ -87,5 +87,14 @@ class GfxHandler:
 				self.screen.blit(self.layer, r.move(-self.topleft[0], -self.topleft[1]), r)
 				
 		self.dirty=[]
-				
+		
+		
+	
+	# renders the entire world
+	def satellite(self):
+	
+		wrld = self.background.copy()
+		wrld.blit(self.layer, (0,0))				
+		
+		return wrld
 		

@@ -4,6 +4,7 @@ from pygame.time import Clock
 import math
 import random
 import operator
+import os
 
 import Map
 import GfxHandler
@@ -21,12 +22,13 @@ class Jajaworld:
 		
 		self.topleft=(0,0)
 		
+		self.gfx=GfxHandler.GfxHandler(self.map, self.screen)
+		
 	
 	# THE MAIN LOOP #
 	def mainLoop(self):
 
 		
-		gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
 		self.map.initDetails()
 		
@@ -78,6 +80,9 @@ class Jajaworld:
 				mx-=8
 			if pressed[K_UP]:
 				my-=8
+				
+			if pressed[K_LALT] and pressed[K_s]:
+				self.screenshot(jajas)
 
 			for event in pygame.event.get():
 				if event.type == QUIT:
@@ -112,7 +117,7 @@ class Jajaworld:
 			for jaja in jajas:
 				jaja.update()			
 			
-			gfx.update(self.topleft)
+			self.gfx.update(self.topleft)
 			
 #			self.screen.blit(jaja.image, jaja.locationOnScreen())
 
@@ -127,10 +132,33 @@ class Jajaworld:
 			clock.tick(25)
 
 
+
+	# renders the whole world and saves the image to disk
+	def screenshot(self, characters):
+	
+		bckgrnd=self.gfx.satellite()
+		
+		for c in characters:
+			c.draw(bckgrnd, False)
+		
+		i = 0
+		filename="screenshots/world%03d.png" % i
+		while os.path.isfile(filename):
+			i+=1
+			filename="screenshots/world%03d.png" % i
+		
+		pygame.image.save(bckgrnd, filename)
+		print "screenshot of world saved under ", filename
+
+
 def main():
 	w=Jajaworld()
 	w.init(70,70)
 	w.mainLoop()
+	
+	
+		
+
 	
 if __name__ == '__main__': main()
 

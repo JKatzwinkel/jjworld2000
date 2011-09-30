@@ -42,7 +42,7 @@ class Node:
 
 	# an indicator for how comfortable a place is to sleep on
 	def coziness(self):
-		if self.vegetation<1:
+		if self.vegetation<1 or self.water>0:
 			return 0
 		vsum=reduce(lambda x,y: x*y, (map(lambda nn : max(nn.water*1.5, min(nn.vegetation**2, nn.vegetation+.5)), self.neighbours)))
 		return vsum*self.vegetation
@@ -233,22 +233,22 @@ class Map:
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
-			if not n.water>0:
-				if not(n.vegetation>10):
-					old=int(n.vegetation)
-					n.vegetation += 0.01 + random.random() * n.fertility() / 40
-					#only redraw square if its appearance has actually changed
-					if int(n.vegetation)!=old:
-						n.draw(self.gfx.background)
-					
-				if n.resource:
-					n.resource.grow()
-					n.resource.draw(self.gfx.layer)
+
+			if not(n.vegetation>6):
+				old=int(n.vegetation)
+				n.vegetation += 0.01 + random.random() * n.fertility() / 40
+				#only redraw square if its appearance has actually changed
+				if int(n.vegetation)!=old:
+					n.draw(self.gfx.background)
 				
-				elif n.vegetation>1.4:
-					fertility=n.fertility()
-					if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
-						n.spawnResource(2,0)
+			if n.resource:
+				n.resource.grow()
+				n.resource.draw(self.gfx.layer)
+			
+			elif n.vegetation>1.4:
+				fertility=n.fertility()
+				if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+					n.spawnResource(2,0)
 					
 				
 	# shrink, for instance when stepped on
