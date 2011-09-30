@@ -52,17 +52,6 @@ class Jaja(pygame.sprite.Sprite):
 
 		
 	
-	# compute the position relative to the screen's position
-	def locationOnScreen(self):
-	
-		x,y=self.location
-		sx,sy=self.map.gfx.topleft
-		x=x*20-sx
-		y=y*20-sy+int(self.currentmapnode.water>0)*2
-		return (int(x),int(y))
-		
-	
-		
 		
 	
 	# method to be called in every loop
@@ -144,36 +133,48 @@ class Jaja(pygame.sprite.Sprite):
 
 
 				
-												
-								
-			if self.fed <.4:
-				if self.currentmapnode.containsResources((1,2)):
-					if self.currentmapnode.resource.consume():
-						print "found something to eat: ", self.currentmapnode.resource.type
-						self.memorizeSource(self.currentmapnode)
-						self.fed += self.currentmapnode.resource.effectivity
-					else:
-						self.forgetSource(self.currentmapnode)
-				elif not self.isNeeded((1,2)):
-					self.needs.append((1,2))
+			if not self.pathfinder.searching and not self.bfs.searching:							
+			
+				# hunger	
+				if self.fed <.4:
+					if self.currentmapnode.containsResources((1,2)):
+						if self.currentmapnode.resource.consume():
+							print "found something to eat: ", self.currentmapnode.resource.type
+							self.memorizeSource(self.currentmapnode)
+							self.fed += self.currentmapnode.resource.effectivity
+						else:
+							self.forgetSource(self.currentmapnode)
+					else :
+						self.need((1,2))
 				
-			if self.energy < .4:
-				if self.currentmapnode.containsResources(0):
-					print "found pillow"
-					self.memorizeSource(self.currentmapnode)
-					self.action=Jaja.ACT_SLEEP
-				elif self.currentmapnode.resource is None and self.currentmapnode.coziness()>10:
-					print "found place to sleep: ", self.currentmapnode.coziness()
-					self.action=Jaja.ACT_SLEEP
-					if self.currentmapnode.coziness()>50:
-						self.currentmapnode.spawnResource(0,1)
+				# tired
+				if self.energy < .4:
+					if self.currentmapnode.containsResources(0):
+						print "found pillow"
 						self.memorizeSource(self.currentmapnode)
+						self.action=Jaja.ACT_SLEEP
+					elif self.currentmapnode.resource is None and self.currentmapnode.coziness()>10:
+						print "found place to sleep: ", self.currentmapnode.coziness()
+						self.action=Jaja.ACT_SLEEP
+						if self.currentmapnode.coziness()>50:
+							self.currentmapnode.spawnResource(0,1)
+							self.memorizeSource(self.currentmapnode)
 
-				elif not self.isNeeded(0):
-					self.needs.append((0,))
-					print "memorize to sleep"						
+					else :
+						self.need(0)
+	#					print "memorize to sleep"						
 									
-								
+				# bored
+				if self.energy > .8 and self.fed > .8:
+					if self.currentmapnode.containsResources(1):
+						if self.currentmapnode.resource.consume():
+							print "betrinking"
+							self.memorizeSource(self.currentmapnode)
+							self.fed += .1
+						else:
+							self.forgetSource(self.currentmapnode)
+					else:
+						self.need(1)
 								
 								
 
@@ -230,7 +231,7 @@ class Jaja(pygame.sprite.Sprite):
 				y+=my*speed
 				self.location=(x,y)
 				if self.energy>.25:
-					self.energy-=.0005*(1+cost/30)
+					self.energy-=.0001*(1+cost/30)
 			else:
 				self.path.pop()
 		else:
@@ -239,12 +240,12 @@ class Jaja(pygame.sprite.Sprite):
 				
 			
 	# draw the punk to the given surface
-	def draw(self, surface):
+	def draw(self, surface, relative=True):
 
 		location=map(operator.mul, self.location, (20,20))
 		self.areaOnScreen=pygame.Rect(location, (20,22))
 		
-		los=self.locationOnScreen()
+		los=self.locationOnScreen(relative)
 
 		if not(self.currentmapnode.water>0):
 			surface.blit(Images.getJajaImage(self), los)
@@ -262,6 +263,24 @@ class Jaja(pygame.sprite.Sprite):
 		
 		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(self.energy*5),0) ))
 		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,1)), map(operator.add, los, (int(self.fed*5),0) ))
+
+
+
+
+	# compute the position relative to the screen's position
+	def locationOnScreen(self, relative=True):
+	
+		x,y=self.location
+		if relative:
+			sx,sy=self.map.gfx.topleft
+		else:
+			sx,sy=(0,0)
+		x=x*20-sx
+		y=y*20-sy+int(self.currentmapnode.water>0)*2
+		return (int(x),int(y))
+		
+	
+		
 
 
 
@@ -336,5 +355,16 @@ class Jaja(pygame.sprite.Sprite):
 				
 		return False
 			
+			
+	# remember that I need something
+	def need(self,res):
+		
+		if self.isNeeded(res):
+			return 
+		
+		if type(res)==int:
+			res=(res,)
+		
+		self.needs.append(res)
 
 
