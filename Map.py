@@ -135,7 +135,7 @@ class Map:
 							towater.append(nn)
 			
 		# creeks
-		for i in range(0,random.randint(1,pondsnr/2)):
+		for i in range(0,random.randint(3,pondsnr/2)):
 			creeknodes=[]
 		
 			if random.random()<.5:
