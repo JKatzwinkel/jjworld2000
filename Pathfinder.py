@@ -15,9 +15,8 @@ class Pathfinder:
 		
 		self.map=mp
 		
-		self.open=[]
-		self.openlid=[]
-		self.closed=[]
+		self.open={}
+		self.closed={}
 		self.searching=False
 		
 		self.dest=None
@@ -49,9 +48,9 @@ class Pathfinder:
 		if len(self.open)>0: return
 #		print "starting path search from", start, "to", dest
 		
-		self.open=[]
-		self.openlid=[]
-		self.closed=[]
+		# TODO: rather than arrays, use dictionaries
+		self.open={}
+		self.closed={}
 		
 		self.searching=True
 		
@@ -59,8 +58,8 @@ class Pathfinder:
 		self.path=[]
 
 		startnode=self.map.getNode(start)
-		self.open.append(self.pathNode(startnode, None))
-		self.openlid.append(startnode.lid)
+#		self.open.append(self.pathNode(startnode, None))
+		self.open[startnode.lid]=self.pathNode(startnode, None)
 		
 		
 	# conduct one step in a* algorithm
@@ -70,7 +69,8 @@ class Pathfinder:
 			self.searching=False
 			return
 		
-		pn=min(self.open, key=lambda node: node.cost)
+#		pn=min(self.open, key=lambda node: node.cost)
+		pn=min(self.open.values(), key=lambda node: node.cost)
 
 		if pn.node.location==self.dest.location:
 			#print "FOUND ", pn.node.location
@@ -82,26 +82,27 @@ class Pathfinder:
 			self.searching=False
 			return
 		
+		
 		for nn in pn.node.neighbours:
 		
-			if not(nn.lid in self.closed):
+			try:
+				self.closed[nn.lid]
+			# if lID not in closed list so far:
+			except KeyError:
+		
 				newnode=self.pathNode(nn,pn)
 				
-				if not(nn.lid in self.openlid):
-					self.open.append(newnode)
-					self.openlid.append(nn.lid)
-				else:
-					oldnode=self.open[self.openlid.index(nn.lid)]
-					if newnode.cost<oldnode.cost:
-						print "better path found"
-						oldnode.cost=newnode.cost
-						oldnode.parent=newnode.parent
-			
+				try:
+					if newnode.cost < self.open[nn.lid].cost:
+						#print "better path found"
+						self.open[nn.lid] = newnode
+				except KeyError:
+					self.open[nn.lid] = newnode
+				
 
-		self.open.remove(pn)
-		self.openlid.remove(pn.node.lid)
+		del self.open[pn.node.lid]
 			
-		self.closed.append(pn.node.lid)
+		self.closed[pn.node.lid]=True
 
 	
 	# return complete path

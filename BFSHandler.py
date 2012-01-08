@@ -6,9 +6,8 @@ class BFSHandler:
 		self.searching=False
 		self.depth=0
 
-		self.knownNodes=[]
-		self.depthOfNodes=[]
-		self.listPos=0
+		self.knownNodes={}
+		self.nodesToGo=[]
 		
 		self.lookingFor=0
 		
@@ -23,11 +22,9 @@ class BFSHandler:
 			lookingFor=(lookingFor,)
 		self.lookingFor=lookingFor
 		
-		self.knownNodes=[]
-		self.knownNodes.append(startNode)
-		self.listPos=0
-		self.depth=1
-		self.depthOfNodes=[0]
+		self.knownNodes={startNode.lid:0}
+		self.nodesToGo.append(startNode)
+		self.depth=0
 		
 		self.found=None
 		
@@ -35,15 +32,21 @@ class BFSHandler:
 	# perform one step in BFS algorithm
 	def search(self):
 
-		if self.listPos < len(self.knownNodes):
-			node=self.knownNodes[self.listPos]
+		if len(self.nodesToGo)>0:
+			node=self.nodesToGo.pop(0)
+			try:
+				self.depth=self.knownNodes[node.lid]
+			except KeyError:
+				print "popped nodesToGo list, but no entry in knownNodes"
 		else:
 			self.searching=False
 			return
 		
 		# mark all neighbour nodes as to be searched
 		for nn in node.neighbours:
-			if not(nn in self.knownNodes):
+			try:
+				self.knownNodes[nn.lid]
+			except KeyError:
 				#check if whatever we are looking for is here
 				if 0 in self.lookingFor:
 					if nn.coziness() > 20 or nn.resource and nn.resource.type is 0:
@@ -59,11 +62,10 @@ class BFSHandler:
 						return
 				
 				# nothing found yet; continue			
-				self.knownNodes.append(nn)
-				self.depth=self.depthOfNodes[self.listPos]+1
-				self.depthOfNodes.append(self.depth)
+				self.nodesToGo.append(nn)
+				self.knownNodes[nn.lid]=self.depth+1
 		
-		self.listPos+=1
+
 		
 	# aborts search	
 	def stop(self):
