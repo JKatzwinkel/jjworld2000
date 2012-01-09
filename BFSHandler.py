@@ -23,7 +23,7 @@ class BFSHandler:
 		self.lookingFor=lookingFor
 		
 		self.knownNodes={startNode.lid:0}
-		self.nodesToGo.append(startNode)
+		self.nodesToGo=[startNode]
 		self.depth=0
 		
 		self.found=None
@@ -34,10 +34,7 @@ class BFSHandler:
 
 		if len(self.nodesToGo)>0:
 			node=self.nodesToGo.pop(0)
-			try:
-				self.depth=self.knownNodes[node.lid]
-			except KeyError:
-				print "popped nodesToGo list, but no entry in knownNodes"
+			self.depth=self.knownNodes[node.lid]
 		else:
 			self.searching=False
 			return
@@ -46,7 +43,9 @@ class BFSHandler:
 		for nn in node.neighbours:
 			try:
 				self.knownNodes[nn.lid]
+			# if neighbour node is not known yet
 			except KeyError:
+
 				#check if whatever we are looking for is here
 				if 0 in self.lookingFor:
 					if nn.coziness() > 20 or nn.resource and nn.resource.type is 0:

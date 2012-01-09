@@ -35,10 +35,21 @@ class Jajaworld:
 		clock = pygame.time.Clock()
 		
 		jajas=[]
+		# spawn jajas all in one area:
+#		for j in range(0,30):
+#			x=random.randrange(self.map.width/2-self.map.width/8,self.map.width/2+self.map.width/8)
+#			y=random.randrange(self.map.width/2-self.map.height/8,self.map.height/2+self.map.height/8)
+#			jajas.append(Jaja.Jaja((x,y), self.map))
+		# spawn jajas at the map's edges
 		for j in range(0,30):
-			x=random.randrange(self.map.width/2-self.map.width/8,self.map.width/2+self.map.width/8)
-			y=random.randrange(self.map.width/2-self.map.height/8,self.map.height/2+self.map.height/8)
+			if random.random()<.5:
+				x=random.randrange(0,self.map.width)
+				y=random.randint(0,1)*(self.map.height-1)
+			else:
+				x=random.randint(0,1)*(self.map.width-1)
+				y=random.randrange(0,self.map.height)
 			jajas.append(Jaja.Jaja((x,y), self.map))
+				
 
 		# get some beer			
 		for s in range(0,20):
@@ -153,7 +164,7 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(70,70)
+	w.init(90,90)
 	w.mainLoop()
 	
 	
