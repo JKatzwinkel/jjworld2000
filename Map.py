@@ -19,11 +19,13 @@ class Node:
 		self.location=location
 		self.variant=random.randint(0,100)		
 		self.resource=None
+		#TODO: self.cost
 		
 	
 	# returns the difficulty level of moving on this map node. 
 	# used to determine the speed of moving characters
 	# and in shortest path algorithm
+	# TODO: avoid calculation the cost that often. do this only if it actually might change
 	def cost(self):
 		return 1+self.vegetation+self.water*14+float(not self.resource is None)*2.5
 		
