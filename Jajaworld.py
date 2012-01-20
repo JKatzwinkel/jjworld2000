@@ -76,8 +76,12 @@ class Jajaworld:
 #			jaja.path.append(self.map.getNode((x,10)))
 
 
+		# amount of pixels the visible range of the world is moving
 		mx=0
 		my=0
+		# mouse data
+		mouse={"position": (0,0)}
+		
 		
 		while 1:
 
@@ -95,20 +99,38 @@ class Jajaworld:
 			if pressed[K_LALT] and pressed[K_s]:
 				self.screenshot(jajas)
 
+			mouse["down"]=False
+			mouse["motion"]=False
+			
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
-				if event.type == MOUSEBUTTONDOWN:
+				elif event.type == MOUSEMOTION:
+					mouse["motion"]=True
+				elif event.type == MOUSEBUTTONDOWN:
+					mouse["down"]=True
+					#echo information of map node the mouse is on
 					x,y=map(operator.add, pygame.mouse.get_pos(), self.topleft)
 					print "mouse pressed @ position ",x/20,y/20
 					n= self.map.getNode((x/20,y/20))
 					print "coziness at this point: ", n.coziness()
-					print "fertility at this point: ", n.fertility()
+					print "fertility at this point: ", n.fertility()			
 					
 					if pressed[K_LSHIFT]:
 						if not n.resource or n.containsResources(1):
 							n.resource=None
 							n.spawnResource(1,20)
+							
+
+			if mouse["motion"] and pygame.mouse.get_pressed()[0]:
+				x,y=pygame.mouse.get_pos()
+				ox,oy=mouse["position"]
+				mx=x-ox
+				my=y-oy
+
+			mouse["position"]=pygame.mouse.get_pos()
+
+
 #				elif event.type == KEYPRESSED:
 						
 				
@@ -164,7 +186,7 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(90,90)
+	w.init(70,70)
 	w.mainLoop()
 	
 	

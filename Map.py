@@ -106,7 +106,7 @@ class Map:
 				n.neighbours.append(nn)
 							
 		# manage grass
-		print " growing grass…"
+		print " growing grass..."
 		for i in range(0,5):
 			vegetation=numpy.zeros(len(self.nodes))
 			for n in self.nodes:
@@ -120,7 +120,7 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
-		print " ponds & puddles…"
+		print " ponds & puddles..."
 		pondsnr=width*height/500
 		for i in xrange(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
@@ -141,7 +141,7 @@ class Map:
 							towater.append(nn)
 			
 		# creeks
-		print " creating creeks…"
+		print " creating creeks..."
 		for i in xrange(0,random.randint(3,max(pondsnr/2, 4))):
 			creeknodes=[]
 		
@@ -174,7 +174,7 @@ class Map:
 				
 		
 		# let more grass grow on nodes adjacent to those holding water
-		print " grow even more grass"
+		print " grow even more grass..."
 		for n in self.nodes:
 			if n.water==0:
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
