@@ -93,6 +93,8 @@ class Map:
 		self.waternodes = []
 		self.wavecounter=0
 		
+		print "carving landscape"
+		
 		# initialize map node list
 		for y in range(0,height):
 			for x in range(0,width):
@@ -104,6 +106,7 @@ class Map:
 				n.neighbours.append(nn)
 							
 		# manage grass
+		print " growing grass…"
 		for i in range(0,5):
 			vegetation=numpy.zeros(len(self.nodes))
 			for n in self.nodes:
@@ -117,8 +120,9 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# create ponds
+		print " ponds & puddles…"
 		pondsnr=width*height/500
-		for i in range(0,random.randint(pondsnr,pondsnr*2)):
+		for i in xrange(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			towater.append(n)
@@ -137,7 +141,8 @@ class Map:
 							towater.append(nn)
 			
 		# creeks
-		for i in range(0,random.randint(3,pondsnr/2)):
+		print " creating creeks…"
+		for i in xrange(0,random.randint(3,max(pondsnr/2, 4))):
 			creeknodes=[]
 		
 			if random.random()<.5:
@@ -146,7 +151,7 @@ class Map:
 			else:
 				x=random.randint(0,1)*(self.width-1)
 				y=random.randint(0,(self.height-1))
-			print x,y
+			#print x,y
 			deg=math.atan2((self.height/2-y),(self.width/2-x))
 			deg0=deg
 		
@@ -169,6 +174,7 @@ class Map:
 				
 		
 		# let more grass grow on nodes adjacent to those holding water
+		print " grow even more grass"
 		for n in self.nodes:
 			if n.water==0:
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
@@ -182,7 +188,7 @@ class Map:
 	def initDetails(self):
 		
 		# grow some groups of bushes
-		
+		print " grow bushes"
 		for i in range(0,random.randrange(2,self.height*self.width/600)):
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			while n.fertility() < 4 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<1:
