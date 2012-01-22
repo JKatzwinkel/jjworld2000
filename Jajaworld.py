@@ -97,7 +97,7 @@ class Jajaworld:
 				my-=8
 				
 			if pressed[K_LALT] and pressed[K_s]:
-				self.screenshot(jajas)
+				Images.screenshot(jajas, self.gfx)
 
 			mouse["down"]=False
 			mouse["motion"]=False
@@ -166,22 +166,7 @@ class Jajaworld:
 
 
 
-	# renders the whole world and saves the image to disk
-	def screenshot(self, characters):
-	
-		bckgrnd=self.gfx.satellite()
-		
-		for c in characters:
-			c.draw(bckgrnd, False)
-		
-		i = 0
-		filename="screenshots/world%03d.png" % i
-		while os.path.isfile(filename):
-			i+=1
-			filename="screenshots/world%03d.png" % i
-		
-		pygame.image.save(bckgrnd, filename)
-		print "screenshot of world saved under ", filename
+
 
 
 def main():

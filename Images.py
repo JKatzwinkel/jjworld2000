@@ -158,3 +158,22 @@ def getResourceBaseImage(restype):
 		return None
 	return resrs[restype]
 	
+	
+	
+# renders the whole world and saves the image to disk
+def screenshot(self, characters, gfx):
+
+	bckgrnd=gfx.satellite()
+	
+	for c in characters:
+		c.draw(bckgrnd, False)
+	
+	i = 0
+	filename="screenshots/world%03d.png" % i
+	while os.path.isfile(filename):
+		i+=1
+		filename="screenshots/world%03d.png" % i
+	
+	pygame.image.save(bckgrnd, filename)
+	print "screenshot of world saved under ", filename
+
