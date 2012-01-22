@@ -10,6 +10,7 @@ import Map
 import GfxHandler
 import Jaja
 import resources.Resource
+import Images
 
 class Jajaworld:
 

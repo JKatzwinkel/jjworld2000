@@ -161,7 +161,7 @@ def getResourceBaseImage(restype):
 	
 	
 # renders the whole world and saves the image to disk
-def screenshot(self, characters, gfx):
+def screenshot(characters, gfx):
 
 	bckgrnd=gfx.satellite()
 	
