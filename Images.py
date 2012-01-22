@@ -123,7 +123,11 @@ def getMapNodeImage(node):
 	if node.vegetation < 1: 
 		image=pygame.Surface((20,20))
 		# TODO: maybe, grass images should be transparent, too, which would make ground image rendering more adjustable
-		image.fill((216-node.fertility()*2,242,203))
+#		image.fill((216-node.fertility()*2,242,203))
+		if node.vegetation < 0:
+			image.fill((206,220,160))
+		else:
+			image.fill((206,242,203))
 		return image
 	
 	level = min(int(node.vegetation-1),len(grass)-1)

@@ -41,7 +41,7 @@ class Jajaworld:
 #			y=random.randrange(self.map.width/2-self.map.height/8,self.map.height/2+self.map.height/8)
 #			jajas.append(Jaja.Jaja((x,y), self.map))
 		# spawn jajas at the map's edges
-		for j in range(0,30):
+		for j in range(0,40):
 			if random.random()<.5:
 				x=random.randrange(0,self.map.width)
 				y=random.randint(0,1)*(self.map.height-1)
@@ -186,7 +186,7 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(70,70)
+	w.init(100,100)
 	w.mainLoop()
 	
 	

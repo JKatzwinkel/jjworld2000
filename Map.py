@@ -27,7 +27,7 @@ class Node:
 	# and in shortest path algorithm
 	# TODO: avoid calculation the cost that often. do this only if it actually might change
 	def cost(self):
-		return 1+self.vegetation+self.water*14+float(not self.resource is None)*2.5
+		return 2+self.vegetation+self.water*14+float(not self.resource is None)*2.5
 		
 	
 	# returns the (manhattan) distance to the given node
@@ -120,6 +120,42 @@ class Map:
 			for n in self.nodes:
 				n.vegetation=vegetation[n.lid]
 		
+		# road		
+		print " build a road..."
+		if random.random()<.5:
+			x=random.randint(0,(self.width-1))
+			y=random.randint(0,1)*(self.height-1)
+		else:
+			x=random.randint(0,1)*(self.width-1)
+			y=random.randint(0,(self.height-1))
+
+		deg=math.atan2((self.height/2-y),(self.width/2-x))
+		deg0=deg
+		ox=x
+		oy=y
+		while not(x<0 or x>self.width or y<0 or y>self.height):
+
+			if (x!=ox) and (y!=oy):
+				if abs(x-ox) > abs(y-oy):
+					node=self.getNode((int(round(x)), int(round(oy))))
+				else:
+					node=self.getNode((int(round(ox)), int(round(y))))
+				if node:
+					node.vegetation=-1
+					
+			node=self.getNode((int(round(x)),int(round(y))))
+			if node:
+				node.vegetation=-1
+			
+			ox=x
+			oy=y
+			x+=math.cos(deg)
+			y+=math.sin(deg)
+					
+			deg+=random.random()*.2-.1
+			if deg>deg0+math.pi/2: deg=deg0+math.pi/2
+			if deg<deg0-math.pi/2: deg=deg0-math.pi/2	
+		
 		# create ponds
 		print " ponds & puddles..."
 		pondsnr=width*height/500
@@ -138,7 +174,7 @@ class Map:
 					self.waternodes.append(n)
 				for nn in n.neighbours:
 					if random.random()<.5:
-						if not(nn in towater or nn.water>0):
+						if not(nn in towater or nn.water>0 or nn.vegetation<0):
 							towater.append(nn)
 			
 		# creeks
@@ -189,11 +225,11 @@ class Map:
 			for n in creeknodes:
 				self.waternodes.append(n)
 				
-		
+				
 		# let more grass grow on nodes adjacent to those holding water
 		print " grow even more grass..."
 		for n in self.nodes:
-			if n.water==0:
+			if n.water==0 and not(n.vegetation<0):
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
 				
 		
@@ -258,32 +294,40 @@ class Map:
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
-
-			if not(n.vegetation>6):
-				old=int(n.vegetation)
-				n.vegetation += 0.01 + random.random() * n.fertility() / 40
-				#only redraw square if its appearance has actually changed
-				if int(n.vegetation)!=old:
-					n.draw(self.gfx.background)
-				
-			if n.resource:
-				n.resource.grow()
-				n.resource.draw(self.gfx.layer)
 			
-			elif n.vegetation>1.4:
-				fertility=n.fertility()
-				if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
-					n.spawnResource(2,0)
+			if not(n.vegetation<0):
+
+				if not(n.vegetation>6):
+					old=int(n.vegetation)
+					n.vegetation += 0.01 + random.random() * n.fertility() / 40
+					#only redraw square if its appearance has actually changed
+					if int(n.vegetation)!=old:
+						n.draw(self.gfx.background)
+				
+				if n.resource:
+					n.resource.grow()
+					n.resource.draw(self.gfx.layer)
+			
+				elif n.vegetation>1.4:
+					fertility=n.fertility()
+					if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+						n.spawnResource(2,0)
 					
 				
 	# shrink, for instance when stepped on
 	def shrink(self, node):
-		old=int(node.vegetation)
-		node.vegetation*=.85
-		node.variant+=1
-		if old>0: 
-			node.draw(self.gfx.background)
-			self.gfx.setDirty(node)
+		if node.vegetation>-1:
+			old=node.vegetation
+			node.vegetation=node.vegetation*.85-.02
+			node.variant+=1
+			if int(old)>0: 
+				node.draw(self.gfx.background)
+				self.gfx.setDirty(node)
+				return
+			if node.vegetation<0:
+				node.vegetation=-1
+				node.draw(self.gfx.background)
+				self.gfx.setDirty(node)
 				
 				
 	# let water change image (wave effect!!!)

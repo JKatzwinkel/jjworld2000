@@ -51,13 +51,13 @@ class BFSHandler:
 					if nn.coziness() > 20 or nn.resource and nn.resource.type is 0:
 						self.found=nn
 						self.searching=False
-						print "bfs found acommodation in depth", self.depth, "@", self.found.location
+						#print "bfs found acommodation in depth", self.depth, "@", self.found.location
 						return
 				else:
 					if nn.resource and nn.resource.type in self.lookingFor and nn.resource.amount>0:
 						self.found=nn
 						self.searching=False
-						print "bfs one of searched resources in depth %d @ %d,%d" % ((self.depth,) + self.found.location), self.lookingFor
+						#print "bfs one of searched resources in depth %d @ %d,%d" % ((self.depth,) + self.found.location), self.lookingFor
 						return
 				
 				# nothing found yet; continue			

@@ -112,7 +112,7 @@ class Jaja(pygame.sprite.Sprite):
 							elif len(self.needs)>0:
 							
 								need = self.needs.pop(0)
-								print "go find resource ", need
+								#print "go find resource ", need
 								self.bfs.find(self.currentmapnode, need)		
 								
 							# if I dont need anything, just go somewhere
@@ -134,7 +134,7 @@ class Jaja(pygame.sprite.Sprite):
 								self.bfs.stop()
 								
 								if self.nearestknownsource:
-									print "bfs takes too long, go to known resource @ ", self.nearestknownsource.location
+									#print "bfs takes too long, go to known resource @ ", self.nearestknownsource.location
 									self.pathfinder.find(self.currentmapnode.location, self.nearestknownsource.location)
 									self.nearestknownsource=None
 									
@@ -173,6 +173,7 @@ class Jaja(pygame.sprite.Sprite):
 		
 		# to be opt
 		if x>=nx+.5 or x<=nx-.5 or y>=ny+.5 or y<=ny-.5:
+			# TODO returns null???
 			self.currentmapnode=self.map.getNode(self.getlocation())
 			self.map.shrink(self.currentmapnode)
 		
@@ -346,11 +347,11 @@ class Jaja(pygame.sprite.Sprite):
 		# tired
 		if self.energy < .4:
 			if self.currentmapnode.containsResources(0):
-				print "found pillow"
+				#print "found pillow"
 				self.memorizeSource(self.currentmapnode)
 				self.action=Jaja.ACT_SLEEP
 			elif self.currentmapnode.resource is None and self.currentmapnode.coziness()>10:
-				print "found place to sleep: ", self.currentmapnode.coziness()
+				#print "found place to sleep: ", self.currentmapnode.coziness()
 				self.action=Jaja.ACT_SLEEP
 				if self.currentmapnode.coziness()>50:
 					self.currentmapnode.spawnResource(0,1)
@@ -363,7 +364,7 @@ class Jaja(pygame.sprite.Sprite):
 		elif self.fed <.4:
 			if self.currentmapnode.containsResources((1,2)):
 				if self.currentmapnode.resource.consume():
-					print "found something to eat: ", self.currentmapnode.resource.type
+					#print "found something to eat: ", self.currentmapnode.resource.type
 					self.memorizeSource(self.currentmapnode)
 					self.fed += self.currentmapnode.resource.effectivity
 				else:
@@ -375,7 +376,7 @@ class Jaja(pygame.sprite.Sprite):
 		elif self.energy > .8 and self.fed < 1:
 			if self.currentmapnode.containsResources(1):
 				if self.currentmapnode.resource.consume():
-					print "betrinking"
+					#print "betrinking"
 					self.memorizeSource(self.currentmapnode)
 					self.fed += self.currentmapnode.resource.effectivity/2
 					self.goAnyWhere(2)
