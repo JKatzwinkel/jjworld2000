@@ -90,6 +90,7 @@ class Map:
 		
 		self.nodes = []
 		
+		# TODO: performance?
 		self.waternodes = []
 		self.wavecounter=0
 		
@@ -155,7 +156,20 @@ class Map:
 			deg=math.atan2((self.height/2-y),(self.width/2-x))
 			deg0=deg
 		
+			ox=x
+			oy=y
 			while not(x<0 or x>self.width or y<0 or y>self.height):
+
+				if (x!=ox) and (y!=oy):
+					if abs(x-ox) > abs(y-oy):
+						node=self.getNode((int(round(x)), int(round(oy))))
+					else:
+						node=self.getNode((int(round(ox)), int(round(y))))
+					if node:
+						node.water=1
+						if not(node in creeknodes):
+							creeknodes.append(node)
+						
 				node=self.getNode((int(round(x)),int(round(y))))
 				if node in self.waternodes: 
 					break
@@ -163,8 +177,11 @@ class Map:
 					node.water=1
 					if not(node in creeknodes):
 						creeknodes.append(node)
-				x+=math.cos(deg)*.1
-				y+=math.sin(deg)*.1
+				ox=x
+				oy=y
+				x+=math.cos(deg)
+				y+=math.sin(deg)
+						
 				deg+=random.random()*.2-.1
 				if deg>deg0+math.pi/2: deg=deg0+math.pi/2
 				if deg<deg0-math.pi/2: deg=deg0-math.pi/2

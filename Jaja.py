@@ -258,15 +258,18 @@ class Jaja(pygame.sprite.Sprite):
 		
 
 	# just find a random destination of close distance that is easy to walk and dry
-	# start finding a path to there using a*		
+	# start finding a path to there using a*	
+	# TODO can possibly hang up
 	def goAnyWhere(self, distance=6):
 	
 		jx,jy=self.currentmapnode.location
 		x,y=(random.randint(jx-distance,jx+distance),random.randint(jy-distance,jy+distance))
 		node=self.map.getNode((x,y))
-		while not(node) or node.water>0 or node.vegetation>3 or node.resource:
+		veg=3
+		while not(node) or node.water>0 or node.vegetation>veg or node.resource:
 			x,y=(random.randint(jx-distance,jx+distance),random.randint(jy-distance,jy+distance	))
 			node=self.map.getNode((x,y))
+			veg+=.1
 
 		self.pathfinder.find(self.getlocation(), (x, y))
 		

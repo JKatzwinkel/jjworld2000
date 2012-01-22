@@ -125,8 +125,8 @@ class Jajaworld:
 			if mouse["motion"] and pygame.mouse.get_pressed()[0]:
 				x,y=pygame.mouse.get_pos()
 				ox,oy=mouse["position"]
-				mx=x-ox
-				my=y-oy
+				mx=ox-x
+				my=oy-y
 
 			mouse["position"]=pygame.mouse.get_pos()
 
