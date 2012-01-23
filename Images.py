@@ -123,7 +123,11 @@ def getMapNodeImage(node):
 	if node.vegetation < 1: 
 		image=pygame.Surface((20,20))
 		# TODO: maybe, grass images should be transparent, too, which would make ground image rendering more adjustable
-		image.fill((216-node.fertility()*2,242,203))
+#		image.fill((216-node.fertility()*2,242,203))
+		if node.vegetation < 0:
+			image.fill((206,220,160))
+		else:
+			image.fill((206,242,203))
 		return image
 	
 	level = min(int(node.vegetation-1),len(grass)-1)
@@ -154,3 +158,22 @@ def getResourceBaseImage(restype):
 		return None
 	return resrs[restype]
 	
+	
+	
+# renders the whole world and saves the image to disk
+def screenshot(characters, gfx):
+
+	bckgrnd=gfx.satellite()
+	
+	for c in characters:
+		c.draw(bckgrnd, False)
+	
+	i = 0
+	filename="screenshots/world%03d.png" % i
+	while os.path.isfile(filename):
+		i+=1
+		filename="screenshots/world%03d.png" % i
+	
+	pygame.image.save(bckgrnd, filename)
+	print "screenshot of world saved under ", filename
+
