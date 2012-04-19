@@ -13,6 +13,7 @@ class Node:
 	
 		self.map=mp
 		self.neighbours=[]
+		#TODO: integerwerte!
 		self.vegetation=random.random()*random.random()*random.random()*random.random()*12
 		self.water=0
 		self.lid=lid
@@ -248,7 +249,7 @@ class Map:
 				n=self.nodes[random.randrange(0,len(self.nodes))]
 			
 			for j in range(0,random.randrange(20,50)):
-				if n.water==0 and n.fertility()>3 and n.fertility()<10:
+				if n.water==0 and n.fertility()>3 and n.fertility()<10 and n.vegetation>=0:
 					n.spawnResource(2,random.randrange(0,5))
 					n.vegetation+=1
 				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
@@ -299,10 +300,11 @@ class Map:
 
 				if not(n.vegetation>6):
 					old=int(n.vegetation)
-					n.vegetation += 0.01 + random.random() * n.fertility() / 40
+					n.vegetation += 0.05 + random.random() * n.fertility() / 20
 					#only redraw square if its appearance has actually changed
 					if int(n.vegetation)!=old:
 						n.draw(self.gfx.background)
+						self.gfx.setDirty(n)
 				
 				if n.resource:
 					n.resource.grow()
@@ -312,22 +314,36 @@ class Map:
 					fertility=n.fertility()
 					if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
+						
+			else:
+				n.vegetation+=.1
+				if n.vegetation>=0:
+					n.draw(self.gfx.background)
+					self.gfx.setDirty(n)
 					
 				
 	# shrink, for instance when stepped on
 	def shrink(self, node):
 		if node.vegetation>-1:
 			old=node.vegetation
-			node.vegetation=node.vegetation*.85-.02
+			if node.vegetation>0:
+				node.vegetation*=.96
+			node.vegetation-=.03
 			node.variant+=1
 			if int(old)>0: 
 				node.draw(self.gfx.background)
 				self.gfx.setDirty(node)
 				return
-			if node.vegetation<0:
-				node.vegetation=-1
-				node.draw(self.gfx.background)
-				self.gfx.setDirty(node)
+
+			if old>=0:				
+				if node.vegetation<0 and any(map(lambda neighbour: neighbour.vegetation<-.5, node.neighbours)) and node.resource==None:
+					self.vegetation=-.2
+					node.draw(self.gfx.background)
+					self.gfx.setDirty(node)
+				else:
+					node.vegetation=0
+					
+
 				
 				
 	# let water change image (wave effect!!!)
