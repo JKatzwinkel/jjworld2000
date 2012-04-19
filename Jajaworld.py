@@ -76,6 +76,7 @@ class Jajaworld:
 #		for x in range(90,11,-1):
 #			jaja.path.append(self.map.getNode((x,10)))
 
+		framecnt=0
 
 		# amount of pixels the visible range of the world is moving
 		mx=0
@@ -136,7 +137,6 @@ class Jajaworld:
 						
 				
 						
-			self.map.grow(1)
 			self.map.water_float(30)
 
 			#scrolling
@@ -164,6 +164,10 @@ class Jajaworld:
 			pygame.display.flip()
 			
 			clock.tick(25)
+			framecnt+=1
+			if framecnt>50:
+				self.map.grow(self.map.width*self.map.height/1000)
+				framecnt=0
 
 
 

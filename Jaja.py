@@ -1,5 +1,5 @@
 import pygame
-import random
+from random import randint as rnd
 import math
 import operator
 
@@ -41,9 +41,11 @@ class Jaja(pygame.sprite.Sprite):
 		
 		self.bfs=BFSHandler.BFSHandler()
 		
+		# TODO
 		self.knownsources=[]
 		self.nearestknownsource=None
 		
+		# TODO
 		self.needs=[]
 		
 		
@@ -68,7 +70,7 @@ class Jaja(pygame.sprite.Sprite):
 		if self.action is Jaja.ACT_SLEEP:
 			self.energy+=.001+self.currentmapnode.vegetation*.001
 			if self.energy>1:
-				if random.random()<.05:
+				if rnd(0,100)<5:
 					self.action=Jaja.ACT_STAND
 			
 			
@@ -117,7 +119,7 @@ class Jaja(pygame.sprite.Sprite):
 								
 							# if I dont need anything, just go somewhere
 							else: 
-								if random.random() < .01:
+								if rnd(0,100) < 1:
 									self.goAnyWhere()
 								
 						
@@ -264,13 +266,15 @@ class Jaja(pygame.sprite.Sprite):
 	def goAnyWhere(self, distance=6):
 	
 		jx,jy=self.currentmapnode.location
-		x,y=(random.randint(jx-distance,jx+distance),random.randint(jy-distance,jy+distance))
+		x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance))
 		node=self.map.getNode((x,y))
 		veg=3
 		while not(node) or node.water>0 or node.vegetation>veg or node.resource:
-			x,y=(random.randint(jx-distance,jx+distance),random.randint(jy-distance,jy+distance	))
+			x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance	))
 			node=self.map.getNode((x,y))
 			veg+=.1
+			if rnd(0,10)<1:
+				distance+=1
 
 		self.pathfinder.find(self.getlocation(), (x, y))
 		
