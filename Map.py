@@ -95,7 +95,7 @@ class Map:
 		self.waternodes = []
 		self.wavecounter=0
 		
-		print "carving landscape"
+		print "carve landscape"
 		
 		# initialize map node list
 		for y in range(0,height):
@@ -108,7 +108,7 @@ class Map:
 				n.neighbours.append(nn)
 							
 		# manage grass
-		print " growing grass..."
+		print " grow some grass..."
 		for i in range(0,5):
 			vegetation=numpy.zeros(len(self.nodes))
 			for n in self.nodes:
@@ -122,40 +122,49 @@ class Map:
 				n.vegetation=vegetation[n.lid]
 		
 		# road		
-		print " build a road..."
-		if random.random()<.5:
-			x=random.randint(0,(self.width-1))
-			y=random.randint(0,1)*(self.height-1)
-		else:
-			x=random.randint(0,1)*(self.width-1)
-			y=random.randint(0,(self.height-1))
+		print " trod trails..."
+		trailnodes=[]
+		for i in range(0,2):
+			if random.random()<.5:
+				x=random.randint(0,(self.width-1))
+				y=random.randint(0,1)*(self.height-1)
+			else:
+				x=random.randint(0,1)*(self.width-1)
+				y=random.randint(0,(self.height-1))
 
-		deg=math.atan2((self.height/2-y),(self.width/2-x))
-		deg0=deg
-		ox=x
-		oy=y
-		while not(x<0 or x>self.width or y<0 or y>self.height):
-
-			if (x!=ox) and (y!=oy):
-				if abs(x-ox) > abs(y-oy):
-					node=self.getNode((int(round(x)), int(round(oy))))
-				else:
-					node=self.getNode((int(round(ox)), int(round(y))))
-				if node:
-					node.vegetation=-1
-					
-			node=self.getNode((int(round(x)),int(round(y))))
-			if node:
-				node.vegetation=-1
-			
+			deg=math.atan2((self.height/2-y),(self.width/2-x))
+			deg0=deg
 			ox=x
 			oy=y
-			x+=math.cos(deg)
-			y+=math.sin(deg)
+			while not(x<0 or x>self.width or y<0 or y>self.height):
+
+				node=self.getNode((int(round(x)),int(round(y))))
+				if node:
+					if node.vegetation<0:
+						break
+					elif not node in trailnodes:
+						trailnodes.append(node)
+
+				if (x!=ox) and (y!=oy):
+					if abs(x-ox) > abs(y-oy):
+						node=self.getNode((int(round(x)), int(round(oy))))
+					else:
+						node=self.getNode((int(round(ox)), int(round(y))))
+					if node:
+						if not node in trailnodes:
+							trailnodes.append(node)
+			
+				ox=x
+				oy=y
+				x+=math.cos(deg)
+				y+=math.sin(deg)
 					
-			deg+=random.random()*.2-.1
-			if deg>deg0+math.pi/2: deg=deg0+math.pi/2
-			if deg<deg0-math.pi/2: deg=deg0-math.pi/2	
+				deg+=random.random()*.2-.1
+				if deg>deg0+math.pi/2: deg=deg0+math.pi/2
+				if deg<deg0-math.pi/2: deg=deg0-math.pi/2
+			
+			for node in trailnodes:
+				node.vegetation=-1
 		
 		# create ponds
 		print " ponds & puddles..."
@@ -179,7 +188,7 @@ class Map:
 							towater.append(nn)
 			
 		# creeks
-		print " creating creeks..."
+		print " create creeks..."
 		for i in xrange(0,random.randint(3,max(pondsnr/2, 4))):
 			creeknodes=[]
 		
@@ -220,8 +229,8 @@ class Map:
 				y+=math.sin(deg)
 						
 				deg+=random.random()*.2-.1
-				if deg>deg0+math.pi/2: deg=deg0+math.pi/2
-				if deg<deg0-math.pi/2: deg=deg0-math.pi/2
+				if deg>deg0+1: deg=deg0+1
+				if deg<deg0-1: deg=deg0-1
 			
 			for n in creeknodes:
 				self.waternodes.append(n)
@@ -300,7 +309,7 @@ class Map:
 
 				if not(n.vegetation>6):
 					old=int(n.vegetation)
-					n.vegetation += 0.05 + random.random() * n.fertility() / 20
+					n.vegetation += 0.1 + random.random() * n.fertility() / 20
 					#only redraw square if its appearance has actually changed
 					if int(n.vegetation)!=old:
 						n.draw(self.gfx.background)
@@ -316,7 +325,7 @@ class Map:
 						n.spawnResource(2,0)
 						
 			else:
-				n.vegetation+=.1
+				n.vegetation+=.2
 				if n.vegetation>=0:
 					n.draw(self.gfx.background)
 					self.gfx.setDirty(n)
@@ -327,8 +336,8 @@ class Map:
 		if node.vegetation>-1:
 			old=node.vegetation
 			if node.vegetation>0:
-				node.vegetation*=.96
-			node.vegetation-=.03
+				node.vegetation*=.95
+			node.vegetation-=.05
 			node.variant+=1
 			if int(old)>0: 
 				node.draw(self.gfx.background)
@@ -336,12 +345,15 @@ class Map:
 				return
 
 			if old>=0:				
-				if node.vegetation<0 and any(map(lambda neighbour: neighbour.vegetation<-.5, node.neighbours)) and node.resource==None:
-					self.vegetation=-.2
-					node.draw(self.gfx.background)
-					self.gfx.setDirty(node)
-				else:
-					node.vegetation=0
+				if node.vegetation<0:
+					if node.resource==None and any(map(lambda neighbour: neighbour.vegetation<-.3, node.neighbours)):
+						self.vegetation=-.2
+						node.draw(self.gfx.background)
+						self.gfx.setDirty(node)
+					else:
+						node.vegetation=0
+			else:
+				node.vegetation*=1.2
 					
 
 				
