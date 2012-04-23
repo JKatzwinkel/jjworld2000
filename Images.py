@@ -70,9 +70,11 @@ def init():
 	icons.append(pygame.image.load("data/bubble.png").convert_alpha())
 	
 	# load jaja sprites 
+	sprite=pygame.image.load("data/jaja00.png").convert_alpha()
+	jajas.append(sprite)
 	sprite=pygame.image.load("data/jaja01.png").convert_alpha()
 	jajas.append(sprite)
-	sprite=pygame.image.load("data/jaja00.png").convert_alpha()
+	sprite=pygame.transform.flip(pygame.image.load("data/jaja01.png").convert_alpha(), True, False)
 	jajas.append(sprite)
 	
 	# load resource base images. detailed handling is done by the resource implementation themselfs
@@ -147,7 +149,7 @@ def getJajaImage(jaja):
 	if jaja.action is Jaja.Jaja.ACT_SLEEP:
 		return jajas[0]
 	if jaja.action in (Jaja.Jaja.ACT_WALK, Jaja.Jaja.ACT_STAND):
-		return jajas[1]
+		return jajas[jaja.direction]
 	return None
 
 

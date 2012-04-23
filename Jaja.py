@@ -38,6 +38,7 @@ class Jaja(pygame.sprite.Sprite):
 		
 		self.pathfinder=Pathfinder.Pathfinder(self.map)
 		self.path=[]
+		self.direction=1
 		
 		self.bfs=BFSHandler.BFSHandler()
 		
@@ -201,6 +202,10 @@ class Jaja(pygame.sprite.Sprite):
 				self.location=(x,y)
 				if self.energy>.25:
 					self.energy-=.0001*(1+cost/30)
+				if mx>0:
+					self.direction=1
+				else:
+					self.direction=2
 			else:
 				self.path.pop()
 		else:

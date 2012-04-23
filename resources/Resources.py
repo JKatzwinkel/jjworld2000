@@ -74,5 +74,5 @@ class Busch(Resource.Resource):
 	# grow some berries
 	def grow(self):
 		if self.amount < self.maxAmount:
-			if random.random()*self.mapnode.fertility() > 2:
+			if random.random()*self.mapnode.fertility() > 1:
 				self.amount+=1
