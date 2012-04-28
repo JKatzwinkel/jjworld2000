@@ -49,9 +49,10 @@ class Jaja(pygame.sprite.Sprite):
 		# TODO
 		self.needs=[]
 		
-		
-		self.energy=.5
-		self.fed=0
+		# versorgung
+		self.tired=.5
+		self.hunger=0
+		self.thirst=0
 		self.action=Jaja.ACT_STAND
 		
 
@@ -63,15 +64,15 @@ class Jaja(pygame.sprite.Sprite):
 	# calls the move-method which updates the position of the character
 	def update(self):
 
-		if self.fed>0:
-			self.fed-=.001
+		if self.hunger<1:
+			self.hunger-=.001
 
 
 		# sleep		
 		if self.action is Jaja.ACT_SLEEP:
-			self.energy+=.001+self.currentmapnode.vegetation*.001
-			if self.energy>1:
-				if rnd(0,100)<5:
+			self.tired-=.001+self.currentmapnode.vegetation*.001
+			if self.tired<.5:
+				if rnd(0,100)<5 or self.tired<.01:
 					self.action=Jaja.ACT_STAND
 			
 			
@@ -194,14 +195,14 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.1/cost * self.energy
+				speed=.1/cost * (1-self.tired)
 				mx/=rad
 				my/=rad
 				x+=mx*speed
 				y+=my*speed
 				self.location=(x,y)
-				if self.energy>.25:
-					self.energy-=.0001*(1+cost/30)
+				if self.tired<.75:
+					self.tired+=.0001*(1+cost/30)
 				if mx>0:
 					self.direction=1
 				else:
@@ -234,9 +235,9 @@ class Jaja(pygame.sprite.Sprite):
 
 			self.areaOnScreen=pygame.Rect(map(operator.add, location, (-9,-7)), (29,27))
 			
-		
-		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(self.energy*5),0) ))
-		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,1)), map(operator.add, los, (int(self.fed*5),0) ))
+		# TODO: balken!
+		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(self.tired*5),0) ))
+		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,1)), map(operator.add, los, (int(self.hunger*5),0) ))
 
 
 
@@ -354,7 +355,7 @@ class Jaja(pygame.sprite.Sprite):
 		# decide what to do and what to need	
 	
 		# tired
-		if self.energy < .4:
+		if self.tired > .6:
 			if self.currentmapnode.containsResources(0):
 				#print "found pillow"
 				self.memorizeSource(self.currentmapnode)
@@ -370,24 +371,27 @@ class Jaja(pygame.sprite.Sprite):
 				self.need(0)
 	
 		# hungry	
-		elif self.fed <.4:
+		# TODO: essen, trinken, schlafen, etc alles auslagern in externe klasse needs oder so, dann kann da alles erledigt werden und hier
+		# werden dann aliase für die entsprechenden funktionen aufgerufen
+		elif self.hunger >.6:
 			if self.currentmapnode.containsResources((1,2)):
 				if self.currentmapnode.resource.consume():
 					#print "found something to eat: ", self.currentmapnode.resource.type
 					self.memorizeSource(self.currentmapnode)
-					self.fed += self.currentmapnode.resource.effectivity
+					self.hunger -= self.currentmapnode.resource.effectivity
 				else:
 					self.forgetSource(self.currentmapnode)
 			else :
 				self.need((1,2))
 		
 		# bored
-		elif self.energy > .8 and self.fed < 1:
+		elif self.tired < .2 and self.hunger < .8:
 			if self.currentmapnode.containsResources(1):
 				if self.currentmapnode.resource.consume():
 					#print "betrinking"
+					# TODO: der ganze resourcenkram muß woanders hin
 					self.memorizeSource(self.currentmapnode)
-					self.fed += self.currentmapnode.resource.effectivity/2
+					self.hunger -= self.currentmapnode.resource.effectivity/2
 					self.goAnyWhere(2)
 				else:
 					self.forgetSource(self.currentmapnode)
