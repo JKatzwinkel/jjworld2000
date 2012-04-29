@@ -84,6 +84,7 @@ def init():
 	while os.path.isfile(filename):
 	
 		baseimg=pygame.image.load(filename).convert_alpha()
+		print "loading image", filename
 		
 		resrs.append(baseimg)
 		
@@ -146,9 +147,9 @@ def getIconImage(iconID):
 
 # return image expressing the current state of a certain character
 def getJajaImage(jaja):
-	if jaja.action is Jaja.Jaja.ACT_SLEEP:
+	if jaja.action is Jaja.ACT_SLEEP:
 		return jajas[0]
-	if jaja.action in (Jaja.Jaja.ACT_WALK, Jaja.Jaja.ACT_STAND):
+	if jaja.action in (Jaja.ACT_WALK, Jaja.ACT_STAND):
 		return jajas[jaja.direction]
 	return None
 

@@ -3,20 +3,28 @@ import random
 
 import Resource
 import Images
+import Needs
+
 
 
 
 class Pillow(Resource.Resource):
 
+	Resource.register(0, Needs.recreate, 0)
+
 	def __init__(self, mapnode):
 	
 		Resource.Resource.__init__(self, 0, 1, mapnode)
-		self.initImages()
 		self.maxAmount=1
+		self.initImages()
 		
 
 
 class Sterni(Resource.Resource):
+
+	Resource.register(1, Needs.drink, .4)
+	Resource.register(1, Needs.eat, .1)
+	Resource.register(1, Needs.recreate, .1)
 
 	def __init__(self, amount, mapnode):
 		
@@ -38,12 +46,14 @@ class Sterni(Resource.Resource):
 			self.images.insert(0,image.copy())
 		
 		self.maxAmount=20
-		self.effectivity=.2
 		
 		
 
 class Busch(Resource.Resource):
 
+	Resource.register(2, Needs.eat, .2)
+	Resource.register(2, Needs.drink, .1)
+		
 	def __init__(self, amount, mapnode):
 	
 		Resource.Resource.__init__(self, 2, amount, mapnode)
@@ -70,9 +80,26 @@ class Busch(Resource.Resource):
 			self.images.append(image.copy())
 		
 		self.maxAmount=20
-		
+
+
 	# grow some berries
 	def grow(self):
 		if self.amount < self.maxAmount:
 			if random.random()*self.mapnode.fertility() > 1:
 				self.amount+=1
+
+
+				
+class Hahn(Resource.Resource):
+
+	Resource.register(3, Needs.drink, .7)
+
+	def __init__(self, mapnode):
+	
+		Resource.Resource.__init__(self, 3, 1, mapnode)
+		self.maxAmount=1		
+		self.initImages()
+		
+
+		
+		

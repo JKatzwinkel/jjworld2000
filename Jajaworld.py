@@ -59,10 +59,10 @@ class Jajaworld:
 				n.spawnResource(1,20)
 
 		# make some beds
-#		for s in range(0,4):
-#			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
-#			if not(n.water>0):
-#				n.spawnResource(0,1)
+		for s in range(0,10):
+			n=self.map.getNodeByID(random.randrange(0,len(self.map.nodes)))
+			if not(n.water>0):
+				n.spawnResource(0,1)
 		
 		# set some bushes
 		for b in range(0,100):

@@ -243,23 +243,34 @@ class Map:
 				n.vegetation+=sum(map(lambda nn : nn.water, n.neighbours))
 				
 		
-		
+			
 		
 
 
 	# do some gardening
 	def initDetails(self):
+
+		mapsize=self.height*self.width
+
+		# put some wasserhaehne
+		print " install water system..."
+		n=None
+		for i in xrange(0, mapsize/1000):
+			while n is None or n.resource or n.water>0 or n.vegetation<0:
+				n = self.nodes[random.randint(0,len(self.nodes))]
+			n.spawnResource(3, 1)
+
 		
 		# grow some groups of bushes
 		print " grow bushes"
-		for i in range(0,random.randrange(2,self.height*self.width/600)):
+		for i in range(0,random.randrange(2,mapsize/600)):
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			while n.fertility() < 4 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<1:
 				n=self.nodes[random.randrange(0,len(self.nodes))]
 			
 			for j in range(0,random.randrange(20,50)):
 				if n.water==0 and n.fertility()>3 and n.fertility()<10 and n.vegetation>=0:
-					n.spawnResource(2,random.randrange(0,5))
+					n.spawnResource(2,random.randrange(0,10))
 					n.vegetation+=1
 				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
 
