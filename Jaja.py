@@ -63,7 +63,7 @@ class Jaja(pygame.sprite.Sprite):
 			Needs.recreate(self.needs, .001+self.currentmapnode.vegetation*.001)
 			# TODO: auslagern?
 			if self.needs.tired<.1:
-				self.action=JajaCT_STAND
+				self.action=ACT_STAND
 			
 			
 		# stand
@@ -124,6 +124,7 @@ class Jaja(pygame.sprite.Sprite):
 							if self.nearestknownsource and self.bfs.depth*3 > self.nearestknownsource.distanceTo(self.currentmapnode)*2 or self.bfs.depth>12:
 								
 								self.bfs.stop()
+								self.needs.memorizeSources(self.bfs.getSpotted())
 								
 								if self.nearestknownsource:
 									#print "bfs takes too long, go to known resource @ ", self.nearestknownsource.location
@@ -131,7 +132,11 @@ class Jaja(pygame.sprite.Sprite):
 									self.nearestknownsource=None
 									
 								else:
-									self.goAnyWhere()
+									#self.goAnyWhere()
+									pass
+						
+							if rnd(0,25)<1:
+								self.direction=1+2-self.direction
 
 				
 								
@@ -183,7 +188,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.5/cost * (1.1-self.needs.tired)
+				speed=.3/cost * (1.2-self.needs.tired)
 				mx/=rad
 				my/=rad
 				x+=mx*speed
@@ -226,8 +231,8 @@ class Jaja(pygame.sprite.Sprite):
 			
 		# TODO: balken!
 		pygame.draw.line(surface, (200,0,0), los, map(operator.add, los, (int(19-self.needs.tired*19),0) ))
-		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,2)), map(operator.add, los, (int(19-self.needs.hungry*19),2) ))
-		pygame.draw.line(surface, (200,0,0), map(operator.add,los,(0,4)), map(operator.add, los, (int(19-self.needs.thirsty*19),4) ))
+		pygame.draw.line(surface, (0,200,0), map(operator.add,los,(0,1)), map(operator.add, los, (int(19-self.needs.hungry*19),1) ))
+		pygame.draw.line(surface, (0,0,200), map(operator.add,los,(0,2)), map(operator.add, los, (int(19-self.needs.thirsty*19),2) ))
 
 
 

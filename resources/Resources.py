@@ -7,7 +7,6 @@ import Needs
 
 
 
-
 class Pillow(Resource.Resource):
 
 	Resource.register(0, Needs.recreate, 0)
@@ -17,6 +16,11 @@ class Pillow(Resource.Resource):
 		Resource.Resource.__init__(self, 0, 1, mapnode)
 		self.maxAmount=1
 		self.initImages()
+		
+	def consume(self, needs):
+		
+		Resource.Resource.consume(self, needs)
+		needs.sleep()
 		
 
 

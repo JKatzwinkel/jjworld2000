@@ -1,3 +1,6 @@
+import types
+import random as rnd
+
 import Jaja
 
 class Needs:
@@ -9,9 +12,9 @@ class Needs:
 		
 		self.knownresources={}
 	
-		self.hungry=0
-		self.thirsty=0
-		self.tired=0
+		self.hungry=.7
+		self.thirsty=.7
+		self.tired=.7
 		
 		self.jaja=j
 		self.map=self.jaja.map
@@ -19,17 +22,18 @@ class Needs:
 	
 	def update(self):
 		
-		if self.jaja.action is Jaja.ACT_SLEEP:
-			starve(self, .0001)
-			thirst(self, .0001)			
-		elif self.jaja.action is Jaja.ACT_STAND:
-			starve(self, .0002)
-			thirst(self, .0002)
-			exhaust(self, .0002)
-		elif self.jaja.action is Jaja.ACT_WALK:
-			starve(self, .0003)
-			thirst(self, .0003)
-			exhaust(self, .0003)
+		if rnd.randint(0,20)<1:
+			if self.jaja.action is Jaja.ACT_SLEEP:
+				starve(self, .001)
+				thirst(self, .001)
+			elif self.jaja.action is Jaja.ACT_STAND:
+				starve(self, .002)
+				thirst(self, .002)
+				exhaust(self, .002)
+			elif self.jaja.action is Jaja.ACT_WALK:
+				starve(self, .003)
+				thirst(self, .003)
+				exhaust(self, .003)
 			
 	
 	# check what I need and if I can do sth about it
@@ -37,17 +41,20 @@ class Needs:
 	
 		mapnode=self.jaja.currentmapnode
 		
-		# TODO: schlafen!
 		if mapnode.resource:
-			restype=mapnode.resource.type
-			for need in self.needs.items():
-				if restype in need[0]:
-					mapnode.resource.consume(self)
-					del(self.needs[need[0]])
-					break
+			if mapnode.resource.amount>0:
+				restype=mapnode.resource.type
+				for need in self.needs.items():
+					if restype in need[0]:
+						mapnode.resource.consume(self)
+						del(self.needs[need[0]])
+						break
+			else:
+				try:
+					del(self.knownresources[mapnode])
+				except:
+					pass
 				
-
-		#TODO: die liste der resourcen, die gebraucht werden, als priority list oder so bauen
 
 		if self.thirsty>.7:
 			self.urge(remedies[drink])
@@ -56,8 +63,15 @@ class Needs:
 			self.urge(remedies[eat])
 			
 		if self.tired>.7:
-			self.urge(remedies[recreate])
+			if mapnode.coziness()>20:
+				self.sleep()
+			else:
+				self.urge(remedies[recreate])
 			
+			
+			
+	def sleep(self):
+		self.jaja.action = Jaja.ACT_SLEEP
 		
 
 	# returns the set of resources which are needed most urgently (highest priority value)
@@ -89,9 +103,9 @@ class Needs:
 			print "can't memorize source: no resource"
 			
 			
-	# saves a list of sources
+	# saves a list of sources (tuple)
 	def memorizeSources(self, sources):
-		for i in sources.items():
+		for i in sources:
 			self.knownresources[i[0]]=i[1]
 			
 	
@@ -100,12 +114,17 @@ class Needs:
 		if len(self.knownresources)>0:
 			mapnode=self.jaja.currentmapnode
 			if type(purp) is types.FunctionType:
-				usefulsources = filter(lambda n: remedies[purp][n.resource.type]==True, self.knownsources)
-				closest = sorted(usefulsources, key=lambda n:n.distanceTo(mapnode))[0]
-				return closest
+				usefulsources = filter(lambda n: remedies[purp][n[0].resource.type]==True and n[1]>0, self.knownresources.items())
+				if len(usefulsources) > 0:
+					return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
+				else:
+					return None
 			elif type(purp) is types.TupleType:
-				usefulsources = filter(lambda n: n.resource.type in purp, self.knownsources)
-				closest = sorted(usefulsources, key=lambda n:n.distanceTo(mapnode))[0]
+				usefulsources = filter(lambda n: n[0].resource.type in purp and n[1]>0, self.knownresources.items())
+				if len(usefulsources) > 0:
+					return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
+				else:
+					return None
 		else:
 			return None
 			
