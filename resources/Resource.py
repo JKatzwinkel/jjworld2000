@@ -30,7 +30,7 @@ class Resource:
 			if e[0][0] is restype:
 				self.effects[e[0][1]]=e[1]
 		
-		print "create resource ",restype,"at ", mapnode.location
+#		print "create resource ",restype,"at ", mapnode.location
 		
 	
 	# TODO: was hier nicht passiert, ist, fuer eine resource verschiedene varianten zu laden. jede sieht gleich aus
@@ -43,6 +43,7 @@ class Resource:
 	
 		x=0
 		while x<ressprites.get_rect().width:
+			print "add resoruce imagery", x
 			image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
 			image.blit(ressprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
 			self.images.append(image)
@@ -60,6 +61,7 @@ class Resource:
 			for effect in self.effects.items():
 				effect[0](needs, effect[1])
 			
+			needs.consume()
 			return True
 		else:
 			return False
@@ -77,7 +79,10 @@ class Resource:
 		
 		#print "drawing image nr. ", index
 		
-		surface.blit(image, map(operator.mul, self.mapnode.location, (20,20)))
+		pos=map(operator.mul, self.mapnode.location, (20,20))
+		
+		Images.erase(surface, pos)
+		surface.blit(image, pos)
 		
 		self.mapnode.map.gfx.setDirty(self.mapnode)
 		

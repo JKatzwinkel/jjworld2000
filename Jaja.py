@@ -14,6 +14,9 @@ ACT_SLEEP=0
 ACT_STAND=1
 ACT_WALK=2
 
+# zwei ebenen trennen? state fuer schlafen, stehen, gehen und action für trinken, suchen, oder aehnliches?
+ACT_CONSUME=3
+
 
 class Jaja(pygame.sprite.Sprite):
 	image=None
@@ -47,6 +50,9 @@ class Jaja(pygame.sprite.Sprite):
 		
 		self.needs=Needs.Needs(self)
 		
+		#counter
+		self.cnt=0
+		
 
 		
 	
@@ -55,6 +61,8 @@ class Jaja(pygame.sprite.Sprite):
 	# method to be called in every loop
 	# calls the move-method which updates the position of the character
 	def update(self):
+		
+		self.cnt+=1
 
 		self.needs.update()
 
@@ -66,8 +74,13 @@ class Jaja(pygame.sprite.Sprite):
 				self.action=ACT_STAND
 			
 			
+		elif self.action is ACT_CONSUME:
+			if self.cnt>50:
+				self.action=ACT_STAND
+
+			
 		# stand
-		if self.action is ACT_STAND:
+		elif self.action is ACT_STAND:
 			
 		
 			# if there is not a* search running
@@ -121,7 +134,7 @@ class Jaja(pygame.sprite.Sprite):
 							
 							# if the bfs takes too long, either go to the closest known source or, if there aint one, just wander around
 							# TODO
-							if self.nearestknownsource and self.bfs.depth*3 > self.nearestknownsource.distanceTo(self.currentmapnode)*2 or self.bfs.depth>12:
+							if self.nearestknownsource and self.bfs.depth*3 > self.nearestknownsource.distanceTo(self.currentmapnode)*2 or self.bfs.depth>15:
 								
 								self.bfs.stop()
 								self.needs.memorizeSources(self.bfs.getSpotted())
@@ -132,8 +145,8 @@ class Jaja(pygame.sprite.Sprite):
 									self.nearestknownsource=None
 									
 								else:
-									#self.goAnyWhere()
-									pass
+									self.goAnyWhere()
+									
 						
 							if rnd(0,25)<1:
 								self.direction=1+2-self.direction
@@ -149,18 +162,13 @@ class Jaja(pygame.sprite.Sprite):
 				self.bfs.search()
 
 
+		# walk
+		elif self.action is ACT_WALK:
+			self.move()
 
 		# set the background range which has been occupied by the character as to be redrawn
 		if self.areaOnScreen:
-			self.map.gfx.setDirty(self.areaOnScreen)
-
-
-		# walk
-		if self.action is ACT_WALK:
-			self.move()
-		
-		
-		
+			self.map.gfx.setDirty(self.areaOnScreen)		
 		
 	
 	# take care of movement
@@ -188,7 +196,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.3/cost * (1.2-self.needs.tired)
+				speed=.1/cost * (1.2-self.needs.tired)
 				mx/=rad
 				my/=rad
 				x+=mx*speed

@@ -28,7 +28,7 @@ class Node:
 	# and in shortest path algorithm
 	# TODO: avoid calculation the cost that often. do this only if it actually might change
 	def cost(self):
-		return 2+self.vegetation+self.water*14+float(not self.resource is None)*2.5
+		return max(1,2+self.vegetation+self.water*14+float(not self.resource is None)*2.5)
 		
 	
 	# returns the (manhattan) distance to the given node
@@ -273,6 +273,14 @@ class Map:
 					n.spawnResource(2,random.randrange(0,10))
 					n.vegetation+=1
 				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
+				
+		
+		# blumenkohl
+		print " some vegetables"
+		for i in range(0, mapsize/1000):
+			n= self.nodes[random.randint(0,len(self.nodes))]
+			if not( n is None or n.resource or n.water>0 or n.vegetation<0 ):
+				n.spawnResource(4,1)
 
 
 							
@@ -316,34 +324,39 @@ class Map:
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			
-			if not(n.vegetation<0):
+			if not(n.water>0):
+				if not(n.vegetation<0):
 
-				if not(n.vegetation>6):
-					old=int(n.vegetation)
-					n.vegetation += 0.1 + random.random() * n.fertility() / 20
-					#only redraw square if its appearance has actually changed
-					if int(n.vegetation)!=old:
+					if not(n.vegetation>6):
+						old=int(n.vegetation)
+						n.vegetation += 0.1 + random.random() * n.fertility() / 20
+						#only redraw square if its appearance has actually changed
+						if int(n.vegetation)!=old:
+							n.draw(self.gfx.background)
+							self.gfx.setDirty(n)
+				
+					if n.resource:
+						n.resource.grow()
+						n.resource.draw(self.gfx.layer)
+			
+					elif n.vegetation>1.4:
+						fertility=n.fertility()
+						if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+							n.spawnResource(2,0)
+						elif fertility>5 and random.random()<.05 or random.randint(0,100) < len(filter(lambda nn: nn.containsResources((2,4)), n.neighbours)):
+							n.spawnResource(4,1)
+						
+				else:
+					n.vegetation+=.2
+					if n.vegetation>=0:
 						n.draw(self.gfx.background)
 						self.gfx.setDirty(n)
-				
-				if n.resource:
-					n.resource.grow()
-					n.resource.draw(self.gfx.layer)
-			
-				elif n.vegetation>1.4:
-					fertility=n.fertility()
-					if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
-						n.spawnResource(2,0)
-						
-			else:
-				n.vegetation+=.2
-				if n.vegetation>=0:
-					n.draw(self.gfx.background)
-					self.gfx.setDirty(n)
 					
 				
 	# shrink, for instance when stepped on
 	def shrink(self, node):
+		if node.water>0:
+			return
 		if node.vegetation>-1:
 			old=node.vegetation
 			if node.vegetation>0:

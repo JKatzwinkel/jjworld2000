@@ -20,13 +20,14 @@ class Pillow(Resource.Resource):
 	def consume(self, needs):
 		
 		Resource.Resource.consume(self, needs)
+		self.amount=1
 		needs.sleep()
 		
 
 
 class Sterni(Resource.Resource):
 
-	Resource.register(1, Needs.drink, .4)
+	Resource.register(1, Needs.drink, .2)
 	Resource.register(1, Needs.eat, .1)
 	Resource.register(1, Needs.recreate, .1)
 
@@ -103,7 +104,27 @@ class Hahn(Resource.Resource):
 		Resource.Resource.__init__(self, 3, 1, mapnode)
 		self.maxAmount=1		
 		self.initImages()
+	
+	
+	def consume(self, needs):
+		Resource.Resource.consume(self, needs)
+		self.amount=1
 		
+		
+		
+class Blumenkohl(Resource.Resource):
 
+	Resource.register(4, Needs.eat, .5)
+	
+	def __init__(self, mapnode):
+	
+		Resource.Resource.__init__(self, 4, 1, mapnode)
+		self.maxAmount=1
+		self.initImages()
+
+	def grow(self):
+		if self.amount < self.maxAmount:
+			if random.random()*10<self.mapnode.fertility():
+				self.amount+=1
 		
 		

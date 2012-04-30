@@ -56,14 +56,14 @@ class Needs:
 					pass
 				
 
-		if self.thirsty>.7:
+		if self.thirsty>.3:
 			self.urge(remedies[drink])
 		
-		if self.hungry>.5:
+		if self.hungry>.4:
 			self.urge(remedies[eat])
 			
-		if self.tired>.7:
-			if mapnode.coziness()>20:
+		if self.tired>.4:
+			if mapnode.coziness()>20 and not(mapnode.resource):
 				self.sleep()
 			else:
 				self.urge(remedies[recreate])
@@ -71,8 +71,13 @@ class Needs:
 			
 			
 	def sleep(self):
+		# TODO: lieber methoden in Jaja machen fuer einpennen und so?
 		self.jaja.action = Jaja.ACT_SLEEP
+		self.jaja.cnt=0
 		
+	def consume(self):
+		self.jaja.action = Jaja.ACT_CONSUME
+		self.jaja.cnt=0
 
 	# returns the set of resources which are needed most urgently (highest priority value)
 	# and removes it from the list
@@ -147,43 +152,25 @@ def register(restype, effect):
 		
 # get worse
 def starve(need, amount):
-	if need.hungry<1:
-		need.hungry+=amount
-	else:
-		need.hungry=1
+	need.hungry=min(1, need.hungry+amount)
 	
 def exhaust(need, amount):
-	if need.tired<1:
-		need.tired+=amount
-	else:
-		need.tired=1
+	need.tired=min(1, need.tired+amount)
 		
 def thirst(need, amount):
-	if need.thirsty<1:
-		need.thirsty+=amount
-	else:
-		need.thirsty=1
+	need.thirsty=min(1, need.thirsty+amount)
 	
 
 	
 # get better
 def eat(need, amount):
-	if need.hungry>0:
-		need.hungry=max(0, need.tired-amount)
-	else:
-		need.hungry=0
+	need.hungry=max(0, need.tired-amount)
 		
 def recreate(need, amount):
-	if need.tired>0:
-		need.tired=max(0, need.tired-amount)
-	else:
-		need.tired=0
+	need.tired=max(0, need.tired-amount)
 		
 def drink(need, amount):
-	if need.thirsty>0:
-		need.thirsty=max(0, need.tired-amount)
-	else:
-		need.thirsty=0
+	need.thirsty=max(0, need.tired-amount)
 			
 	
 	
