@@ -196,7 +196,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.1/cost * (1.2-self.needs.tired)
+				speed=.2/cost * (1.1-self.needs.tired)
 				mx/=rad
 				my/=rad
 				x+=mx*speed
