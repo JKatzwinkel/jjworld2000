@@ -115,21 +115,21 @@ class Needs:
 			
 	
 	# returns the closest known resource for a certain purpose (eg eat...)
+	# TODO: nur die quellen zurueckgeben, die auch ausreichend effekt auf die jeweilige funktion haben
 	def closestSource(self, purp):
 		if len(self.knownresources)>0:
 			mapnode=self.jaja.currentmapnode
+			
 			if type(purp) is types.FunctionType:
-				usefulsources = filter(lambda n: remedies[purp][n[0].resource.type]==True and n[1]>0, self.knownresources.items())
-				if len(usefulsources) > 0:
-					return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
-				else:
-					return None
-			elif type(purp) is types.TupleType:
-				usefulsources = filter(lambda n: n[0].resource.type in purp and n[1]>0, self.knownresources.items())
-				if len(usefulsources) > 0:
-					return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
-				else:
-					return None
+				func = lambda n: remedies[purp][n[0].resource.type]==True and n[1]>0
+			elif  type(purp) is types.TupleType:
+				func = lambda n: n[0].resource.type in purp and n[1]>0
+				
+			usefulsources = filter(func, self.knownresources.items())
+			if len(usefulsources) > 0:
+				return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
+			else:
+				return None
 		else:
 			return None
 			
@@ -164,13 +164,13 @@ def thirst(need, amount):
 	
 # get better
 def eat(need, amount):
-	need.hungry=max(0, need.tired-amount)
+	need.hungry=max(0, need.hungry-amount)
 		
 def recreate(need, amount):
 	need.tired=max(0, need.tired-amount)
 		
 def drink(need, amount):
-	need.thirsty=max(0, need.tired-amount)
+	need.thirsty=max(0, need.thirsty-amount)
 			
 	
 	
