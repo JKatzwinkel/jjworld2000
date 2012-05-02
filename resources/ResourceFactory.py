@@ -14,4 +14,6 @@ def createResource(restype, amount, mapnode):
 	
 		return Resources.Busch(amount, mapnode)
 		
-	
+	elif restype==3:
+		
+		return Resources.Hahn(mapnode)
