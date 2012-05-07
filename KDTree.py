@@ -167,6 +167,35 @@ class Node(object):
 			
 	#TODO: remove
 	def remove(self):
+		
+		#TODO: soll ein knoten gelöscht werden, wird ein geeigneter ersatz unter seinen kindern gesucht.
+		# geeignet ist der knoten mit dem minimalen wert auf der achse, welcher der zu löschende knoten teilt.
+		# mit dessen inhalt wird der inhalt des zu löschenden knotens überschrieben. der ersatz wird zunächst in
+		# der rechten achse gesucht, wenn es keine rechte achse gibt, in der linken.
+		# der ersatz wird dann nach demselben verfahren gelöscht.
+		# www.cs.umd.edu/class/spring2002/cmsc420-0401/pbasic.pdf
+		
+		if self.isleaf:
+			return Node(axis=(self.axis+1)%2)
+			
+		if not self.right.pos is None:
+			substitute=self.right.minimum()
+			
+		return 
+		
+		
+	@property
+	def isleaf(self):
+	
+		if self.left.pos is None:
+			if self.right.pos is None:
+				return True
+		
+		return False
+		
+	
+	#TODO:!!!!
+	def minimum(self):
 		pass
 		
 			
