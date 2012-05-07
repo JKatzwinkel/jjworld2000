@@ -76,6 +76,10 @@ def init():
 	jajas.append(sprite)
 	sprite=pygame.transform.flip(pygame.image.load("data/jaja01.png").convert_alpha(), True, False)
 	jajas.append(sprite)
+	sprite=pygame.image.load("data/jaja02.png").convert_alpha()
+	jajas.append(sprite)
+	sprite=pygame.transform.flip(pygame.image.load("data/jaja02.png").convert_alpha(), True, False)
+	jajas.append(sprite)
 	
 	# load resource base images. detailed handling is done by the resource implementation themselfs
 	resnr=0
@@ -97,6 +101,8 @@ def init():
 
 
 		
+def erase(surface, pos):
+	surface.fill((0,0,0,0), (pos, (20,20)))
 		
 
 
@@ -151,6 +157,8 @@ def getJajaImage(jaja):
 		return jajas[0]
 	if jaja.action in (Jaja.ACT_WALK, Jaja.ACT_STAND):
 		return jajas[jaja.direction]
+	if jaja.action is Jaja.ACT_CONSUME:
+		return jajas[2+jaja.direction]
 	return None
 
 

@@ -17,3 +17,7 @@ def createResource(restype, amount, mapnode):
 	elif restype==3:
 		
 		return Resources.Hahn(mapnode)
+		
+	elif restype==4:
+		
+		return Resources.Blumenkohl(mapnode)
