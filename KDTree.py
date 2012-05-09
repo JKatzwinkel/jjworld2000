@@ -2,6 +2,7 @@
 # coding: utf8
 
 import operator
+import math
 
 class Node(object):
 
@@ -121,7 +122,7 @@ class Node(object):
 			return self.right.lookup(pos)
 			
 		else:
-			return self.data
+			return self
 			
 		
 	# returns euclidian distance to a certain position
@@ -176,12 +177,20 @@ class Node(object):
 		# www.cs.umd.edu/class/spring2002/cmsc420-0401/pbasic.pdf
 		
 		if self.isleaf:
-			return Node(axis=(self.axis+1)%2)
+			return Node(axis=self.axis)
 			
 		if not self.right.pos is None:
-			substitute=self.right.minimum()
+			substitute=self.right.minimum(axis=self.axis)
+		else:
+			substitute = self.left.minimum(axis=self.axis)
 			
-		return 
+		print "substitute for ",self.pos," is ", substitute.pos
+			
+		self.pos = substitute.pos
+		self.data= substitute.data
+		
+		substitute.remove()
+		
 		
 		
 	@property
@@ -189,16 +198,55 @@ class Node(object):
 	
 		if self.left.pos is None:
 			if self.right.pos is None:
+				print self.pos, " is leaf"
 				return True
+		
+		print self.pos, " is inner node"
 		
 		return False
 		
 	
 	#TODO:!!!!
-	def minimum(self):
-		pass
+	def minimum(self, axis, best=None):
+	
+		if self.pos is None:
+			return best
+	
+		if best is None:
+			best = self
+		elif self.pos[axis] <= best.pos[axis]:
+			best = self
+				
+			
+		if self.axis is axis:
+			return self.left.minimum(axis, best)
+			
+		else:
+			left = self.left.minimum(axis, best)
+			right=self.right.minimum(axis, best)
+			
+			if left.pos[axis] < right.pos[axis]:
+				return left
+			else:
+				return right
+			
 		
 			
+	# helps drawing tree structure
+	def draw(self, levels, level):
+		
+		try:
+			levels[level].append(self.pos)
+		except:
+			levels[level]=[self.pos]
+
+		if self.pos is not None:
+			self.left.draw(levels, level+1)
+			self.right.draw(levels, level+1)
+		
+		
+	
+	
 	
 # tree factory	
 def tree():
@@ -227,8 +275,27 @@ def random():
 	for i in xrange(0,10):
 		tree.add((rnd(0,10),rnd(0,10)),rnd(0,10))
 		
+	draw(tree)
+		
 	return tree
 	
+	
+def delroot(tree):
+	tree.remove()
+	
+	
+def draw(tree):
+	
+	levels={}
+	tree.draw(levels, 1)
+	
+	width=2**(tree.height()-1)*6
+	
+	for level in levels.items():
+		for i in level[1]:
+			print " "*int(width/level[0]/2), "%06s" % repr(i),
+		print
+
 	
 	
 if __name__=='__main__':
