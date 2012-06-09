@@ -259,6 +259,7 @@ class Map:
 			while n is None or n.resource or n.water>0 or n.vegetation<0:
 				n = self.nodes[random.randint(0,len(self.nodes))]
 			n.spawnResource(3, 1)
+			n.vegetation=-1
 
 		
 		# grow some groups of bushes
@@ -341,9 +342,9 @@ class Map:
 			
 					elif n.vegetation>1.4:
 						fertility=n.fertility()
-						if fertility>7.2 and fertility<9.2 and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
+						if fertility in xrange(7.2,9.2) and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 							n.spawnResource(2,0)
-						elif fertility>5 and random.random()<.05 or random.randint(0,100) < len(filter(lambda nn: nn.containsResources((2,4)), n.neighbours)):
+						elif fertility in xrange(4,10) and random.random()<.2 or random.randint(0,20) < len(filter(lambda nn: nn.containsResources((2,4)), n.neighbours)):
 							n.spawnResource(4,1)
 						
 				else:
