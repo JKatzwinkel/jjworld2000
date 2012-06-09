@@ -43,7 +43,7 @@ class Resource:
 	
 		x=0
 		while x<ressprites.get_rect().width:
-			print "add resoruce imagery", x
+			#print "add resoruce imagery", x
 			image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
 			image.blit(ressprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
 			self.images.append(image)

@@ -57,7 +57,6 @@ class Sterni(Resource.Resource):
 class Busch(Resource.Resource):
 
 	Resource.register(2, Needs.eat, .2)
-	Resource.register(2, Needs.drink, .1)
 		
 	def __init__(self, amount, mapnode):
 	
