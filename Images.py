@@ -6,15 +6,18 @@ import Jaja
 
 setup=False
 
-grass=[]
-water=[]
-icons=[]
-jajas=[]
-resrs=[]
+grass=[] #land vegetation images
+water=[] #water images
+lllis=[] #water lillies
+icons=[] #sprites for versatile purposes
+jajas=[] #jaja sprites
+resrs=[] #sprites for collectable ressources
 
 
 ICON_MAP=0
 ICON_BUBBLE=1
+
+
 
 
 def init():
@@ -24,29 +27,11 @@ def init():
 	setup=True
 
 	#load grass images	
-	level=0
-	variant=0
-
-	filename="data/grass%02d.png" % (level)
-	while os.path.isfile(filename):
-		variants=[]
-		
-		levelsprites=pygame.image.load(filename).convert()
-		
-		x=0
-		while x<levelsprites.get_rect().width:
-			image=pygame.Surface((20,20))
-			image.blit(levelsprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
-			variants.append(image)
-			x+=20
-		
-		grass.append(variants)
-		level+=1
-		filename="data/grass%02d.png" % (level)
+	load("data/grass.png", grass)
+			
 			
 	#load water images
 	level=0
-	variant=0
 		
 	filename="data/water%02d.png" % (level)
 	while os.path.isfile(filename):
@@ -63,7 +48,13 @@ def init():
 		
 		water.append(variants)
 		level+=1
-		filename="data/water%02d.png" % (level)			
+		filename="data/water%02d.png" % (level)		
+		
+		
+	#load water lillie images
+	load ("data/lillies.png", lllis)
+		
+			
 		
 	# load little icon imagery
 	icons.append(pygame.image.load("data/map.png").convert_alpha())
@@ -88,7 +79,7 @@ def init():
 	while os.path.isfile(filename):
 	
 		baseimg=pygame.image.load(filename).convert_alpha()
-		print "loading image", filename
+	#	print "loading image", filename
 		
 		resrs.append(baseimg)
 		
@@ -98,6 +89,31 @@ def init():
 		
 
 
+
+# loads a set of sprites into a two-dimensional list
+# the set is expected in file filename, the list is expected to be [] when passed
+# sprites are to be stored as a matrix of increasing amount (rows)
+# and differing variants (column) of a specific resource
+def load(filename, imglist):
+
+	if os.path.isfile(filename):
+	
+		sprites=pygame.image.load(filename).convert()
+		
+		width=sprites.get_rect().width
+		height=sprites.get_rect().height
+		
+		for variant in range(0,height,20):			
+		
+			variants=[]
+		
+			for level in range(0,width,20):
+			
+				image = pygame.Surface((20,20))
+				image.blit(sprite, pygame.Rect((0,0,20,20)), pygame.Rect((level,variant,20,20))
+				variants.append(image)
+				
+			imglist.append(variants)
 
 
 		
