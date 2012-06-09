@@ -3,6 +3,7 @@
 
 import operator
 import math
+from collections import deque
 
 class Node(object):
 
@@ -47,16 +48,17 @@ class Node(object):
 		
 					
 	# add list of nodes
+	# TODO: in ner rekursion liste übergeben? ist das schlau???
 	def addlist(self, nodes, axis=0):
 		
 		if len(nodes)<1: return
 		
-		nodes.sort(key=lambda node:node[0][axis])
+		nodes.sort(key = lambda node : node.pos[axis])
 		
 		median=len(nodes) // 2
 		
 		piv = nodes[median]
-		self.add(piv[0], piv[1])
+		self.add(piv.pos,piv.data)
 		
 		self.left.addlist(nodes[:median], axis=(axis+1)%2)
 		self.right.addlist(nodes[median+1:], axis=(axis+1)%2)
@@ -89,12 +91,13 @@ class Node(object):
 	
 	
 	# returns the overall count of non-empty nodes
+	@property
 	def size(self):
 		
 		if self.pos is None:
 			return 0
 			
-		return self.left.size()+1+self.right.size()
+		return self.left.size+1+self.right.size
 	
 	
 	# override toString()
@@ -113,17 +116,16 @@ class Node(object):
 	def lookup(self, pos):
 	
 		if self.pos is None:
-			return None
+			return None			
 	
-		if pos[self.axis]<self.pos[self.axis]:
+		if self.pos==pos:
+			return self
+	
+		if pos[self.axis]<=self.pos[self.axis]:
 			return self.left.lookup(pos)
 			
-		elif pos[self.axis]>self.pos[self.axis]:
-			return self.right.lookup(pos)
-			
-		else:
-			return self
-			
+		return self.right.lookup(pos)
+		
 		
 	# returns euclidian distance to a certain position
 	def dist(self, pos):
@@ -132,7 +134,7 @@ class Node(object):
 		
 
 	# return the node closest to given point
-	def nearest(self, point, best=None):
+	def nearest(self, pos, best=None):
 	
 		if self.pos is None:
 			return best
@@ -140,22 +142,21 @@ class Node(object):
 		if best is None:
 			best=self
 			
-		if self.dist(point) < best.dist(point):
+		if self.dist(pos) < best.dist(pos):
 			best=self
 			
-		if point[self.axis]<self.pos[self.axis]:
+		if pos[self.axis]<self.pos[self.axis]:
 		
-			best = self.left.nearest(point, best)
+			best = self.left.nearest(pos, best)
 			# check if we have to follow recursion of the other side
-			if self.dist_from_axis(point) < best.dist(point):
-				best = self.right.nearest(point, best)
+			if self.dist_from_axis(pos) < best.dist(pos):
+				best = self.right.nearest(pos, best)
 		
 		else:
 		
-			best = self.right.nearest(point, best)
-			if self.dist_from_axis(point) < best.dist(point):
-				best = self.left.nearest(point, best)
-			
+			best = self.right.nearest(pos, best)
+			if self.dist_from_axis(pos) < best.dist(pos):
+				best = self.left.nearest(pos, best)
 			
 		return best
 			
@@ -166,8 +167,14 @@ class Node(object):
 		return abs(point[self.axis] - self.pos[self.axis])
 		
 			
-	#TODO: remove
-	def remove(self):
+	# löscht knoten, oder sucht knoten in unterbaum und löscht den, wenn pos übergeben wird
+	def remove(self, pos=None):
+		
+		if type(pos) is tuple:
+			rem=self.lookup(pos)
+			if rem:
+				rem.remove()
+			return
 		
 		#TODO: soll ein knoten gelöscht werden, wird ein geeigneter ersatz unter seinen kindern gesucht.
 		# geeignet ist der knoten mit dem minimalen wert auf der achse, welcher der zu löschende knoten teilt.
@@ -177,14 +184,18 @@ class Node(object):
 		# www.cs.umd.edu/class/spring2002/cmsc420-0401/pbasic.pdf
 		
 		if self.isleaf:
-			return Node(axis=self.axis)
+			self.data=None
+			self.pos=None
+			self.left=None
+			self.right=None
+			return
 			
 		if not self.right.pos is None:
 			substitute=self.right.minimum(axis=self.axis)
 		else:
-			substitute = self.left.minimum(axis=self.axis)
+			substitute = self.left.maximum(axis=self.axis)
 			
-		print "substitute for ",self.pos," is ", substitute.pos
+#		print "substitute for ",self.pos," is ", substitute.pos
 			
 		self.pos = substitute.pos
 		self.data= substitute.data
@@ -198,15 +209,15 @@ class Node(object):
 	
 		if self.left.pos is None:
 			if self.right.pos is None:
-				print self.pos, " is leaf"
+#				print self.pos, " is leaf"
 				return True
 		
-		print self.pos, " is inner node"
+#		print self.pos, " is inner node"
 		
 		return False
 		
-	
-	#TODO:!!!!
+		
+	# gibt den knoten im unterbaum zurück, der nach der gegebenen achse am weitesten links ist
 	def minimum(self, axis, best=None):
 	
 		if self.pos is None:
@@ -225,29 +236,36 @@ class Node(object):
 			left = self.left.minimum(axis, best)
 			right=self.right.minimum(axis, best)
 			
-			if left.pos[axis] < right.pos[axis]:
+			if left.pos[axis] <= right.pos[axis]:
 				return left
 			else:
 				return right
 			
-		
 			
-	# helps drawing tree structure
-	def draw(self, levels, level):
-		
-		try:
-			levels[level].append(self.pos)
-		except:
-			levels[level]=[self.pos]
-
-		if self.pos is not None:
-			self.left.draw(levels, level+1)
-			self.right.draw(levels, level+1)
-		
-		
+	# gibt den knoten im unterbaum zurück, der nach der gegebenen achse am weitesten rechts ist
+	def maximum(self, axis, best=None):
 	
+		if self.pos is None:
+			return best
 	
-	
+		if best is None:
+			best = self
+		elif self.pos[axis] >= best.pos[axis]:
+			best = self
+				
+			
+		if self.axis is axis:
+			return self.left.maximum(axis, best)
+			
+		else:
+			left = self.left.maximum(axis, best)
+			right=self.right.maximum(axis, best)
+			
+			if left.pos[axis] >= right.pos[axis]:
+				return left
+			else:
+				return right
+			
 # tree factory	
 def tree():
 
@@ -259,7 +277,7 @@ def balanced(tree):
 
 	nodes=[]
 	for x in tree.inorder():
-		nodes.append((x.pos, x.data))
+		nodes.append(x)
 		
 	tree=Node()
 	tree.addlist(nodes)
@@ -275,26 +293,72 @@ def random():
 	for i in xrange(0,10):
 		tree.add((rnd(0,10),rnd(0,10)),rnd(0,10))
 		
-	draw(tree)
-		
 	return tree
 	
 	
 def delroot(tree):
 	tree.remove()
 	
+
+# baumknoten in level order: wurzel, links, rechts, linkslinks, linksrechts, rechtslinks...
+def levelorder(tree):
+
+	depth=0
+	height=tree.height
+	nodes=deque()
 	
-def draw(tree):
-	
-	levels={}
-	tree.draw(levels, 1)
-	
-	width=2**(tree.height()-1)*6
-	
-	for level in levels.items():
-		for i in level[1]:
-			print " "*int(width/level[0]/2), "%06s" % repr(i),
-		print
+	nodes.append(tree)
+	while nodes and depth<height:
+		node = nodes.popleft()
+		
+		yield node
+		
+		# mit __class__() wird so ne art Node-object erzeugt, das natuerlich voellig
+		# leer ist, das aber wiederum ein .left-feld hat (und einen __class__()-konstruktor). deshalb geht das!
+		
+		nodes.append(node.left or node.__class__())
+		nodes.append(node.right or node.__class__())
+		
+		if node.left or node.right:
+			depth+=1
+		
+
+
+# TODO: abgeschrieben, muß nachvollzogen werden
+def visualize(tree, max_level=100, node_width=10, left_padding=5):
+    """ Prints the tree to stdout """
+
+    height = min(max_level, tree.height()-1)
+    max_width = pow(2, height)
+
+    per_level = 1
+    in_level  = 0
+    level     = 0
+
+    for node in levelorder(tree):
+
+        if in_level == 0:
+            print
+            print
+            print ' '*left_padding,
+
+        width = int(max_width*node_width/per_level)
+
+        node_str = (str(node.pos) if node.pos else '').center(width)
+        print node_str,
+
+        in_level += 1
+
+        if in_level == per_level:
+            in_level   = 0
+            per_level *= 2
+            level     += 1
+
+        if level > height:
+            break
+
+    print
+    print
 
 	
 	
