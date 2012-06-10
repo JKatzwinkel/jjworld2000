@@ -97,20 +97,17 @@ def init():
 def load(filename, imglist):
 
 	if os.path.isfile(filename):
-	
-		sprites=pygame.image.load(filename).convert()
+		sprites=pygame.image.load(filename).convert_alpha()
 		
 		width=sprites.get_rect().width
 		height=sprites.get_rect().height
 		
-		for variant in range(0,height,20):			
-		
+		for level in range(0,width,20):
 			variants=[]
 		
-			for level in range(0,width,20):
-			
-				image = pygame.Surface((20,20))
-				image.blit(sprite, pygame.Rect((0,0,20,20)), pygame.Rect((level,variant,20,20))
+			for variant in range(0,height,20):			
+				image = pygame.Surface((20,20), pygame.SRCALPHA)
+				image.blit(sprites, (0,0), pygame.Rect((level,variant,20,20)))
 				variants.append(image)
 				
 			imglist.append(variants)
@@ -130,9 +127,10 @@ def getMapNodeImage(node):
 
 	# water
 	if node.water > 0:
-		level=min(int(node.water),len(water)-1)
-		variant = node.variant % len(water[level])
-		image=water[level][variant].copy()
+
+		variant = node.variant % len(water[0])
+		
+		image=water[0][variant].copy()
 		# line to mark shore
 		neighbour=node.map.getNode((node.location[0]-1,node.location[1]))
 		if neighbour:
@@ -142,6 +140,12 @@ def getMapNodeImage(node):
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
 				pygame.draw.line(image,(100,200,100),(0,0),(19,0))
+				
+		if node.vegetation>=1:
+			level = min(int(node.vegetation-1),len(lllis)-1)
+			variant = node.variant % len(lllis[level])				
+			image.blit(lllis[level][variant], (0,0))
+				
 		return image
 	
 	# grass
