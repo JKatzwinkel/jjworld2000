@@ -31,24 +31,7 @@ def init():
 			
 			
 	#load water images
-	level=0
-		
-	filename="data/water%02d.png" % (level)
-	while os.path.isfile(filename):
-		variants=[]
-		
-		levelsprites=pygame.image.load(filename).convert()
-		
-		x=0
-		while x<levelsprites.get_rect().width:
-			image=pygame.Surface((20,20))
-			image.blit(levelsprites, pygame.Rect((0,0,20,20)), pygame.Rect((x,0,20,20)))
-			variants.append(image)
-			x+=20
-		
-		water.append(variants)
-		level+=1
-		filename="data/water%02d.png" % (level)		
+	load("data/water00.png", water)	
 		
 		
 	#load water lillie images
@@ -128,9 +111,12 @@ def getMapNodeImage(node):
 	# water
 	if node.water > 0:
 
-		variant = node.variant % len(water[0])
+		# wir schummeln hier uebelst und verwenden zur unterschiedlichen darstellung von wasser in
+		# derselben auspraegung statt der variante die water-variable selbst. das machen wir wegen der seerosen (s.u.)
+		# damit die bei wellengang nicht so wackeln
+		level = int(node.water) % len(water)
 		
-		image=water[0][variant].copy()
+		image=water[level][0].copy()
 		# line to mark shore
 		neighbour=node.map.getNode((node.location[0]-1,node.location[1]))
 		if neighbour:
@@ -140,9 +126,10 @@ def getMapNodeImage(node):
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
 				pygame.draw.line(image,(100,200,100),(0,0),(19,0))
-				
-		if node.vegetation>=1:
-			level = min(int(node.vegetation-1),len(lllis)-1)
+			
+		# water lillies <3
+		if node.vegetation>=3:
+			level = min(int(node.vegetation-3),len(lllis)-1)
 			variant = node.variant % len(lllis[level])				
 			image.blit(lllis[level][variant], (0,0))
 				

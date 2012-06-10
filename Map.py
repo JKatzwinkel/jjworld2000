@@ -388,7 +388,14 @@ class Map:
 			if not(y<0 or y>self.gfx.screensize[1]):
 				if not(x<0 or x>self.gfx.screensize[0]):
 					if (n.location[0]+n.location[1])%30==(self.wavecounter/5)%30:
-						n.variant=random.randint(0,100)
+						# von rechts wegen muesste die Node.variant hier verwendet werden.
+						# weil aber manche wasserknoten mit seerosen gewachsen sind, bedienen wir uns hier
+						# dieser schummelei, damit sich mit vorbeiziehen einer welle nicht die
+						# seerosen.variant total veraendert. 
+						# das ist solange kein problem, wie wir nicht unterschiedliche
+						# level fuer die menge oder die tiefe oder so an wasser auf einem knoten
+						# einfuehren wollen
+						n.water=random.randint(1,10)
 						n.draw(self.gfx.background)
 						self.gfx.setDirty(n)
 		self.wavecounter+=1	
