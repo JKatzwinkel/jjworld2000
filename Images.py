@@ -1,5 +1,6 @@
 import pygame
 import os.path
+from random import randrange as rnd
 
 import Jaja
 
@@ -169,11 +170,19 @@ def getJajaImage(jaja):
 	return None
 
 
-# returns basic imagery for specified resource	
-def getResourceBaseImage(restype):
+# returns basic imagery for specified resource
+# in random variation
+def getResourceBaseImageCopy(restype):
 	if restype>=len(resrs):
 		return None
-	return resrs[restype]
+		
+	base=resrs[restype]
+	width=base.get_rect().width
+	image=pygame.Surface((width,20), pygame.SRCALPHA, 32)
+	y=rnd(0,base.get_rect().height/20)
+	image.blit(base, pygame.Rect((0,0,base.get_rect().width,20)), pygame.Rect((0,y*20,base.get_rect().width,20)))
+	
+	return image
 	
 	
 	

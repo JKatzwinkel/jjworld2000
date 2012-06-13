@@ -35,7 +35,7 @@ class Sterni(Resource.Resource):
 		
 		Resource.Resource.__init__(self, 1, amount, mapnode)
 		
-		image=Images.getResourceBaseImage(1).copy()
+		image=Images.getResourceBaseImageCopy(1)
 		
 		self.images.append(image.copy())
 			
@@ -62,12 +62,7 @@ class Busch(Resource.Resource):
 	
 		Resource.Resource.__init__(self, 2, amount, mapnode)
 		
-		image=pygame.Surface((20,20), pygame.SRCALPHA, 32)
-		baseimage=Images.getResourceBaseImage(2).copy()
-		
-		x=random.randrange(0,baseimage.get_rect().width/20)
-		
-		image.blit(baseimage, pygame.Rect((0,0,20,20)), pygame.Rect((x*20,0,20,20)))
+		image=Images.getResourceBaseImageCopy(2)
 		
 		self.images.append(image.copy())
 		

@@ -33,11 +33,12 @@ class Resource:
 #		print "create resource ",restype,"at ", mapnode.location
 		
 	
-	# TODO: was hier nicht passiert, ist, fuer eine resource verschiedene varianten zu laden. jede sieht gleich aus
+	#
 	# looks for a file fitting this resource type retrieved from the data directory
+	# and understands it as list of sprites representing the resource in increasing amount
 	def initImages(self):
 		
-		ressprites=Images.getResourceBaseImage(self.type)
+		ressprites=Images.getResourceBaseImageCopy(self.type)
 		
 		self.images=[]
 	
