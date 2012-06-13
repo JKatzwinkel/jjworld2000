@@ -320,13 +320,14 @@ class Map:
 		
 	# let some grass grow
 	# or resources
+	# or water lillies
 	def grow(self, times):
 		for i in range(0,times):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			
 			if not(n.vegetation<0):
 
-				if not(n.vegetation>6):
+				if not(n.vegetation+sum(map(lambda nn: nn.vegetation, n.neighbours))>20):
 					old=int(n.vegetation)
 					n.vegetation += 0.1 + random.random() * n.fertility() / 20
 					#only redraw square if its appearance has actually changed
@@ -339,6 +340,8 @@ class Map:
 					n.resource.draw(self.gfx.layer)
 		
 				elif n.vegetation>1.4:
+					# hier muss was passieren, also das muss eigentlich in die ressourcen-module selbst damit das hier nicht
+					# total unuebersichtlich wird
 					fertility=n.fertility()
 					if fertility in xrange(7,9) and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
