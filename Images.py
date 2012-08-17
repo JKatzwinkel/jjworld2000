@@ -70,6 +70,7 @@ def init():
 		resnr+=1
 		filename="data/resource%02d.png" % resnr
 		
+	print " succesfully loaded basic image sets for ", len(resrs), "resources"
 		
 
 
@@ -136,20 +137,25 @@ def getMapNodeImage(node):
 				
 		return image
 	
-	# grass
+	# ground
+	image=pygame.Surface((20,20), pygame.SRCALPHA)
+	
+	# no grass on node
 	if node.vegetation < 1: 
-		image=pygame.Surface((20,20))
-		# TODO: maybe, grass images should be transparent, too, which would make ground image rendering more adjustable
 		if node.vegetation < 0:
 			image.fill((206,220,160))
 		else:
 			image.fill((206,242,203))
 		return image
+		
+	image.fill((206-node.vegetation,242,203))
 	
 	level = min(int(node.vegetation-1),len(grass)-1)
 	variant = node.variant % len(grass[level])
+	
+	image.blit(grass[level][variant], (0,0))
 
-	return grass[level][variant]
+	return image
 
 
 # return an image for a certain signal icon
@@ -180,7 +186,8 @@ def getResourceBaseImageCopy(restype):
 	width=base.get_rect().width
 	image=pygame.Surface((width,20), pygame.SRCALPHA, 32)
 	y=rnd(0,base.get_rect().height/20)
-	image.blit(base, pygame.Rect((0,0,base.get_rect().width,20)), pygame.Rect((0,y*20,base.get_rect().width,20)))
+	image.blit(base, pygame.Rect((0,0,base.get_rect().width,20)), 
+					pygame.Rect((0,y*20,base.get_rect().width,20)))
 	
 	return image
 	
