@@ -26,6 +26,8 @@ class GfxHandler:
 		
 	# initializes background
 	def drawMap(self, surface):
+	
+		print " draw world map"
 
 		for n in self.map.nodes:
 			n.draw(self.background)

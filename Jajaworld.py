@@ -116,7 +116,10 @@ class Jajaworld:
 					print "mouse pressed @ position ",x/20,y/20
 					n= self.map.getNode((x/20,y/20))
 					print "coziness at this point: ", n.coziness()
-					print "fertility at this point: ", n.fertility()			
+					print "fertility at this point: ", n.fertility()
+					if n.resource:
+						print "resource type: ", n.resource.type
+						print "resource amount: ", n.resource.amount	
 					
 					if pressed[K_LSHIFT]:
 						if not n.resource or n.containsResources(1):

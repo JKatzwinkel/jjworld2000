@@ -20,11 +20,11 @@ def createResource(restype, amount, mapnode):
 		
 	elif restype==4:
 		
-		return Resources.Blumenkohl(mapnode)
+		return Resources.Blumenkohl(amount, mapnode)
 		
 	elif restype==5:
 	
-		return Resources.Pizza(mapnode)
+		return Resources.Pizza(amount, mapnode)
 		
 	elif restype==6:
 	

@@ -110,7 +110,7 @@ class Blumenkohl(Resource.Resource):
 
 	Resource.register(4, Needs.eat, .5)
 	
-	def __init__(self, mapnode):
+	def __init__(self, amount, mapnode):
 	
 		Resource.Resource.__init__(self, 4, 1, mapnode)
 		self.maxAmount=1
@@ -126,11 +126,47 @@ class Pizza(Resource.Resource):
 	
 	Resource.register(5, Needs.eat, .7)
 	
-	def __init__(self, mapnode):
+	def __init__(self, amount, mapnode):
 	
-		Resource.Resource.__init__(self, 5, 8, mapnode)
+		Resource.Resource.__init__(self, 5, amount, mapnode)
 		self.maxAmount=8
-		self.InitImages()
+		
+		# get fresh round pizza
+		image=Images.getResourceBaseImageCopy(5)
+		self.images=[image.copy()]
+		
+		# initialize slice cutting functions
+		# for cutting a slice, we erase the corresponding pixels by starting on top and erasing
+		# row after row
+		# 	 y start position	x start position	x range
+		f=[	(-10, 		lambda i:0, 		lambda i:10-i),
+			(-10,		lambda i:10-i,		lambda i:i),
+			(0,		lambda i:i,			lambda i:10-i),
+			(0,		lambda i:0,			lambda i:i),
+			(0,		lambda i:-i,		lambda i:i),
+			(0,		lambda i:-10,		lambda i:10-i),
+			(-10,		lambda i:-10,		lambda i:i),
+			(-10, 		lambda i:i-10, 		lambda i:10-i) ]
+		
+		transparent=pygame.Color(0,0,0,0)
+		
+		erased=[]
+		
+		for s in range(0,8):
+			si=random.randrange(0,8)
+			while si in erased:
+				si=random.randrange(0,8)
+			erased.append(si)
+			# get the function that will control cutting the next slice
+			fs=f[si]
+			for i in range(0,10):
+				sx=10+fs[1](i)
+				for x in range(sx, sx+fs[2](i)):
+					image.set_at((x,10+fs[0]+i), transparent )
+			self.images.append(image.copy())
+			
+		self.images.reverse()
+	
 		
 
 class Rock(Resource.Resource):
@@ -139,4 +175,6 @@ class Rock(Resource.Resource):
 		
 		Resource.Resource.__init__(self, 6, 1, mapnode)
 		self.maxAmount=1
-		self.InitImages()		
+		self.initImages()
+		
+	

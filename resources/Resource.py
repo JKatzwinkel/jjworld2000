@@ -33,9 +33,14 @@ class Resource:
 #		print "create resource ",restype,"at ", mapnode.location
 		
 	
+	# must be called by constructor of inheriting class, unless the inheriting class choses to fill
+	# its images[] array itself. to do this, it can call Images.getResourceBaseImageCopy(restype).
 	#
-	# looks for a file fitting this resource type retrieved from the data directory
+	# gets a resource level image set as retrieved from disk. stores that set in one-dimensional array
+	# when resource artwork holds more than one set of level images (thus, more than one variant), 
+	# an arbitrary set variant is chosen.
 	# and understands it as list of sprites representing the resource in increasing amount
+	#
 	def initImages(self):
 		
 		ressprites=Images.getResourceBaseImageCopy(self.type)

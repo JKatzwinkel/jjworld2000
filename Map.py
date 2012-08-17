@@ -81,8 +81,8 @@ class Node:
 
 class Map:
 
-	
-
+	# constructor. 
+	# not the method to place resources!
 	def __init__(self, width, height):
 		self.gfx = None
 		self.width=width
@@ -94,6 +94,8 @@ class Map:
 		# TODO: performance?
 		self.waternodes = []
 		self.wavecounter=0
+
+		pondsnr=width*height/500
 		
 		print "carve landscape"
 		
@@ -120,6 +122,23 @@ class Map:
 			
 			for n in self.nodes:
 				n.vegetation=vegetation[n.lid]
+
+		# place some groups of rocks. rocks can't be passed so links from neighbours are removed
+		print " place rocks"
+		for i in range(0, random.randrange(3,pondsnr)):
+			n=self.nodes[random.randint(0,len(self.nodes))]
+				
+			for j in range(0,random.randrange(10,40)):
+				# set water level to illegal value. has to be handled in initDetails()
+				n.water=-2
+				for nn in n.neighbours:
+					if n in nn.neighbours:
+						nn.neighbours.remove(n)
+					
+				if len(n.neighbours)>0:
+					n=n.neighbours[random.randrange(0,len(n.neighbours))]		
+				else:
+					break
 		
 		# road		
 		print " trod trails..."
@@ -165,10 +184,11 @@ class Map:
 			
 			for node in trailnodes:
 				node.vegetation=-1
+
+
 		
 		# create ponds
 		print " ponds & puddles..."
-		pondsnr=width*height/500
 		for i in xrange(0,random.randint(pondsnr,pondsnr*2)):
 			towater=[]
 			n=self.nodes[random.randrange(0,len(self.nodes))]
@@ -251,6 +271,14 @@ class Map:
 
 		mapsize=self.height*self.width
 
+		# put a rock on every node which has a vegetation level of -2
+		for n in self.nodes:
+			if n.water<-1:
+				if not( n.resource):
+					n.spawnResource(6, 1)
+				n.water=0
+				
+
 		# put some wasserhaehne
 		print " install water system..."
 		n=None
@@ -272,15 +300,21 @@ class Map:
 				if n.water==0 and n.fertility()>3 and n.fertility()<10 and n.vegetation>=0:
 					n.spawnResource(2,random.randrange(0,10))
 					n.vegetation+=1
-				n=n.neighbours[random.randrange(0,len(n.neighbours))]		
-				
+				n=n.neighbours[random.randrange(0,len(n.neighbours))]
 		
 		# blumenkohl
 		print " some vegetables"
 		for i in range(0, mapsize/1000):
-			n= self.nodes[random.randint(0,len(self.nodes))]
+			n= self.nodes[random.randrange(0,len(self.nodes))]
 			if not( n is None or n.resource or n.water>0 or n.vegetation<0 ):
 				n.spawnResource(4,1)
+				
+		#pizza
+		print " placing pizza"
+		for i in range(0,mapsize/500):
+			n=self.nodes[random.randrange(0,len(self.nodes))]
+			if not (n is None or n.resource or n.water>0 or n.vegetation<0):
+				n.spawnResource(5,8)
 
 
 							
