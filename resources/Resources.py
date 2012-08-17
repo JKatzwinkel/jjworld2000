@@ -122,3 +122,21 @@ class Blumenkohl(Resource.Resource):
 				self.amount+=1
 		
 		
+class Pizza(Resource.Resource):
+	
+	Resource.register(5, Needs.eat, .7)
+	
+	def __init__(self, mapnode):
+	
+		Resource.Resource.__init__(self, 5, 8, mapnode)
+		self.maxAmount=8
+		self.InitImages()
+		
+
+class Rock(Resource.Resource):
+
+	def __init__(self, mapnode):
+		
+		Resource.Resource.__init__(self, 6, 1, mapnode)
+		self.maxAmount=1
+		self.InitImages()		

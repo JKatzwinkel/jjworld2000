@@ -21,3 +21,11 @@ def createResource(restype, amount, mapnode):
 	elif restype==4:
 		
 		return Resources.Blumenkohl(mapnode)
+		
+	elif restype==5:
+	
+		return Resources.Pizza(mapnode)
+		
+	elif restype==6:
+	
+		return Resources.Rock(mapnode)
