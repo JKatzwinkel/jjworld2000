@@ -139,14 +139,14 @@ class Pizza(Resource.Resource):
 		# for cutting a slice, we erase the corresponding pixels by starting on top and erasing
 		# row after row
 		# 	 y start position	x start position	x range
-		f=[	(-10, 		lambda i:0, 		lambda i:10-i),
-			(-10,		lambda i:10-i,		lambda i:i),
-			(0,		lambda i:i,			lambda i:10-i),
-			(0,		lambda i:0,			lambda i:i),
-			(0,		lambda i:-i,		lambda i:i),
-			(0,		lambda i:-10,		lambda i:10-i),
-			(-10,		lambda i:-10,		lambda i:i),
-			(-10, 		lambda i:i-10, 		lambda i:10-i) ]
+		f=[	(-10, 				lambda i:0, 		lambda i:10-i),
+			(-10,				lambda i:10-i,		lambda i:i),
+			(0,					lambda i:i,			lambda i:10-i),
+			(0,					lambda i:0,			lambda i:i),
+			(0,					lambda i:-i,		lambda i:i),
+			(0,					lambda i:-10,		lambda i:10-i),
+			(-10,				lambda i:-10,		lambda i:i),
+			(-10, 				lambda i:i-10, 		lambda i:10-i) ]
 		
 		transparent=pygame.Color(0,0,0,0)
 		
@@ -162,7 +162,8 @@ class Pizza(Resource.Resource):
 			for i in range(0,10):
 				sx=10+fs[1](i)
 				for x in range(sx, sx+fs[2](i)):
-					image.set_at((x,10+fs[0]+i), transparent )
+					if random.randint(0,30)<30:
+						image.set_at((x,10+fs[0]+i), transparent )
 			self.images.append(image.copy())
 			
 		self.images.reverse()
