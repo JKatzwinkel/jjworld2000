@@ -123,11 +123,11 @@ def getMapNodeImage(node):
 		neighbour=node.map.getNode((node.location[0]-1,node.location[1]))
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
-				pygame.draw.line(image,(100,200,100),(0,0),(0,19))
+				pygame.draw.line(image,(100,140,100),(0,0),(0,19))
 		neighbour=node.map.getNode((node.location[0],node.location[1]-1))
 		if neighbour:
 			if not(neighbour in node.map.waternodes):
-				pygame.draw.line(image,(100,200,100),(0,0),(19,0))
+				pygame.draw.line(image,(100,140,100),(0,0),(19,0))
 			
 		# water lillies <3
 		if node.vegetation>=3:
@@ -145,10 +145,10 @@ def getMapNodeImage(node):
 		if node.vegetation < 0:
 			image.fill((206,220,160))
 		else:
-			image.fill((206,242,203))
+			image.fill((225,244,224))
 		return image
 		
-	image.fill((206-node.vegetation,242,203))
+	image.fill((225,244,224))
 	
 	level = min(int(node.vegetation-1),len(grass)-1)
 	variant = node.variant % len(grass[level])

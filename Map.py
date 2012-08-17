@@ -95,7 +95,7 @@ class Map:
 		self.waternodes = []
 		self.wavecounter=0
 
-		pondsnr=width*height/500
+		pondsnr=max(width*height/500,4)
 		
 		print "carve landscape"
 		
@@ -282,7 +282,7 @@ class Map:
 		# put some wasserhaehne
 		print " install water system..."
 		n=None
-		for i in xrange(0, mapsize/1000):
+		for i in xrange(0, max(1,mapsize/1000)):
 			while n is None or n.resource or n.water>0 or n.vegetation<0:
 				n = self.nodes[random.randint(0,len(self.nodes))]
 			n.spawnResource(3, 1)
@@ -291,7 +291,7 @@ class Map:
 		
 		# grow some groups of bushes
 		print " grow bushes"
-		for i in range(0,random.randrange(2,mapsize/600)):
+		for i in range(0,random.randrange(2,max(3,mapsize/600))):
 			n=self.nodes[random.randint(0,len(self.nodes))]
 			while n.fertility() < 4 or n.fertility()>10 or n.water>0 or n.resource or n.vegetation<1:
 				n=self.nodes[random.randrange(0,len(self.nodes))]
@@ -304,14 +304,14 @@ class Map:
 		
 		# blumenkohl
 		print " some vegetables"
-		for i in range(0, mapsize/1000):
+		for i in range(0, max(1,mapsize/1000)):
 			n= self.nodes[random.randrange(0,len(self.nodes))]
 			if not( n is None or n.resource or n.water>0 or n.vegetation<0 ):
 				n.spawnResource(4,1)
 				
 		#pizza
 		print " placing pizza"
-		for i in range(0,mapsize/500):
+		for i in range(0,max(1,mapsize/500)):
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			if not (n is None or n.resource or n.water>0 or n.vegetation<0):
 				n.spawnResource(5,8)

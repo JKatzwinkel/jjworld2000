@@ -8,6 +8,7 @@ from collections import deque
 class Node(object):
 
 	# constructor
+	# pos mußt be tupel with at least 2 coordinates
 	def __init__(self, pos=None, data=None, left=None, right=None, axis=0):
 	
 		self.pos=pos
