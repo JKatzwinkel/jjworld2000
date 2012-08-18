@@ -24,6 +24,8 @@ class BFF(object):
 			
 		self.found={}	
 			
+		if type(res)==int:
+			res=[res]
 		for r in res:
 			self.found[r]=[]
 	
@@ -43,7 +45,7 @@ class BFF(object):
 			
 		print depth, len(self.togo)
 			
-		if depth>7:
+		if depth>6:
 			self.togo=[]
 			return
 			
@@ -97,7 +99,7 @@ class MentalMap(object):
 		pos=node.location
 	
 		if nr>0:
-			if !node.water>0:
+			if not node.water>0:
 				try:
 					spots=self.spots[res]
 					nearest = spots.nearest(pos)
@@ -157,6 +159,9 @@ class MentalMap(object):
 		
 		nodes = map(lambda i:i[0], filter(lambda i:i[1]>2, self.bff.known.items()))
 		
+		if len(nodes)<1:
+			nodes = map(lambda i:i[0], self.bff.known.items())
+		
 		for i in xrange(0,7):
 		
 			n = self.realmap.getNodeByID(rnd.choice(nodes))
@@ -164,10 +169,6 @@ class MentalMap(object):
 				
 			x,y=n.location
 				
-#			rx=rnd.randint(0,8)-4
-#			x=min(max(0,pos[0]+rx), self.realmap.width-1)
-#			ry=rnd.randint(0,8-2*abs(rx))-4+abs(rx)
-#			y=min(max(0,pos[1]+ry), self.realmap.height-1)
 			
 			try:
 				nb = self.closestblank(res, (x,y))
@@ -190,18 +191,58 @@ class MentalMap(object):
 	
 	# returns the closest dead spot for a resource type
 	def closestblank(self, res, pos):
+	
+		if type(res) == list:
+
+			best=None
+			
+			for r in res:
+
+				try:
+					spot=self.blanks[r].nearest(pos)
+					dist=spot.dist(pos)
+					if best is None:
+						best = (spot.pos, dist)
+					else:
+						if dist<best[1]:
+							best=(spot.pos, dist)
+				except:
+					pass
+				
+				return best[0]
 		
-		try:
-			return self.blanks[res].nearest(pos).pos
-		except:
-			return None
+		else:
+			try:
+				return self.blanks[res].nearest(pos).pos
+			except:
+				return None
 
 
 	# returns the closest spot for for a resource type
 	def closestspot(self, res, pos):
 	
-		try:
-			return self.spots[res].nearest(pos).pos
-		except:
-			return None
+		if type(res) == list:
+			
+			best=None
+			
+			for r in res:
+			
+				try:
+					spot=self.spots[r].nearest(pos)
+					dist=spot.dist(pos)
+					if best is None:
+						best = (spot.pos, dist)
+					else:
+						if dist<best[1]:
+							best=(spot.pos, dist)
+				except:
+					pass
+					
+				return best[0]
+
+		else:	
+			try:
+				return self.spots[res].nearest(pos).pos
+			except:
+				return None
 			

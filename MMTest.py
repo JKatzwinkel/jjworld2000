@@ -5,6 +5,8 @@ import Map
 import MentalMap
 import GfxHandler
 
+import random as rnd
+
 
 pygame.init()
 screen=pygame.display.set_mode((1000,700),HWSURFACE)
@@ -12,6 +14,11 @@ Images.init()
 
 m=Map.Map(50,35)
 m.initDetails()
+
+for i in range(0,10):
+	node=rnd.choice(m.nodes)
+	if not node.water>0:
+		node.spawnResource(1,20)
 
 m.gfx.update((0,0))
 pygame.display.flip()
@@ -44,20 +51,20 @@ def show(pos):
 	pygame.display.flip()
 	
 
-# (only give one res type)
+
 def search(res):
 
 	global pos, screen
 
 	print pos
-	mm.bff.search(m.getNode(pos), [res])
+	mm.bff.search(m.getNode(pos), res)
 	
 	while mm.bff.searching():
 		mm.bff.update()
 		
 	mm.markspots()
 	
-	if len(mm.bff.found[res])<1:
+	if reduce(lambda x,y: x and y, map(lambda r: len(mm.bff.found[r])<1, res)):
 		pygame.draw.circle(screen, (200,0,0), (pos[0]*20+10, pos[1]*20+10), 5)
 	else:
 		pygame.draw.circle(screen, (100,200,0), (pos[0]*20+10, pos[1]*20+10), 5)
