@@ -110,6 +110,16 @@ class Node(object):
 				result.append((x.pos, x.data))
 				
 		return repr(result)
+		
+	
+	# return as list
+	def toList(self):
+		return [ 
+			(x.pos, x.data) 
+			for x in 
+			filter(lambda i:i.pos, self.inorder()) 
+			]
+		
 			
 		
 			
@@ -128,7 +138,7 @@ class Node(object):
 		return self.right.lookup(pos)
 		
 		
-	# returns euclidian distance to a certain position
+	# returns manchester distance to a certain position
 	def dist(self, pos):
 	
 		return sum(map(abs, map(operator.sub, self.pos, pos)))
