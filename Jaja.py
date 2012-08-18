@@ -82,84 +82,110 @@ class Jaja(pygame.sprite.Sprite):
 		# stand
 		elif self.action is ACT_STAND:
 			
-		
-			# if there is not a* search running
 			if not self.pathfinder.searching:
+			
+				if not len(self.path)>0:
+				
+					path=self.pathfinder.getPath()
+					
+					if path:
+					
+						self.path=path
+						
+						self.action = ACT_WALK
+			
+					elif self.needs.destination:
+					
+						dest=self.needs.getDestination()
+
+						print "suche pfad von ", self.currentmapnode.location, " nach ", dest
+						self.pathfinder.find(self.currentmapnode.location, dest)
+						
+						
+
+			else:
+				self.pathfinder.search()
+				if not self.pathfinder.searching:
+					print "pfadroutine abgeschlossen"
+
+					
+				
+
+			# if there is not a* search running
+	#		if not self.pathfinder.searching:
 
 
 				# if there is not already a path that I could walk
-				if not len(self.path) > 0:
+	#			if not len(self.path) > 0:
 					# get path from a* handler
-					path=self.pathfinder.getPath()
+	#				path=self.pathfinder.getPath()
 					# if path available:
-					if path:
+	#				if path:
 				
-						self.path=path
-						self.action=ACT_WALK
+	#					self.path=path
+	#					self.action=ACT_WALK
 					# if no path available yet	
-					else:
+	#				else:
 						# if there is no breadth first search running
-						if not self.bfs.searching:
+	#					if not self.bfs.searching:
 					
 							# check what I feel to need and act like this
-							self.needs.reflect()
+	#						self.needs.reflect()
 					
-							found=self.bfs.getFound()
+	#						found=self.bfs.getFound()
 							# if bfs did already return a destiny, stop search (???TODO) and start a* to that certain node
-							if found: 
+	#						if found: 
 								
-								self.bfs.stop()
-								self.pathfinder.find(self.currentmapnode.location, found.location)
+	#							self.bfs.stop()
+	#							self.pathfinder.find(self.currentmapnode.location, found.location)
 								
 								
-							# if I need sth, start looking for the most urgent thing
-							elif len(self.needs.needs)>0:
+	#						# if I need sth, start looking for the most urgent thing
+	#						elif len(self.needs.needs)>0:
 							
-								need = self.needs.urgent()
-								#print "go find resource ", need
-								self.bfs.find(self.currentmapnode, need)		
+	#							need = self.needs.urgent()
+	#							#print "go find resource ", need
+	#							self.bfs.find(self.currentmapnode, need)		
 								
 							# if I dont need anything, just go somewhere
-							else: 
-								if rnd(0,100) < 1:
-									self.goAnyWhere()
+	#						else: 
+	#							if rnd(0,100) < 1:
+	#								self.goAnyWhere()
 								
 						
 						# if there is currently a bfs running
-						else:
+	#					else:
 							
 							# get the position of the closest known source for a certain need
-							if not self.nearestknownsource:
-								self.nearestknownsource = self.needs.closestSource(self.bfs.lookingFor)
+	#						if not self.nearestknownsource:
+	#							self.nearestknownsource = self.needs.closestSource(self.bfs.lookingFor)
 							
-							# if the bfs takes too long, either go to the closest known source or, if there aint one, just wander around
-							# TODO
-							if self.nearestknownsource and self.bfs.depth*3 > self.nearestknownsource.distanceTo(self.currentmapnode)*2 or self.bfs.depth>15:
+	#						# if the bfs takes too long, either go to the closest known source or, if there aint one, just wander around
+	#						# TODO
+	#						if self.nearestknownsource and self.bfs.depth*3 > self.nearestknownsource.distanceTo(self.currentmapnode)*2 or self.bfs.depth>15:
+	#							
+	#							self.bfs.stop()
+	#							self.needs.memorizeSources(self.bfs.getSpotted())
 								
-								self.bfs.stop()
-								self.needs.memorizeSources(self.bfs.getSpotted())
-								
-								if self.nearestknownsource:
+	#							if self.nearestknownsource:
 									#print "bfs takes too long, go to known resource @ ", self.nearestknownsource.location
-									self.pathfinder.find(self.currentmapnode.location, self.nearestknownsource.location)
-									self.nearestknownsource=None
+	#								self.pathfinder.find(self.currentmapnode.location, self.nearestknownsource.location)
+	#								self.nearestknownsource=None
 									
-								else:
-									self.goAnyWhere()
-									
+	#							else:
+	#								self.goAnyWhere()
+	#								
 						
-							if rnd(0,25)<1:
-								self.direction=1+2-self.direction
+	#						if rnd(0,25)<1:
+	#							self.direction=1+2-self.direction
 
 				
 								
 
 			# conduct limited steps of a*-algorithm path search
-			if self.pathfinder.searching:
-				self.pathfinder.search()
-			elif self.bfs.searching:
+	#		elif self.bfs.searching:
 			# conduct steps in bfs algorithm if no a* running
-				self.bfs.search()
+	#			self.bfs.search()
 
 
 		# walk
@@ -196,7 +222,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.2/cost * (1.1-self.needs.tired)
+				speed=.3/cost * (1.1-self.needs.tired/3)
 				mx/=rad
 				my/=rad
 				x+=mx*speed
@@ -272,133 +298,20 @@ class Jaja(pygame.sprite.Sprite):
 	# just find a random destination of close distance that is easy to walk and dry
 	# start finding a path to there using a*	
 	# TODO can possibly hang up
-	def goAnyWhere(self, distance=6):
-	
-		jx,jy=self.currentmapnode.location
-		x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance))
-		node=self.map.getNode((x,y))
-		veg=3
-		while not(node) or node.water>0 or node.vegetation>veg or node.resource:
-			x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance	))
-			node=self.map.getNode((x,y))
-			veg+=.1
-			if rnd(0,10)<1:
-				distance+=1
-
-		self.pathfinder.find(self.getlocation(), (x, y))
-		
-		
-		
-	# checks all known resouce-containing nodes on viability, 
-	# sorts them in order of their distance and 
-	# choose the closest one
-	# go there !!!!
-#	def getKnownSourceFor(self, types):
-#		# just handling..
-#		if type(types)==int:
-#			types=(types,)
-#			
-#		# get all known sources for types
-#		appr=filter(lambda node: (node.resource and node.resource.type in types), self.knownsources)
-#		
-#		if len(appr)>0:
-#			
-#			# choose nearest appropriate node
-#			dest=sorted(appr, key=lambda node: self.currentmapnode.distanceTo(node))[0]
-#			# go there
-#			
-#			return dest
-#			
-#		else:
-#			return None
-#			
-	
-#	# stores node known as source in the known-sources list
-#	def memorizeSource(self, node):
+#	def goAnyWhere(self, distance=6):
 #	
-#		if not node in self.knownsources:
-#			self.knownsources.append(node)
-#			
-#			
-#	# deletes node from known-sources list
-#	def forgetSource(self, node):
-#		if node in self.knownsources:
-#			self.knownsources.remove(node)
-			
-			
-#	# checks if certain resource is needed:
-#	def isNeeded(self, res):
-#	
-#		if type(res)==int:
-#			res=(res,)
-#			
-#		for n in self.needs:
-#			if any(map(lambda x: x in res, n)):
-#				return True
-				
-#		return False
-			
-			
-	# remember that I need something
-#	def need(self,res):
-#		
-#		if self.isNeeded(res):
-#			return 
-#		
-#		if type(res)==int:
-#			res=(res,)
-#		
-#		self.needs.append(res)
-		
-		
-		
-	# think about what would be good for me
-#	def think_n_act(self):
-
-		# decide what to do and what to need	
-#		self.needs.reflect()
-#		return
-	
-		# tired
-#		if self.tired > .6:
-#			if self.currentmapnode.containsResources(0):
-#				#print "found pillow"
-#				self.memorizeSource(self.currentmapnode)
-#				self.action=Jaja.ACT_SLEEP
-#			elif self.currentmapnode.resource is None and self.currentmapnode.coziness()>10:
-#				#print "found place to sleep: ", self.currentmapnode.coziness()
-#				self.action=Jaja.ACT_SLEEP
-#				if self.currentmapnode.coziness()>50:
-#					self.currentmapnode.spawnResource(0,1)
-#					self.memorizeSource(self.currentmapnode)
+#		jx,jy=self.currentmapnode.location
+#		x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance))
+#		node=self.map.getNode((x,y))
+#		veg=3
+#		while not(node) or node.water>0 or node.vegetation>veg or node.resource:
+#			x,y=(rnd(jx-distance,jx+distance),rnd(jy-distance,jy+distance	))
+#			node=self.map.getNode((x,y))
+#			veg+=.1
+#			if rnd(0,10)<1:
+#				distance+=1
 #
-#			else :
-#				self.need(0)
-#	
-#		# hungry	
-#		# TODO: essen, trinken, schlafen, etc alles auslagern in externe klasse needs oder so, dann kann da alles erledigt werden und hier
-#		# werden dann aliase fuer die entsprechenden funktionen aufgerufen
-#		elif self.hunger >.6:
-#			if self.currentmapnode.containsResources((1,2)):
-#				if self.currentmapnode.resource.consume():
-#					#print "found something to eat: ", self.currentmapnode.resource.type
-#					self.memorizeSource(self.currentmapnode)
-#					self.hunger -= self.currentmapnode.resource.effectivity
-#				else:
-#					self.forgetSource(self.currentmapnode)
-#			else :
-#				self.need((1,2))
-#		
-#		# bored
-#		elif self.tired < .2 and self.hunger < .8:
-#			if self.currentmapnode.containsResources(1):
-#				if self.currentmapnode.resource.consume():
-#					#print "betrinking"
-#					# TODO: der ganze resourcenkram muß woanders hin
-#					self.memorizeSource(self.currentmapnode)
-#					self.hunger -= self.currentmapnode.resource.effectivity/2
-#					self.goAnyWhere(2)
-#				else:
-#					self.forgetSource(self.currentmapnode)
-#			else:
-#				self.need(1)
+#		self.pathfinder.find(self.getlocation(), (x, y))
+		
+		
+

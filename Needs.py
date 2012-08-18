@@ -2,22 +2,31 @@ import types
 import random as rnd
 
 import Jaja
+import resources.Resource as rsc
+
+import MentalMap
+
+
+
 
 class Needs:
 
 	def __init__(self, j):
 	
 		#dict(tuple, int)
-		self.needs={}
-		
-		self.knownresources={}
+		self.needs=[]
 	
-		self.hungry=.7
-		self.thirsty=.7
-		self.tired=.7
+	
+		self.hungry=.2
+		self.thirsty=.2
+		self.tired=.2
 		
 		self.jaja=j
 		self.map=self.jaja.map
+
+		self.memory=MentalMap.MentalMap(self.map)
+		self.waiting=False
+		self.destination=None
 		
 	
 	def update(self):
@@ -25,48 +34,86 @@ class Needs:
 		if rnd.randint(0,20)<1:
 			if self.jaja.action is Jaja.ACT_SLEEP:
 				starve(self, .001)
-				thirst(self, .001)
+				dry(self, .001)
 			elif self.jaja.action is Jaja.ACT_STAND:
 				starve(self, .002)
-				thirst(self, .002)
+				dry(self, .002)
 				exhaust(self, .002)
 			elif self.jaja.action is Jaja.ACT_WALK:
 				starve(self, .003)
-				thirst(self, .003)
+				dry(self, .003)
 				exhaust(self, .003)
+			
+			
+		if self.jaja.cnt > 60:			
+			mapnode=self.jaja.currentmapnode				
+			if mapnode.resource:
+				if mapnode.resource.amount>0:
+					restype=mapnode.resource.type
+					if restype in self.needs:
+						mapnode.resource.consume(self)
+					
+			
+			
+		if rnd.randint(0,100)<2:
+			self.reflect()
+			if len(self.needs)>0:
+				self.startsearch()
+				
+			
+		self.waiting = self.memory.update() or self.jaja.pathfinder.searching
+		
+		
+		if not self.waiting and self.destination is None:
+			places = self.memory.whereToGo(self.needs)
+			
+			if type(places)==list:
+			
+				self.destination=rnd.choice(places).location
+			
+			else:
+				self.destination=places
+			
+			
+			
+		
+	# give destination suggestion to other classes
+	def getDestination(self):
+		
+		answer = self.destination
+		self.destination=None
+		return answer
+				
 			
 	
 	# check what I need and if I can do sth about it
 	def reflect(self):
 	
-		mapnode=self.jaja.currentmapnode
-		
-		if mapnode.resource:
-			if mapnode.resource.amount>0:
-				restype=mapnode.resource.type
-				for need in self.needs.items():
-					if restype in need[0]:
-						mapnode.resource.consume(self)
-						del(self.needs[need[0]])
-						break
-			else:
-				try:
-					del(self.knownresources[mapnode])
-				except:
-					pass
-				
 
-		if self.thirsty>.3:
-			self.urge(remedies[drink])
+		self.needs=[]
 		
-		if self.hungry>.4:
-			self.urge(remedies[eat])
+		for f in [eat, drink, recreate]:
+
+			for res in remedies[f]:
 			
-		if self.tired>.4:
-			if mapnode.coziness()>20 and not(mapnode.resource):
-				self.sleep()
-			else:
-				self.urge(remedies[recreate])
+				eff = rsc.effectivities[(res, f)]
+				
+				if sorrow[f](self) > eff > sorrow[f](self)/5:
+				
+					if not res in self.needs:
+						self.needs.append(res)
+						print "need resource ",res
+		
+
+
+	# try to start search
+	# depends on the classes MentalMap und BFF
+	def startsearch(self):
+		
+		if not self.waiting:
+			self.memory.startsearch(
+				self.jaja.currentmapnode, self.needs)
+
 			
 			
 			
@@ -157,7 +204,7 @@ def starve(need, amount):
 def exhaust(need, amount):
 	need.tired=min(1, need.tired+amount)
 		
-def thirst(need, amount):
+def dry(need, amount):
 	need.thirsty=min(1, need.thirsty+amount)
 	
 
@@ -173,6 +220,17 @@ def drink(need, amount):
 	need.thirsty=max(0, need.thirsty-amount)
 			
 	
+# get values
+def hunger(need):
+	return need.hungry
 	
+def thirst(need):
+	return need.thirsty
+	
+def tiredness(need):
+	return need.tired
+	
+sorrow = {eat:hunger, drink:thirst, recreate:tiredness}
 			
-	
+
+

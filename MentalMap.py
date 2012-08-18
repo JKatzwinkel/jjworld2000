@@ -11,16 +11,29 @@ class BFF(object):
 		self.known={}
 		self.togo=[]
 		self.found={}
-		
 	
 	# initialize search procedure
 	# optionally, we can look specifically for the restypes in res[]. thus, if those restypes are not
 	# found, the start point will be marked as not succesful, allowing us to find better places
-	def search(self, startnode, res=[]):
+	def startsearch(self, startnode, res=[]):
 	
 		if self.searching():
 			print "still searching"
-			return	
+			return False
+			
+
+		# distance to point where the last search was started
+		if self.start:
+			if sum(map(abs, map(operator.sub, self.start.location, startnode.location))) < 4:
+				for r in res:
+					try:
+						self.found[r]
+						print "refusing to start search: too close to last starting point, no new goals"
+						return False
+					except:
+						pass
+		
+			
 			
 		self.found={}	
 			
@@ -32,6 +45,9 @@ class BFF(object):
 		self.start=startnode
 		self.togo=[startnode]
 		self.known={startnode.lid:0}
+	
+		return True
+		
 		
 	
 	# perform search step	
@@ -43,7 +59,7 @@ class BFF(object):
 		else:
 			return
 			
-		print depth, len(self.togo)
+#		print depth, len(self.togo)
 			
 		if depth>6:
 			self.togo=[]
@@ -59,7 +75,7 @@ class BFF(object):
 				self.known[nn.lid]=depth+1
 				# something there?
 				if nn.resource and nn.resource.amount>0:
-					print "found resource ", nn.resource.type
+#					print "found resource ", nn.resource.type
 					try:
 						self.found[nn.resource.type].append(nn)
 					except:
@@ -91,6 +107,34 @@ class MentalMap(object):
 		
 		self.bff=BFF()
 		
+		self.searching=False
+		
+	
+	
+	# frequently
+	def update(self):
+	
+		if self.bff.searching():
+			self.bff.update()
+			return True
+		
+		if self.searching:
+			self.markspots()
+			self.searching=False
+		
+		return False
+			
+			
+	# start at node, looking for any of the resources in res
+	def startsearch(self, node, res):
+	
+		if not self.bff.searching():
+			print "trying to start bff search for ", res
+			self.searching = self.bff.startsearch(node, res)
+			if not self.searching:
+				pass
+			
+	
 	
 	# remember a point pos on the map, where as many as nr instances of resource res have been 
 	# spotted around. if nr is 0, pos is remembered as a blank to avoid looking here again
@@ -139,15 +183,39 @@ class MentalMap(object):
 	# rates start point of last search as search spots for all found resources
 	def markspots(self):
 	
-		if self.bff.searching():
-			print "still searching"
-			return
-	
 		for i in self.bff.found.items():
 			print "res ",i[0],": x",len(i[1])
 			self.markspot(i[0], self.bff.start, len(i[1]))
 			
 			
+	
+	
+	# sdhh
+	# other classes ask here where we should go
+	def whereToGo(self, res):
+		
+		result=[]
+		
+		for r in res:
+			try: #zielknoten
+				result.extend(self.bff.found[r])
+			except:
+				pass
+		
+		print "resourcen in naeherer umgebung: ", len(result)		
+				
+		if len(result)>0:
+			return result
+			
+		nextpos=self.nextpos(res, self.bff.start)
+			
+		print "angebotenes wegziel: ", nextpos 
+			
+		# zielkoordinaten
+		return nextpos
+		
+		
+		
 	
 	# suggests a point nearby which might be a better place to look for res type
 	# since it is meant to be more distant to the res type dead spots
@@ -161,6 +229,9 @@ class MentalMap(object):
 		
 		if len(nodes)<1:
 			nodes = map(lambda i:i[0], self.bff.known.items())
+			
+		if len(nodes)<1:
+			return None
 		
 		for i in xrange(0,7):
 		
@@ -246,3 +317,33 @@ class MentalMap(object):
 			except:
 				return None
 			
+		
+	# returns the spot for this resource which probably has the most of them
+	def bestspot(self, res):
+	
+		if type(res) == list:
+		
+			best=None
+			
+			for r in res:
+			
+				try:
+					most=sorted(self.spots[r].toList(), key=lambda s:s[1]).pop()
+					if best is None:
+						best = most
+					else:
+						if most[1]>best[1]:
+							best=most
+				except:
+					pass
+					
+				return best
+	
+		else:
+			try:
+				return sorted(self.spots[res].toList(), key=lambda s:s[1]).pop()
+			except:
+				return None
+				
+				
+		

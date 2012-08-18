@@ -26,9 +26,11 @@ class Resource:
 		self.effects={}
 		
 		# load effects from registry
-		for e in effectivities.items():
-			if e[0][0] is restype:
-				self.effects[e[0][1]]=e[1]
+		for item in effectivities.items():
+			if item[0][0] is restype:
+				func=item[0][1]
+				amount=item[1]
+				self.effects[func]=amount
 		
 #		print "create resource ",restype,"at ", mapnode.location
 		
@@ -59,6 +61,18 @@ class Resource:
 	# returns true as long as there is sth to consume
 	# and, of course, decreases the amount of this resource
 	def consume(self, needs):
+	
+		# schafft das kleine monster das denn auch alles?
+		
+		for item in self.effects.items():
+			func=item[0]
+			amount=item[1]
+			# wenns nicht mehr reinpasst, lassen wirs
+			if Needs.sorrow[func](needs) < amount:
+				print "uff, schon voll ", func, Needs.sorrow[func](needs), " kleiner als ", amount
+				needs.jaja.cnt=0
+				return
+		
 	
 		if self.amount > 0:
 			self.amount-=1
