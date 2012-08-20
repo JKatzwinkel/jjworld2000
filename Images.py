@@ -22,6 +22,8 @@ ICON_BUBBLE=1
 
 
 def init():
+	if setup:
+		return
 	print "setting up imagery"
 	global grass, water, setup, icons, resrs
 

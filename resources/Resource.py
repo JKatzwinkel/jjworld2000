@@ -7,11 +7,33 @@ import Needs
 
 
 
+usefulresources=[]
 effectivities={}
 
+# registry for the effects of consumption of resources on personal needs 
 def register(restype, function, amount):
 	effectivities[(restype, function)]=amount
+	if not restype in usefulresources:
+		usefulresources.append(restype)
 	Needs.register(restype, function)
+
+
+# checks if resource can be consumed to help the needs or
+# if it cant be because for instance it stuffs too much
+def isAppropriate(needs, res):
+
+	for f in Needs.functions:
+	
+		try:
+			if effectivities[(res,f)] > Needs.sorrow[f](needs)*1.2:
+				print " too much effect of ", res, " on ", f
+				return False
+		except:
+			pass
+	
+	return True
+
+
 
 
 class Resource:
@@ -58,6 +80,7 @@ class Resource:
 			x+=20
 
 
+
 	# returns true as long as there is sth to consume
 	# and, of course, decreases the amount of this resource
 	def consume(self, needs):
@@ -68,8 +91,8 @@ class Resource:
 			func=item[0]
 			amount=item[1]
 			# wenns nicht mehr reinpasst, lassen wirs
-			if Needs.sorrow[func](needs) < amount:
-				print "uff, schon voll ", func, Needs.sorrow[func](needs), " kleiner als ", amount
+			if Needs.sorrow[func](needs)*1.2 < amount:
+				print "uff, schon voll ", func, Needs.sorrow[func](needs), " zu wenig fuer  ", amount
 				needs.jaja.cnt=0
 				return
 		
@@ -82,6 +105,7 @@ class Resource:
 				effect[0](needs, effect[1])
 			
 			needs.consume()
+			print "  consuming :", self.type, self.amount
 			return True
 		else:
 			return False

@@ -12,18 +12,23 @@ import Jaja
 import resources.Resource
 import Images
 
+
+
+pygame.init()
+screen = pygame.display.set_mode((640, 480), HWSURFACE)
+
+Images.init()
+
+
 class Jajaworld:
+
 
 	def init(self, w, h):
 	
-		pygame.init()
-		self.screen = pygame.display.set_mode((640, 480), HWSURFACE)
 
-		self.map=Map.Map(w,h)
+		self.map = Map.Map(w,h)
 		
 		self.topleft=(0,0)
-		
-		self.gfx=GfxHandler.GfxHandler(self.map, self.screen)
 		
 	
 	# THE MAIN LOOP #
@@ -99,7 +104,7 @@ class Jajaworld:
 				my-=8
 				
 			if pressed[K_LALT] and pressed[K_s]:
-				Images.screenshot(jajas, self.gfx)
+				Images.screenshot(jajas, self.map.gfx)
 
 			mouse["down"]=False
 			mouse["motion"]=False
@@ -144,8 +149,8 @@ class Jajaworld:
 
 			#scrolling
 			x,y=self.topleft
-			if not(x+mx<0 or x+mx>self.map.width*20-self.screen.get_size()[0]): x+=mx
-			if not(y+my<0 or y+my>self.map.height*20-self.screen.get_size()[1]): y+=my
+			if not(x+mx<0 or x+mx>self.map.width*20-screen.get_size()[0]): x+=mx
+			if not(y+my<0 or y+my>self.map.height*20-screen.get_size()[1]): y+=my
 			self.topleft=(x,y)
 			mx=abs(mx)/2*(int(mx>=0)*2-1)
 			my=abs(my)/2*(int(my>=0)*2-1)
@@ -154,14 +159,14 @@ class Jajaworld:
 			for jaja in jajas:
 				jaja.update()			
 			
-			self.gfx.update(self.topleft)
+			self.map.gfx.update(self.topleft)
 			
 #			self.screen.blit(jaja.image, jaja.locationOnScreen())
 
 			jajas=sorted(jajas, key=lambda jaja:jaja.location[1])
 			
 			for jaja in jajas:
-				jaja.draw(self.screen)
+				jaja.draw(screen)
 			
 			
 			pygame.display.flip()
@@ -179,7 +184,7 @@ class Jajaworld:
 
 def main():
 	w=Jajaworld()
-	w.init(32,24)
+	w.init(64,48)
 	w.mainLoop()
 	
 	

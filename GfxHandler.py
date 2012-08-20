@@ -4,32 +4,31 @@ import copy
 import operator
 
 import Images
-import Map
+import Jajaworld
+
+
+
 
 class GfxHandler:
 
-	def __init__(self, mp, screen):
-		self.screen = screen;
-		self.map = mp
-		self.map.gfx=self
+	def __init__(self, width, height):
 		self.topleft=(0,0)
-		self.screensize=self.screen.get_size()
+		self.screensize=Jajaworld.screen.get_size()
 
 		w,h=self.screensize
-		self.background = pygame.Surface((self.map.width*20, self.map.height*20))
-		self.layer	=	pygame.Surface((self.map.width*20, self.map.height*20), pygame.SRCALPHA, 32)
+		self.background = pygame.Surface((width, height))
+		self.layer	=	pygame.Surface((width, height), pygame.SRCALPHA, 32)
 
 		self.dirty=[]
 		
-		self.drawMap(self.background)
-		
+	
 		
 	# initializes background
-	def drawMap(self, surface):
+	def drawMap(self, mp):
 	
 		print " draw world map"
 
-		for n in self.map.nodes:
+		for n in mp.nodes:
 			n.draw(self.background)
 			self.setDirty(pygame.Rect(tuple(map(operator.mul, n.location, (20,20)))+(20,20)))
 			if n.resource:
@@ -68,7 +67,7 @@ class GfxHandler:
 		mx=pointOfView[0]-sx
 		my=pointOfView[1]-sy
 		
-		self.screen.scroll(-mx,-my)
+		Jajaworld.screen.scroll(-mx,-my)
 		
 		if mx>0:
 			self.dirty.append(pygame.Rect((sx+w,sy+my),(mx,h)))
@@ -85,8 +84,8 @@ class GfxHandler:
 		
 		for r in self.dirty:
 			if screenrect.colliderect(r):
-				self.screen.blit(self.background, r.move(-self.topleft[0], -self.topleft[1]), r)
-				self.screen.blit(self.layer, r.move(-self.topleft[0], -self.topleft[1]), r)
+				Jajaworld.screen.blit(self.background, r.move(-self.topleft[0], -self.topleft[1]), r)
+				Jajaworld.screen.blit(self.layer, r.move(-self.topleft[0], -self.topleft[1]), r)
 				
 		self.dirty=[]
 		

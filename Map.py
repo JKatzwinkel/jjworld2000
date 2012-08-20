@@ -1,3 +1,4 @@
+
 import random
 import numpy
 import math
@@ -6,6 +7,10 @@ import operator
 
 import Images
 import resources.ResourceFactory as Rsc
+import GfxHandler as gfx
+
+import Jajaworld
+
 
 class Node:
 
@@ -77,17 +82,20 @@ class Node:
 				return True
 		return False
 
-			
 
+
+# MAP CLASS
 class Map:
+
 
 	# constructor. 
 	# not the method to place resources!
 	def __init__(self, width, height):
-		self.gfx = None
+	
 		self.width=width
 		self.height=height
 
+		self.gfx = gfx.GfxHandler(width*20, height*20)
 		
 		self.nodes = []
 		
@@ -315,6 +323,10 @@ class Map:
 			n=self.nodes[random.randrange(0,len(self.nodes))]
 			if not (n is None or n.resource or n.water>0 or n.vegetation<0):
 				n.spawnResource(5,8)
+				
+				
+		self.gfx.drawMap(self)
+
 
 
 							

@@ -1,34 +1,38 @@
 import random as rnd
 import KDTree as kd
 import operator
+import pygame
+import resources.Resource as rsc
 
 # breadth first finder
-class BFF(object):
+class BFF():
 
 	def __init__(self):
 	
 		self.start=None
 		self.known={}
 		self.togo=[]
-		self.found={}
+		self.found=None
 	
 	# initialize search procedure
 	# optionally, we can look specifically for the restypes in res[]. thus, if those restypes are not
 	# found, the start point will be marked as not succesful, allowing us to find better places
 	def startsearch(self, startnode, res=[]):
 	
-		if self.searching():
-			print "still searching"
+		print "  start bff search at ",startnode.location
+	
+		if len(self.togo)>0:
+#			print "  still searching"
 			return False
 			
 
 		# distance to point where the last search was started
 		if self.start:
-			if sum(map(abs, map(operator.sub, self.start.location, startnode.location))) < 4:
+			if sum(map(abs, map(operator.sub, self.start.location, startnode.location))) < 3:
 				for r in res:
 					try:
 						self.found[r]
-						print "refusing to start search: too close to last starting point, no new goals"
+						print "   refusing to start search: too close to last starting point, no new goals"
 						return False
 					except:
 						pass
@@ -57,14 +61,21 @@ class BFF(object):
 			node=self.togo.pop(0)
 			depth=self.known[node.lid]
 		else:
+#			print "  bff search terminated"
 			return
-			
-#		print depth, len(self.togo)
-			
+						
 		if depth>6:
 			self.togo=[]
+#			print "  bff search terminated due to range restr"
 			return
-			
+
+		# something there?
+		if node.resource and node.resource.amount>0:
+			try:
+				self.found[node.resource.type].append(node)
+			except:
+				self.found[node.resource.type]=[node]
+
 		
 		for nn in node.neighbours:
 			try:
@@ -73,20 +84,35 @@ class BFF(object):
 				if nn.cost()<self.start.cost()*3:
 					self.togo.append(nn)
 				self.known[nn.lid]=depth+1
-				# something there?
-				if nn.resource and nn.resource.amount>0:
-#					print "found resource ", nn.resource.type
-					try:
-						self.found[nn.resource.type].append(nn)
-					except:
-						self.found[nn.resource.type]=[nn]
 						
+
+
 	
-	# still searchin? yes no		
-	def searching(self):
-		return len(self.togo)>0
-
-
+	# returns resources that have been found around position pos and fitting to resource set res
+	# is being used by the mental map class to pass information about available resources to Need class
+	def findings(self, res, pos):
+		if not self.found:
+			return None
+		# only if not currently searching
+		if not len(self.togo)>0:
+			# if position is similar to where the search was started
+			if self.start and sum(map(abs, map(operator.sub, self.start.location, pos))) < 3:
+				# craft a list of node on which demanded resources are located
+				results=[]
+				for r in res:
+					try:
+						results.extend(self.found[r])
+					except:
+						pass
+#				print "  returning resultset of length ", len(results)
+				return results
+				
+			else:
+				# if the resuls set is related to a distant start point, return null to indicate
+				# that no search has been performed so far
+				return None
+		
+		return []
 
 
 
@@ -96,44 +122,77 @@ class BFF(object):
 
 
 # mental map of spots where breadth first searches were conducted and what were the results
-class MentalMap(object):
+class MentalMap():
 
-	def __init__(self, realmap):
+	def __init__(self, mp):
 	
-		self.realmap = realmap
+		self.world = mp
 	
 		self.spots={}
 		self.blanks={}
 		
 		self.bff=BFF()
 		
-		self.searching=False
 		
+
+
+
+	# indicator for BFF activities going on
+	def waiting(self):
+		return len(self.bff.togo)>0	
 	
 	
-	# frequently
+	# called in every frame by Needs instance, as long as "waiting"
 	def update(self):
-	
-		if self.bff.searching():
-			self.bff.update()
-			return True
-		
-		if self.searching:
+		self.bff.update()
+		if len(self.bff.togo)<1:
 			self.markspots()
-			self.searching=False
-		
-		return False
-			
-			
-	# start at node, looking for any of the resources in res
-	def startsearch(self, node, res):
 	
-		if not self.bff.searching():
-			print "trying to start bff search for ", res
-			self.searching = self.bff.startsearch(node, res)
-			if not self.searching:
-				pass
+
+	# the Needs class will request a list of surrounding resources via this method
+	# all those that fit res, to be exact, and around the position pos
+	def getResources(self, res, pos):
+	
+		# if we are not currently waiting for a bff search to terminate:
+		if not self.waiting():
+			# if there is a set of found resources waiting for us to pick it up
+#			print " try to get a set of findings"
+			findings = self.bff.findings(res, pos)
+
+			if findings:
+#				print " findings available"
+				# pass it to personal Needs instance
+				return findings
+				
+#			print " no findings available"
+			return None
+				
+			# if there is no information about any found resources
+#			else:
+				# try to start a new search
+#				self.bff.startsearch(self.world.getNode(pos), res)
 			
+
+
+
+	# rates start point of last search as search spots for all found resources
+	def markspots(self):
+	
+		if self.bff.found:
+	
+			for r in rsc.usefulresources:
+				try:
+					self.markspot(r, self.bff.start, len(self.bff.found[r]))
+				except:
+					self.markspot(r, self.bff.start, 0)
+
+
+			
+	# avl = resource available yes or no
+	def markspotOnScreen(self, res, pos, avl):
+		pygame.draw.circle(self.world.gfx.layer, (100-100*avl,avl*100,0), (pos[0]*20+(res % 5)*4, pos[1]*20+(res/5)*4), 2)
+		self.world.gfx.setDirty(self.world.getNode(pos))
+	
 	
 	
 	# remember a point pos on the map, where as many as nr instances of resource res have been 
@@ -144,6 +203,15 @@ class MentalMap(object):
 	
 		if nr>0:
 			if not node.water>0:
+				# if there is a spot nearby which says that this resource isnt aroung, remove that
+				try:
+					nearestblank = self.blanks[res].nearest(pos)
+					if nearestblank.dist(pos) < 4:
+						nearestblank.remove()
+				except:
+					pass
+				
+			
 				try:
 					spots=self.spots[res]
 					nearest = spots.nearest(pos)
@@ -151,25 +219,33 @@ class MentalMap(object):
 					if nearest.dist(pos) < 4:
 						if nearest.data <= nr:
 							spots.add(pos, nr)
-							print "mark pos ", pos, " as spot for res ", res, nr
+							self.markspotOnScreen(res, pos, True)
 							# wenn neuer spot besser ist, alten loeschen
 							if nearest.data < nr:
 								nearest.remove()
 					# naehster spot weit genug weg
 					else:
-						print "mark pos ", pos, " as spot for res ", res, nr
 						spots.add(pos,nr)
+						self.markspotOnScreen(res, pos, True)
 
 				# kein kd-baum fuer res type
 				except:
 					spots=kd.tree()
 					spots.add(pos, nr)
 					self.spots[res]=spots
-					print "mark pos ", pos, " as spot for res ", res, nr
+					self.markspotOnScreen(res, pos, True)
 				
 		# res type nicht aufzufinden		
 		else:
-			print "mark pos", pos, " as dead spot for res ", res
+			# if location has been remembered as a spot for this resource, remove if
+			try:
+				invalid = self.spots[res].lookup(pos)
+				invalid.remove()
+			except:
+				pass
+			# memorize this location as not suitable for searching this resource
+#			print " mark pos", pos, " as dead spot for res ", res
+			self.markspotOnScreen(res, pos, False)
 			try:
 				self.blanks[res].add(pos, nr)
 			except:
@@ -179,53 +255,28 @@ class MentalMap(object):
 				# TODO: statt nr=0 vielleicht nen zeitstempel um das updaten zu koennen?
 				
 			
-			
-	# rates start point of last search as search spots for all found resources
-	def markspots(self):
-	
-		for i in self.bff.found.items():
-			print "res ",i[0],": x",len(i[1])
-			self.markspot(i[0], self.bff.start, len(i[1]))
-			
+						
 			
 	
 	
-	# sdhh
-	# other classes ask here where we should go
-	def whereToGo(self, res):
+
 		
-		result=[]
-		
-		for r in res:
-			try: #zielknoten
-				result.extend(self.bff.found[r])
-			except:
-				pass
-		
-		print "resourcen in naeherer umgebung: ", len(result)		
-				
-		if len(result)>0:
-			return result
-			
-		nextpos=self.nextpos(res, self.bff.start)
-			
-		print "angebotenes wegziel: ", nextpos 
-			
-		# zielkoordinaten
-		return nextpos
-		
-		
-		
+	
 	
 	# suggests a point nearby which might be a better place to look for res type
 	# since it is meant to be more distant to the res type dead spots
 	def nextpos(self, res, pos):
 	
-		print "preparing next step..."
+		if len(self.spots)<1 and len(self.blanks)<1:
+#			print " no memories whatsoever so far. aborting suggestion"
+			return None
+		
+#		print " preparing next step..."
 	
 		best=None
 		
-		nodes = map(lambda i:i[0], filter(lambda i:i[1]>2, self.bff.known.items()))
+		# get IDs of all nodes known from last bff search that have a minimum distance (depth) of 2
+		nodes = map(lambda i:i[0], filter(lambda i:i[1]>3, self.bff.known.items()))
 		
 		if len(nodes)<1:
 			nodes = map(lambda i:i[0], self.bff.known.items())
@@ -233,19 +284,20 @@ class MentalMap(object):
 		if len(nodes)<1:
 			return None
 		
-		for i in xrange(0,7):
+		for i in xrange(0,10):
 		
-			n = self.realmap.getNodeByID(rnd.choice(nodes))
-				
+			n = self.world.getNodeByID(rnd.choice(nodes))
 				
 			x,y=n.location
 				
-			
 			try:
 				nb = self.closestblank(res, (x,y))
 				dist=sum(map(abs, map(operator.sub, nb, (x,y))))
+				if n.water > 0:			
+					dist/=4
+				
 			except:
-				print "no dead spots for res ", res
+#				print "no dead spots for res ", res
 				dist=100
 				
 		
@@ -255,6 +307,7 @@ class MentalMap(object):
 				if dist>best[1]:
 					best=((x,y),dist)
 				
+#		print "suggesting destination ",best[0]
 		return best[0]
 			
 		
@@ -280,7 +333,7 @@ class MentalMap(object):
 				except:
 					pass
 				
-				return best[0]
+			return best[0]
 		
 		else:
 			try:
@@ -306,10 +359,15 @@ class MentalMap(object):
 					else:
 						if dist<best[1]:
 							best=(spot.pos, dist)
+					
 				except:
 					pass
-					
+
+			try:
 				return best[0]
+			except:
+				pass
+
 
 		else:	
 			try:

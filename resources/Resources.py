@@ -9,7 +9,7 @@ import Needs
 
 class Pillow(Resource.Resource):
 
-	Resource.register(0, Needs.recreate, 0)
+	Resource.register(0, Needs.recreate, .5)
 
 	def __init__(self, mapnode):
 	

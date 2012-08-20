@@ -63,7 +63,6 @@ class Jaja(pygame.sprite.Sprite):
 	def update(self):
 		
 		self.cnt+=1
-
 		self.needs.update()
 
 		# sleep		
@@ -80,9 +79,13 @@ class Jaja(pygame.sprite.Sprite):
 
 			
 		# stand
-		elif self.action is ACT_STAND:
-			
+		if self.action is ACT_STAND:
+						
+						
 			if not self.pathfinder.searching:
+			
+				if rnd(0,100)<2:
+					self.needs.reflect()
 			
 				if not len(self.path)>0:
 				
@@ -94,12 +97,20 @@ class Jaja(pygame.sprite.Sprite):
 						
 						self.action = ACT_WALK
 			
-					elif self.needs.destination:
+					elif self.cnt > 50:
 					
-						dest=self.needs.getDestination()
-
-						print "suche pfad von ", self.currentmapnode.location, " nach ", dest
-						self.pathfinder.find(self.currentmapnode.location, dest)
+						if self.needs.tryToConsume():
+						
+							print "happen to be on a node with a resource I need"
+			
+						elif not self.needs.waiting():
+					
+							dest = self.needs.getDestination()
+					
+							if dest:
+						
+								print "suche pfad von ", self.currentmapnode.location, " nach ", dest
+								self.pathfinder.find(self.currentmapnode.location, dest)
 						
 						
 
@@ -107,6 +118,7 @@ class Jaja(pygame.sprite.Sprite):
 				self.pathfinder.search()
 				if not self.pathfinder.searching:
 					print "pfadroutine abgeschlossen"
+					self.cnt = 0
 
 					
 				
@@ -222,7 +234,7 @@ class Jaja(pygame.sprite.Sprite):
 			
 			if rad>.1:
 				cost=self.currentmapnode.cost()
-				speed=.3/cost * (1.1-self.needs.tired/3)
+				speed=min(.3/cost * (1.1-self.needs.tired/3), .2)
 				mx/=rad
 				my/=rad
 				x+=mx*speed

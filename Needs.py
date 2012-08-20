@@ -8,8 +8,9 @@ import MentalMap
 
 
 
+class Needs():
 
-class Needs:
+
 
 	def __init__(self, j):
 	
@@ -17,16 +18,17 @@ class Needs:
 		self.needs=[]
 	
 	
-		self.hungry=.2
-		self.thirsty=.2
-		self.tired=.2
+		self.hungry=.4
+		self.thirsty=.4
+		self.tired=.4
 		
 		self.jaja=j
 		self.map=self.jaja.map
 
 		self.memory=MentalMap.MentalMap(self.map)
-		self.waiting=False
-		self.destination=None
+		
+
+
 		
 	
 	def update(self):
@@ -40,79 +42,164 @@ class Needs:
 				dry(self, .002)
 				exhaust(self, .002)
 			elif self.jaja.action is Jaja.ACT_WALK:
-				starve(self, .003)
+				starve(self, .004)
 				dry(self, .003)
 				exhaust(self, .003)
-			
-			
-		if self.jaja.cnt > 60:			
-			mapnode=self.jaja.currentmapnode				
-			if mapnode.resource:
-				if mapnode.resource.amount>0:
-					restype=mapnode.resource.type
-					if restype in self.needs:
-						mapnode.resource.consume(self)
-					
-			
-			
-		if rnd.randint(0,100)<2:
-			self.reflect()
-			if len(self.needs)>0:
-				self.startsearch()
 				
-			
-		self.waiting = self.memory.update() or self.jaja.pathfinder.searching
-		
-		
-		if not self.waiting and self.destination is None:
-			places = self.memory.whereToGo(self.needs)
-			
-			if type(places)==list:
-			
-				self.destination=rnd.choice(places).location
-			
-			else:
-				self.destination=places
-			
-			
-			
-		
-	# give destination suggestion to other classes
-	def getDestination(self):
-		
-		answer = self.destination
-		self.destination=None
-		return answer
 				
+		if self.memory.waiting():
+			self.memory.update()
 			
-	
+		
+
 	# check what I need and if I can do sth about it
 	def reflect(self):
 	
+		# spachteln
+		if self.jaja.cnt > 60:			
+			self.tryToConsume()
+					
 
 		self.needs=[]
 		
-		for f in [eat, drink, recreate]:
+		# for all basic body functions
+		for f in functions:
+			# check if critical:
+			if sorrow[f](self) > .25:
+				# look what resources are helping
+				for res in remedies[f]:
+					# check how strong their effect would be
+					eff = rsc.effectivities[(res, f)]
+					# check if its not too less and not too much
+					if sorrow[f](self)*1.2 > eff > sorrow[f](self)/4:
+						# check if other effects of the resource allow using it
+						if rsc.isAppropriate(self, res):
+							# add resource to list of wanted resources
+							if not res in self.needs:
+								self.needs.append(res)
 
-			for res in remedies[f]:
+		print "need resources ", self.needs						
+					
+
+
+	# if there is something where we stand, try to eat/drink/snort it
+	# return true if successful
+	def tryToConsume(self):
+		mapnode=self.jaja.currentmapnode				
+		if mapnode.resource:
+			if mapnode.resource.amount>0:
+				restype=mapnode.resource.type
+				if restype in self.needs:
+					if restype==0:
+						self.sleep()
+						return
+					mapnode.resource.consume(self)
+					return True
+		return False
+
+
+
+		
+	# indicator for sublevel processing we will have to wait for
+	def waiting(self):
+		return self.memory.waiting()
+
+				
+	
+	
+	# method by which Jaja calls for directions
+	def getDestination(self):
+	
+		# if there are resources we need to have
+		if len(self.needs) > 0:
+			# unless the mental map is currently making us wait...
+			if not self.memory.waiting():
+				# ... ask her for resources around
+				print "attempt to get result list of resources around ", self.needs
+				findings = self.memory.getResources(self.needs, self.jaja.currentmapnode.location)
+				# if there are any:
+				if findings:
+					# if there are even any that can actually be used
+					appropriates = filter(lambda n:rsc.isAppropriate(self, n.resource.type), findings)
+					if len(appropriates)>0:
+						# take the closest one of those
+						node = sorted(appropriates, key=lambda n: self.jaja.currentmapnode.distanceTo(n))[0]
+						# pass that one's position to Jaja
+						print "passing dest node at ",node.location
+						return node.location
+						
+				# if there are no known resources around, maybe we havent looked yet:
+				else:
+					# and should start a search at this point
+					if self.memory.bff.startsearch(self.jaja.currentmapnode, self.needs):
+						# if the search starts successfully, we will leave this method in order to await the search results
+						return None
+
+
+			# do we know a place where we can probably find those resources?
+			print "attempt to retrieve known hot spot for res", self.needs
+			spot = self.memory.closestspot(self.needs, self.jaja.currentmapnode.location)
+			# is there such a place?
+			if spot:
+				# pass it to Jaja
+				print "passing search spot at ",spot
+				return spot
+						
+
+
+			# if there is no place known to be surrounded by those resources
+		
+			# ask the mental map for a nearby point where we will most likely be more lucky
+			print "attempt to get a suggestion for where to go now"
+			dest = self.memory.nextpos(self.needs, self.jaja.currentmapnode.location)
+			# if available
+			if dest:
+				# pass it over to Jaja
+				print "pass over new position ",dest
+				return dest
+				
+
+
+		# if we dont need anything in particular
+		# we will just stroll around and look for places where we can find useful resources
+		else:
+		
+			# unless the mental map is busy
+			if not self.memory.waiting():
+				# ask for any useful resources around
+				print "attempt to get any of all useful resources: ", rsc.usefulresources
+				findings = self.memory.getResources(rsc.usefulresources, self.jaja.currentmapnode.location)
+				# if there is a respond (only means that search has been performed without problems) 
+				if findings:
+					# ask the mental map for a nearby point where we can continue our search for whatever
+					# there is always sth that isnt around, so like this, we can just go where the chance
+					# is the best that we will find sth new
+					print "attempt to get a suggestion for where to go next"
+					dest = self.memory.nextpos(rsc.usefulresources, self.jaja.currentmapnode.location)
+					# if available
+					if dest:
+						# pass it over to Jaja
+						print "pass over new position ",dest
+						return dest				
+					
+				else:
+					# ok we should search 
+					if self.memory.bff.startsearch(self.jaja.currentmapnode, rsc.usefulresources):
+						return None
+					# get place to go next without conducting a search before. why does this case happen even?
+					else:
+						print "attempt to get a suggestion for where to go next"
+						dest = self.memory.nextpos(rsc.usefulresources, self.jaja.currentmapnode.location)
+						# if available
+						if dest:
+							# pass it over to Jaja
+							print "pass over new position ",dest
+							return dest				
+						
+		
 			
-				eff = rsc.effectivities[(res, f)]
-				
-				if sorrow[f](self) > eff > sorrow[f](self)/5:
-				
-					if not res in self.needs:
-						self.needs.append(res)
-						print "need resource ",res
-		
+		return None	
 
-
-	# try to start search
-	# depends on the classes MentalMap und BFF
-	def startsearch(self):
-		
-		if not self.waiting:
-			self.memory.startsearch(
-				self.jaja.currentmapnode, self.needs)
 
 			
 			
@@ -126,59 +213,8 @@ class Needs:
 		self.jaja.action = Jaja.ACT_CONSUME
 		self.jaja.cnt=0
 
-	# returns the set of resources which are needed most urgently (highest priority value)
-	# and removes it from the list
-	def urgent(self):
-		if len(self.needs)>0:
-			first = sorted(self.needs, key=lambda r: self.needs[r])[len(self.needs)-1]
-			del self.needs[first]
-			print "most urgent set of res:", first
-			return first
-		else:
-			return None
-			
-	
-	
-	# increases the prioroty for a certain set (tuple) of resources by n
-	def urge(self, rem, n=1):
-		try:
-			self.needs[tuple(rem)]+=n
-		except:
-			self.needs[tuple(rem)]=n
-			
 
-	# saves map node where to find resource			
-	def memorizeSource(self, node):
-		if node.resource:
-			self.knownresources[node]=node.resource.amount
-		else:
-			print "can't memorize source: no resource"
 			
-			
-	# saves a list of sources (tuple)
-	def memorizeSources(self, sources):
-		for i in sources:
-			self.knownresources[i[0]]=i[1]
-			
-	
-	# returns the closest known resource for a certain purpose (eg eat...)
-	# TODO: nur die quellen zurueckgeben, die auch ausreichend effekt auf die jeweilige funktion haben
-	def closestSource(self, purp):
-		if len(self.knownresources)>0:
-			mapnode=self.jaja.currentmapnode
-			
-			if type(purp) is types.FunctionType:
-				func = lambda n: remedies[purp][n[0].resource.type]==True and n[1]>0
-			elif  type(purp) is types.TupleType:
-				func = lambda n: n[0].resource.type in purp and n[1]>0
-				
-			usefulsources = filter(func, self.knownresources.items())
-			if len(usefulsources) > 0:
-				return sorted(usefulsources, key=lambda n:n[0].distanceTo(mapnode))[0][0]
-			else:
-				return None
-		else:
-			return None
 			
 			
 		
@@ -231,6 +267,7 @@ def tiredness(need):
 	return need.tired
 	
 sorrow = {eat:hunger, drink:thirst, recreate:tiredness}
+functions=[eat, drink, recreate]
 			
 
 

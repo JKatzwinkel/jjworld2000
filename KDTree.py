@@ -119,11 +119,9 @@ class Node(object):
 			for x in 
 			filter(lambda i:i.pos, self.inorder()) 
 			]
-		
 			
-		
 			
-	# returns the content of the node @ pos
+	# returns the node @ pos
 	def lookup(self, pos):
 	
 		if self.pos is None:
@@ -277,6 +275,22 @@ class Node(object):
 			else:
 				return right
 			
+			
+	# gibt das größte gespeicherte element zurück
+	def max(self):
+		if self.left:
+			left = self.left.max()
+		else:
+			left = None
+		if self.right:
+			right= self.right.max()
+		else:
+			right=None
+	
+		return max(self.data, max(left, right))
+		
+		
+	
 # tree factory	
 def tree():
 
