@@ -1,5 +1,6 @@
 import types
 import random as rnd
+import operator
 
 import Jaja
 import resources.Resource as rsc
@@ -35,14 +36,17 @@ class Needs():
 		
 		if rnd.randint(0,20)<1:
 			if self.jaja.action is Jaja.ACT_SLEEP:
-				starve(self, .001)
+				recreate(self, .01)
+				starve(self, .005)
 				dry(self, .001)
+				if self.tired < .2:
+					self.jaja.action = Jaja.ACT_CONSUME
 			elif self.jaja.action is Jaja.ACT_STAND:
 				starve(self, .002)
-				dry(self, .002)
+				dry(self, .004)
 				exhaust(self, .002)
 			elif self.jaja.action is Jaja.ACT_WALK:
-				starve(self, .004)
+				starve(self, .005)
 				dry(self, .003)
 				exhaust(self, .003)
 				
@@ -125,26 +129,37 @@ class Needs():
 						# take the closest one of those
 						node = sorted(appropriates, key=lambda n: self.jaja.currentmapnode.distanceTo(n))[0]
 						# pass that one's position to Jaja
-						print "passing dest node at ",node.location
-						return node.location
+						# if jaja is not already standing on this node
+						if not node is self.jaja.currentmapnode:
+							print "passing dest node at ",node.location
+							return node.location
+						else:
+							print "result node cant be true"
 						
 				# if there are no known resources around, maybe we havent looked yet:
 				else:
 					# and should start a search at this point
 					if self.memory.bff.startsearch(self.jaja.currentmapnode, self.needs):
 						# if the search starts successfully, we will leave this method in order to await the search results
+						print "start bff search"
 						return None
-
+						
 
 			# do we know a place where we can probably find those resources?
 			print "attempt to retrieve known hot spot for res", self.needs
 			spot = self.memory.closestspot(self.needs, self.jaja.currentmapnode.location)
 			# is there such a place?
 			if spot:
-				# pass it to Jaja
-				print "passing search spot at ",spot
-				return spot
-						
+				# since we apparently have already searched around here, so if the spot is suspicially close, it must be false information
+				# so check if this alleged closest hotspot is not actually to close to be true
+				if sum(map(abs, map(operator.sub, spot, self.jaja.currentmapnode.location)))>1:
+					# pass it to Jaja
+					print "passing search spot at ",spot
+					return spot
+				# if its so close that it cant be true anymore, try to update the mental maps spot registry
+				else:
+					print "CLOSEST HOT SPOT TOO CLOSE TO BE TRUE"
+					self.memory.markspots()
 
 
 			# if there is no place known to be surrounded by those resources

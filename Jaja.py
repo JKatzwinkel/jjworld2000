@@ -65,13 +65,13 @@ class Jaja(pygame.sprite.Sprite):
 		self.cnt+=1
 		self.needs.update()
 
-		# sleep		
+
 		if self.action is ACT_SLEEP:
-			Needs.recreate(self.needs, .001+self.currentmapnode.vegetation*.001)
-			# TODO: auslagern?
-			if self.needs.tired<.1:
-				self.action=ACT_STAND
-			
+			if self.currentmapnode.resource:
+				if self.currentmapnode.resource.type in [0]:
+					Needs.recreate(self.needs, self.currentmapnode.resource.effects[Needs.recreate]/10)
+				
+		
 			
 		elif self.action is ACT_CONSUME:
 			if self.cnt>50:
@@ -79,7 +79,7 @@ class Jaja(pygame.sprite.Sprite):
 
 			
 		# stand
-		if self.action is ACT_STAND:
+		elif self.action is ACT_STAND:
 						
 						
 			if not self.pathfinder.searching:

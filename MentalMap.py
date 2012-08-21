@@ -64,11 +64,6 @@ class BFF():
 #			print "  bff search terminated"
 			return
 						
-		if depth>6:
-			self.togo=[]
-#			print "  bff search terminated due to range restr"
-			return
-
 		# something there?
 		if node.resource and node.resource.amount>0:
 			try:
@@ -76,16 +71,20 @@ class BFF():
 			except:
 				self.found[node.resource.type]=[node]
 
-		
-		for nn in node.neighbours:
-			try:
-				self.known[nn.lid]
-			except: # node nn is not known
-				if nn.cost()<self.start.cost()*3:
+
+		if not depth > 7:		
+			for nn in node.neighbours:
+				try:
+					self.known[nn.lid]
+				except: # node nn is not known
 					self.togo.append(nn)
-				self.known[nn.lid]=depth+1
+					self.known[nn.lid]=depth+1+nn.cost()/10
 						
 
+
+	# still searching?
+	def searching(self):
+		return len(self.togo)>0
 
 	
 	# returns resources that have been found around position pos and fitting to resource set res
@@ -136,6 +135,10 @@ class MentalMap():
 		
 
 
+	# totally forces reset of bff search handler
+	def resetSearch(self):
+		self.bff=BFF()
+		
 
 	# indicator for BFF activities going on
 	def waiting(self):
@@ -237,10 +240,11 @@ class MentalMap():
 				
 		# res type nicht aufzufinden		
 		else:
-			# if location has been remembered as a spot for this resource, remove if
+			# if location has been remembered as a spot for this resource, remove it
 			try:
 				invalid = self.spots[res].lookup(pos)
 				invalid.remove()
+				print " remove empty hot spot at", pos
 			except:
 				pass
 			# memorize this location as not suitable for searching this resource

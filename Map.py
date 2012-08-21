@@ -12,6 +12,8 @@ import GfxHandler as gfx
 import Jajaworld
 
 
+#TODO: welt rund machen
+
 class Node:
 
 	def __init__(self, location, lid, mp):

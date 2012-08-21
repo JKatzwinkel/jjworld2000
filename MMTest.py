@@ -55,9 +55,12 @@ def show(pos):
 def search(res):
 
 	global pos, screen
+	
+	if type(res)==int:
+		res=[res]
 
 	print pos
-	mm.bff.search(m.getNode(pos), res)
+	mm.bff.startsearch(m.getNode(pos), res)
 	
 	while mm.bff.searching():
 		mm.bff.update()
@@ -83,7 +86,7 @@ def area():
 	for vst in mm.bff.known.items():
 		x,y = m.getNodeByID(vst[0]).location
 		dpt = vst[1]
-		pygame.draw.circle(screen, (150+dpt*10,150,240-dpt*20), (x*20+10, y*20+10), 2)
+		pygame.draw.circle(screen, (min(255,150+int(dpt*10)),150,max(0,240-int(dpt*20))), (x*20+10, y*20+10), 2)
 	
 	m.gfx.update((0,0))
 	pygame.display.flip()

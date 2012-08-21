@@ -26,7 +26,7 @@ def isAppropriate(needs, res):
 	
 		try:
 			if effectivities[(res,f)] > Needs.sorrow[f](needs)*1.2:
-				print " too much effect of ", res, " on ", f
+#				print " too much effect of ", res, " on ", f
 				return False
 		except:
 			pass
@@ -46,6 +46,9 @@ class Resource:
 		self.mapnode=mapnode
 		self.images=[]
 		self.effects={}
+		#TODO: allow resources to be carried around by jajas and put somewhere when tired of it.
+		#TODO: single resource pieces are gonna be displayed as alternative sprites (one single sterni etc)
+		self.asItem=False
 		
 		# load effects from registry
 		for item in effectivities.items():
@@ -92,7 +95,7 @@ class Resource:
 			amount=item[1]
 			# wenns nicht mehr reinpasst, lassen wirs
 			if Needs.sorrow[func](needs)*1.2 < amount:
-				print "uff, schon voll ", func, Needs.sorrow[func](needs), " zu wenig fuer  ", amount
+#				print "uff, schon voll ", func, Needs.sorrow[func](needs), " zu wenig fuer  ", amount
 				needs.jaja.cnt=0
 				return
 		
@@ -105,7 +108,7 @@ class Resource:
 				effect[0](needs, effect[1])
 			
 			needs.consume()
-			print "  consuming :", self.type, self.amount
+#			print "  consuming :", self.type, self.amount
 			return True
 		else:
 			return False
