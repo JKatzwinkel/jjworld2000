@@ -72,7 +72,7 @@ class BFF():
 				self.found[node.resource.type]=[node]
 
 
-		if not depth > 7:		
+		if not depth > 8:		
 			for nn in node.neighbours:
 				try:
 					self.known[nn.lid]
@@ -255,7 +255,14 @@ class MentalMap():
 			except:
 				blanks=kd.tree()
 				blanks.add(pos, nr)
-				self.blanks[res]=blanks
+			# sehr naheliegende punkte loeschen
+			try:
+				nearestblank = self.blanks[res].nearest(pos)
+				if nearestblank.dist(pos) < 4:
+					nearestblank.remove()
+			except:
+				pass
+			self.blanks[res]=blanks
 				# TODO: statt nr=0 vielleicht nen zeitstempel um das updaten zu koennen?
 				
 			

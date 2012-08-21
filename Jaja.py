@@ -69,7 +69,7 @@ class Jaja(pygame.sprite.Sprite):
 		if self.action is ACT_SLEEP:
 			if self.currentmapnode.resource:
 				if self.currentmapnode.resource.type in [0]:
-					Needs.recreate(self.needs, self.currentmapnode.resource.effects[Needs.recreate]/10)
+					Needs.recreate(self.needs, self.currentmapnode.resource.effects[Needs.recreate]/20)
 				
 		
 			
