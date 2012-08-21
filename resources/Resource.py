@@ -38,7 +38,7 @@ def isAppropriate(needs, res):
 
 class Resource:
 
-	def __init__(self, restype, amount, mapnode):
+	def __init__(self, restype, mapnode, amount):
 		
 		self.type=restype
 		self.amount=amount

@@ -69,7 +69,7 @@ class Node:
 	# spawns a certain resource on this very map node
 	def spawnResource(self, restype, amount):
 		if self.resource is None:
-			self.resource = Rsc.createResource(restype, amount, self)
+			self.resource = Rsc.createResource(restype, self, amount)
 			self.resource.draw(self.map.gfx.layer)
 #			self.map.gfx.setDirty(self)
 			
@@ -319,6 +319,12 @@ class Map:
 			if not( n is None or n.resource or n.water>0 or n.vegetation<0 ):
 				n.spawnResource(4,1)
 				
+		# kuerbisse
+		for i in range(0, max(1, mapsize/800)):
+			n = self.nodes[random.randrange(0,len(self.nodes))]
+			if not( n is None or n.resource or n.water>0 or n.vegetation<0 ):
+				n.spawnResource(7,random.randint(0,1))
+				
 		#pizza
 		print " placing pizza"
 		for i in range(0,max(1,mapsize/500)):
@@ -388,6 +394,7 @@ class Map:
 					n.resource.draw(self.gfx.layer)
 		
 				elif n.vegetation>1.4:
+					#TODO
 					# hier muss was passieren, also das muss eigentlich in die ressourcen-module selbst damit das hier nicht
 					# total unuebersichtlich wird
 					fertility=n.fertility()
@@ -395,6 +402,8 @@ class Map:
 						n.spawnResource(2,0)
 					elif fertility in xrange(4,10) and random.random()<.2 or random.randint(0,20) < len(filter(lambda nn: nn.containsResources((2,4)), n.neighbours)):
 						n.spawnResource(4,1)
+					elif fertility in xrange(3,11) and random.random()<.5 or random.randint(0,12) < len(filter(lambda nn: nn.containsResources((7)), n.neighbours)):
+						n.spawnResource(7,0)
 					
 			else:
 				n.vegetation+=.2

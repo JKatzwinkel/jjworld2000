@@ -13,7 +13,7 @@ class Pillow(Resource.Resource):
 
 	def __init__(self, mapnode):
 	
-		Resource.Resource.__init__(self, 0, 1, mapnode)
+		Resource.Resource.__init__(self, 0, mapnode, 1)
 		self.maxAmount=1
 		self.initImages()
 		
@@ -31,9 +31,9 @@ class Sterni(Resource.Resource):
 	Resource.register(1, Needs.eat, .1)
 	Resource.register(1, Needs.recreate, .1)
 
-	def __init__(self, amount, mapnode):
+	def __init__(self, mapnode, amount):
 		
-		Resource.Resource.__init__(self, 1, amount, mapnode)
+		Resource.Resource.__init__(self, 1, mapnode, amount)
 		
 		image=Images.getResourceBaseImageCopy(1)
 		
@@ -58,9 +58,9 @@ class Busch(Resource.Resource):
 
 	Resource.register(2, Needs.eat, .2)
 		
-	def __init__(self, amount, mapnode):
+	def __init__(self, mapnode, amount):
 	
-		Resource.Resource.__init__(self, 2, amount, mapnode)
+		Resource.Resource.__init__(self, 2, mapnode, amount)
 		
 		image=Images.getResourceBaseImageCopy(2)
 		
@@ -95,7 +95,7 @@ class Hahn(Resource.Resource):
 
 	def __init__(self, mapnode):
 	
-		Resource.Resource.__init__(self, 3, 1, mapnode)
+		Resource.Resource.__init__(self, 3, mapnode, 1)
 		self.maxAmount=1		
 		self.initImages()
 	
@@ -108,11 +108,11 @@ class Hahn(Resource.Resource):
 		
 class Blumenkohl(Resource.Resource):
 
-	Resource.register(4, Needs.eat, .5)
+	Resource.register(4, Needs.eat, .4)
 	
-	def __init__(self, amount, mapnode):
+	def __init__(self, mapnode, amount):
 	
-		Resource.Resource.__init__(self, 4, 1, mapnode)
+		Resource.Resource.__init__(self, 4, mapnode, 1)
 		self.maxAmount=1
 		self.initImages()
 
@@ -126,9 +126,9 @@ class Pizza(Resource.Resource):
 	
 	Resource.register(5, Needs.eat, .7)
 	
-	def __init__(self, amount, mapnode):
+	def __init__(self, mapnode, amount):
 	
-		Resource.Resource.__init__(self, 5, amount, mapnode)
+		Resource.Resource.__init__(self, 5, mapnode, amount)
 		self.maxAmount=8
 		
 		# get fresh round pizza
@@ -174,8 +174,26 @@ class Rock(Resource.Resource):
 
 	def __init__(self, mapnode):
 		
-		Resource.Resource.__init__(self, 6, 1, mapnode)
+		Resource.Resource.__init__(self, 6, mapnode, 1)
 		self.maxAmount=1
 		self.initImages()
 		
-	
+
+
+class Pumpkin(Resource.Resource):
+
+	Resource.register(7, Needs.eat, .5)
+
+	def __init__(self, mapnode, amount):
+			
+		Resource.Resource.__init__(self, 7, mapnode, amount)
+		self.maxAmount=2
+		self.initImages()
+		
+	def grow(self):
+		if self.amount < self.maxAmount:
+			if random.random()*self.mapnode.fertility() > 1:
+				self.amount+=1
+			if random.random()>.95:
+				self.mapnode.resource=None
+

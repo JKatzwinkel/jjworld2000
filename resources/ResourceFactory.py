@@ -1,6 +1,6 @@
 import Resources
 
-def createResource(restype, amount, mapnode):
+def createResource(restype, mapnode, amount):
 
 	if restype==0:
 	
@@ -8,11 +8,11 @@ def createResource(restype, amount, mapnode):
 	
 	elif restype==1:
 		
-		return Resources.Sterni(amount, mapnode)
+		return Resources.Sterni(mapnode, amount)
 		
 	elif restype==2:
 	
-		return Resources.Busch(amount, mapnode)
+		return Resources.Busch(mapnode, amount)
 		
 	elif restype==3:
 		
@@ -20,12 +20,16 @@ def createResource(restype, amount, mapnode):
 		
 	elif restype==4:
 		
-		return Resources.Blumenkohl(amount, mapnode)
+		return Resources.Blumenkohl(mapnode, amount)
 		
 	elif restype==5:
 	
-		return Resources.Pizza(amount, mapnode)
+		return Resources.Pizza(mapnode, amount)
 		
 	elif restype==6:
 	
 		return Resources.Rock(mapnode)
+		
+	elif restype==7:
+	
+		return Resources.Pumpkin(mapnode, amount)
