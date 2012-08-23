@@ -48,9 +48,26 @@ class Node(object):
 					self.right.add(pos, data)
 		
 					
-	# add list of nodes
+	# add list of tuples ((x,y),data)
 	# TODO: in ner rekursion liste übergeben? ist das schlau???
-	def addlist(self, nodes, axis=0):
+	def addList(self, nodes, axis=0):
+		
+		if len(nodes)<1: return
+		
+		nodes.sort(key = lambda node : node[0][axis])
+		
+		median=len(nodes) // 2
+		
+		piv = nodes[median]
+		self.add(piv[0],piv[1])
+		
+		self.left.addList(nodes[:median], axis=(axis+1)%2)
+		self.right.addList(nodes[median+1:], axis=(axis+1)%2)
+
+
+	# add list of tuples ((x,y),data)
+	# TODO: in ner rekursion liste übergeben? ist das schlau???
+	def addNodes(self, nodes, axis=0):
 		
 		if len(nodes)<1: return
 		
@@ -61,8 +78,8 @@ class Node(object):
 		piv = nodes[median]
 		self.add(piv.pos,piv.data)
 		
-		self.left.addlist(nodes[:median], axis=(axis+1)%2)
-		self.right.addlist(nodes[median+1:], axis=(axis+1)%2)
+		self.left.addNodes(nodes[:median], axis=(axis+1)%2)
+		self.right.addNodes(nodes[median+1:], axis=(axis+1)%2)
 		
 								
 	# returns generator for a list of sorted nodes
@@ -168,6 +185,37 @@ class Node(object):
 				best = self.left.nearest(pos, best)
 			
 		return best
+		
+		
+		
+	# returns list of nodes within or on radius around given point
+	def within_radius(self, pos, radius, nodes=None):
+	
+		if self.pos is None:
+			return
+			
+		if nodes is None:
+			nodes=[]
+	
+		if self.dist(pos) <= radius:
+			nodes.append(self)
+			
+		if pos[self.axis] < self.pos[self.axis]:
+		
+			self.left.within_radius(pos, radius, nodes)
+			
+			if self.dist_from_axis(pos) <= radius:
+				self.right.within_radius(pos, radius, nodes)
+			
+		else:
+		
+			self.right.within_radius(pos, radius, nodes)
+			
+			if self.dist_from_axis(pos) <= radius:
+				self.left.within_radius(pos, radius, nodes)
+	
+		return nodes
+		
 			
 		
 	# returns how far this point is away from the axis this node is splitting
@@ -300,12 +348,7 @@ def tree():
 # returns a balanced version of that tree
 def balanced(tree):
 
-	nodes=[]
-	for x in tree.inorder():
-		nodes.append(x)
-		
-	tree=Node()
-	tree.addlist(nodes)
+	tree = Node().addNodes([n for n in tree.inorder()])
 	return tree
 
 	
