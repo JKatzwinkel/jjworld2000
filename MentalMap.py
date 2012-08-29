@@ -195,6 +195,11 @@ class MentalMap():
 	def markspotOnScreen(self, res, pos, avl):
 		pygame.draw.circle(self.world.gfx.layer, (100-100*avl,avl*100,0), (pos[0]*20+(res % 5)*4, pos[1]*20+(res/5)*4), 2)
 		self.world.gfx.setDirty(self.world.getNode(pos))
+		
+	def unmarkspotOnScreen(self, res, pos):
+		self.world.gfx.layer.blit(self.world.gfx.background, (pos[0]*20+(res%5)*4-2, pos[1]*20+(res/5)*4-2), (pos[0]*20+(res%5)*4-2, pos[1]*20+(res/5)*4-2, 4, 4))
+		self.world.gfx.setDirty(self.world.getNode(pos))
+		print "  remove note for res ",res, " at ", pos
 	
 	
 	
@@ -204,35 +209,34 @@ class MentalMap():
 	
 		pos=node.location
 	
+		try:
+			blanks=self.blanks[res]
+		except:
+			blanks=None
+		try:
+			spots=self.spots[res]
+		except:
+			spots=None
+	
 		if nr>0:
 			if not node.water>0:
-				# if there is a spot nearby which says that this resource isnt aroung, remove that
-				try:
-					nearestblank = self.blanks[res].nearest(pos)
-					if nearestblank.dist(pos) < 4:
-						nearestblank.remove()
-				except:
-					pass
+				# if there is are marks nearby (radius <= 3) that say this resource isnt really around, remove those
+				if blanks:
+					for n in blanks.within_radius(pos,3):
+						self.unmarkspotOnScreen(res, pos)
+						n.remove()
 				
-			
-				try:
-					spots=self.spots[res]
-					nearest = spots.nearest(pos)
-					# knotenkonkurrenz
-					if nearest.dist(pos) < 4:
-						if nearest.data <= nr:
-							spots.add(pos, nr)
-							self.markspotOnScreen(res, pos, True)
-							# wenn neuer spot besser ist, alten loeschen
-							if nearest.data < nr:
-								nearest.remove()
-					# naehster spot weit genug weg
-					else:
-						spots.add(pos,nr)
-						self.markspotOnScreen(res, pos, True)
+				if spots:
+					# remove all spots concerning this resource within a near radius
+					for n in spots.within_radius(pos, 3):
+						self.unmarkspotOnScreen(res, pos)
+						n.remove()
+					self.markspotOnScreen(res, pos, True)
+					spots.add(pos, nr)
+											
 
 				# kein kd-baum fuer res type
-				except:
+				else:
 					spots=kd.tree()
 					spots.add(pos, nr)
 					self.spots[res]=spots
@@ -240,29 +244,25 @@ class MentalMap():
 				
 		# res type nicht aufzufinden		
 		else:
-			# if location has been remembered as a spot for this resource, remove it
-			try:
-				invalid = self.spots[res].lookup(pos)
-				invalid.remove()
-				print " remove empty hot spot at", pos
-			except:
-				pass
+			# if there are marks within a certain radius, implying that this resource was available, remove those
+			if spots:
+				for n in spots.within_radius(pos, 3):
+					self.unmarkspotOnScreen(res, pos)
+					n.remove()
+
 			# memorize this location as not suitable for searching this resource
 #			print " mark pos", pos, " as dead spot for res ", res
-			self.markspotOnScreen(res, pos, False)
-			try:
-				self.blanks[res].add(pos, nr)
-			except:
+			if blanks:
+					for n in blanks.within_radius(pos, 3):
+						self.unmarkspotOnScreen(res, pos)
+						n.remove()
+					self.markspotOnScreen(res, pos, False)
+					blanks.add(pos, nr)
+			else:
 				blanks=kd.tree()
-				blanks.add(pos, nr)
-			# sehr naheliegende punkte loeschen
-			try:
-				nearestblank = self.blanks[res].nearest(pos)
-				if nearestblank.dist(pos) < 4:
-					nearestblank.remove()
-			except:
-				pass
-			self.blanks[res]=blanks
+				blanks.add(pos, 0)
+				self.blanks[res]=blanks
+				self.markspotOnScreen(res, pos, False)
 				# TODO: statt nr=0 vielleicht nen zeitstempel um das updaten zu koennen?
 				
 			

@@ -192,7 +192,7 @@ class Node(object):
 	def within_radius(self, pos, radius, nodes=None):
 	
 		if self.pos is None:
-			return
+			return []
 			
 		if nodes is None:
 			nodes=[]
@@ -263,7 +263,10 @@ class Node(object):
 		
 	@property
 	def isleaf(self):
-	
+		if self.left is None:
+			if self.right is  None:
+				return True
+				
 		if self.left.pos is None:
 			if self.right.pos is None:
 #				print self.pos, " is leaf"

@@ -21,7 +21,7 @@ class Node:
 		self.map=mp
 		self.neighbours=[]
 		#TODO: integerwerte!
-		self.vegetation=random.random()*random.random()*random.random()*random.random()*12
+		self.vegetation=random.random()*random.random()*random.random()*random.random()*random.random()*36
 		self.water=0
 		self.lid=lid
 		self.location=location
@@ -391,18 +391,22 @@ class Map:
 			
 				if n.resource:
 					n.resource.grow()
-					n.resource.draw(self.gfx.layer)
+					if n.resource:
+						n.resource.draw(self.gfx.layer)
+					else:
+						return 
 		
 				elif n.vegetation>1.4:
 					#TODO
 					# hier muss was passieren, also das muss eigentlich in die ressourcen-module selbst damit das hier nicht
 					# total unuebersichtlich wird
+					#TODO
 					fertility=n.fertility()
 					if fertility in xrange(7,9) and (random.random()<.01 or any(map(lambda nn: nn.containsResources(2), n.neighbours))):
 						n.spawnResource(2,0)
 					elif fertility in xrange(4,10) and random.random()<.2 or random.randint(0,20) < len(filter(lambda nn: nn.containsResources((2,4)), n.neighbours)):
 						n.spawnResource(4,1)
-					elif fertility in xrange(3,11) and random.random()<.5 or random.randint(0,12) < len(filter(lambda nn: nn.containsResources((7)), n.neighbours)):
+					elif fertility in xrange(3,11) and 0 < len(filter(lambda nn: nn.containsResources((7)), n.neighbours)):
 						n.spawnResource(7,0)
 					
 			else:
